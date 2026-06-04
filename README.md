@@ -28,7 +28,7 @@ Ela reúne as doses mais atualizadas (diretrizes 2025/2026) de fármacos como fe
 
 ## Sobre o projeto
 
-Feito com ❤️ para tornar os plantões noturnos um pouco mais leves, ainda mais quando está muito tempo sem dormir – e os cálculos, muito mais rápidos.
+Feito com 🫀 para compensar as noites ébrias que passei enquanto tu varavas em planões eternos insone salvando vidas de crianças
 
 ---
 

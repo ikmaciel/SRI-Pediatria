@@ -64,7 +64,6 @@
     .checkbox-row input { width: 24px; height: 24px; margin: 0; flex-shrink: 0; }
     .checkbox-row label { margin-bottom: 0; font-weight: normal; font-size: 0.85rem; }
 
-    /* Menu expansível */
     .collapsible {
       background-color: #1e293b;
       border-radius: 16px;
@@ -217,6 +216,17 @@
           </select>
         </div>
       </div>
+    </div>
+
+    <div class="grid-2" style="margin-top: 12px;">
+      <div>
+        <label for="unidadeFentanil">Exibir Fentanil em</label>
+        <select id="unidadeFentanil">
+          <option value="mcg">mcg</option>
+          <option value="mg">mg</option>
+        </select>
+      </div>
+      <div></div>
     </div>
 
     <div class="checkbox-row">
@@ -583,8 +593,12 @@
   atropinaCheck.addEventListener('change', () => { userToggledAtropina = true; calcular(); });
   document.getElementById('peso').addEventListener('input', calcular);
   document.getElementById('unidadeFentanil').addEventListener('change', calcular);
-  ['choque', 'hic', 'hipercalemia', 'hm', 'sepse', 'asma'].forEach(id => {
-    document.getElementById(id).addEventListener('change', calcular);
+  
+  // Garantir que todos os checkboxes de condições clínicas chamem calcular
+  const condCheckboxes = ['choque', 'hic', 'hipercalemia', 'hm', 'sepse', 'asma'];
+  condCheckboxes.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', calcular);
   });
 
   atualizarAtropinaAuto();

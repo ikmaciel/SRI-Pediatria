@@ -323,7 +323,7 @@
 <div class="wrap">
   <h1>Calculadora de SRI Pediátrica</h1>
   <p class="small">
-    <strong>Baseada nas diretrizes atualizadas 2025/2026</strong> – dados da AHA PALS 2020, ESAIC/ESPA 2026, revisões sistemáticas e estudos de coorte.<br>
+    <strong>Baseada nas diretrizes atualizadas 2025/2026</strong> – AHA PALS 2020, ESAIC/ESPA 2026, revisões sistemáticas e estudos de coorte.<br>
     Toque na dose ou no ícone ⓘ para ver o cálculo completo.
   </p>
 
@@ -334,13 +334,14 @@
         <input id="peso" type="number" min="0" step="0.1" placeholder="Ex.: 12.5" autofocus>
       </div>
       <div>
-        <label>Idade (opcional – melhora a precisão)</label>
+        <label>Idade (opcional – dias, meses ou anos)</label>
         <div class="flex-row">
           <div>
-            <input type="number" id="idadeNumero" min="0" step="1" placeholder="Ex.: 18">
+            <input type="number" id="idadeNumero" min="0" step="1" placeholder="Ex.: 28">
           </div>
           <div>
             <select id="idadeUnidade">
+              <option value="dias">Dias</option>
               <option value="meses">Meses</option>
               <option value="anos" selected>Anos</option>
             </select>
@@ -432,33 +433,48 @@
 </div>
 
 <script>
-  // ====================== CÁLCULO DE IDADE EM MESES ======================
-  function getIdadeMeses() {
-    const num = parseInt(document.getElementById('idadeNumero').value);
+  // ====================== CONVERSÃO DE IDADE PARA MESES ======================
+  function getIdadeEmMeses() {
+    const num = parseFloat(document.getElementById('idadeNumero').value);
     if (isNaN(num) || num <= 0) return null;
     const unidade = document.getElementById('idadeUnidade').value;
+    if (unidade === 'dias') return num / 30.4375;   // média de dias por mês
     if (unidade === 'meses') return num;
-    return num * 12;
+    return num * 12; // anos -> meses
+  }
+
+  // Formata idade para exibição amigável
+  function formatarIdade(meses) {
+    if (meses === null) return null;
+    if (meses < 1) {
+      const dias = Math.round(meses * 30.4375);
+      return `${dias} dia(s)`;
+    }
+    if (meses < 12) return `${Math.floor(meses)} mes(es)`;
+    const anos = Math.floor(meses / 12);
+    const mesesRest = Math.round(meses % 12);
+    if (mesesRest === 0) return `${anos} ano(s)`;
+    return `${anos} ano(s) e ${mesesRest} mes(es)`;
   }
 
   // ============ DOSES DE SUCCINILCOLINA BASEADAS NA IDADE (evidências 2025/2026) ============
   // Fonte: Radkowski et al. MSM 2025 e Mendez et al. Pediatr Emerg Care 2026
-  function getSuccinylcholineDosePorKg(meses) {
-    if (meses === null) return 1.5;          // dose empírica para adolescentes se idade não informada
-    if (meses < 1) return 1.8;               // < 1 mês (baseado em revisões)
-    if (meses < 12) return 2.0;              // 1 mês – 1 ano
-    if (meses <= 10*12) return 1.2;          // 1 – 10 anos
-    return 1.0;                              // > 10 anos
+  function getSuccinylcholineDosePorKg(idadeMeses) {
+    if (idadeMeses === null) return 1.5;   // dose empírica se idade não informada
+    if (idadeMeses < 1) return 1.8;        // < 1 mês (neonatos)
+    if (idadeMeses < 12) return 2.0;       // 1 mês – 1 ano
+    if (idadeMeses <= 10*12) return 1.2;   // 1 – 10 anos
+    return 1.0;                            // > 10 anos
   }
 
-  // ============ RECOMENDAÇÃO DE ATROPINA (conforme PALS 2020) ============
-  function recomendarAtropina(meses) {
-    if (meses === null) return true;         // se idade não informada, assume-se recomendação
-    return (meses >= 1 && meses <= 8*12);    // 28 dias a 8 anos
+  // ============ RECOMENDAÇÃO DE ATROPINA (28 dias a 8 anos) ============
+  function recomendarAtropina(idadeMeses) {
+    if (idadeMeses === null) return true;   // se não informada, assume padrão seguro
+    const idadeDias = idadeMeses * 30.4375;
+    return (idadeDias >= 28 && idadeMeses <= 8*12); // 28 dias até 8 anos
   }
 
   // ====================== MEDICAMENTOS ======================
-  // Todas as doses foram revisadas com base nas evidências mais recentes
   const medsBase = [
     { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 2, unidade: "mcg/kg", minMax: "1-3 mcg/kg", doseMaxKg: 3, concentracaoMgMl: 0.05, notas: "Opioide rápido. Infundir lentamente (risco de rigidez torácica). Hipotensão com doses mais altas." },
     { etapa: "Pré‑medicação", nome: "Lidocaína", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 20, notas: "Uso seletivo (neuroproteção suspeita de HIC)." },
@@ -491,7 +507,7 @@
 
   function calcular() {
     const peso = parseFloat(document.getElementById('peso').value.replace(',', '.'));
-    const idadeMeses = getIdadeMeses();
+    const idadeMeses = getIdadeEmMeses();
     const incluirAtropinaCheck = document.getElementById('incluirAtropina').checked;
     const unidadeFenta = document.getElementById('unidadeFentanil').value;
     const tbody = document.querySelector('#tabela tbody');
@@ -501,7 +517,7 @@
     avisosDiv.innerHTML = '';
 
     if (!peso || peso <= 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="small">Informe o peso para calcular.</td></table>';
+      tbody.innerHTML = '<tr><td colspan="6" class="small">Informe o peso para calcular.</td></tr>';
       return;
     }
 
@@ -512,9 +528,8 @@
 
     let succDose = 1.5;
     if (idadeMeses !== null) {
-      const anos = Math.floor(idadeMeses / 12);
-      const mesesRest = idadeMeses % 12;
-      avisoHtml += `<div class="alert ok">📅 Idade: <strong>${anos} ano(s) e ${mesesRest} mes(es)</strong> (${idadeMeses} meses).</div>`;
+      const idadeStr = formatarIdade(idadeMeses);
+      avisoHtml += `<div class="alert ok">📅 Idade: <strong>${idadeStr}</strong> (${idadeMeses.toFixed(1)} meses).</div>`;
       succDose = getSuccinylcholineDosePorKg(idadeMeses);
       avisoHtml += `<div class="alert ok">💉 Dose de succinilcolina: <strong>${succDose} mg/kg</strong> (baseada na idade, conforme evidências 2025/2026).</div>`;
     } else {

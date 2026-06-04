@@ -10,7 +10,6 @@
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-
     body {
       margin: 0;
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -18,17 +17,14 @@
       color: #e5e7eb;
       line-height: 1.4;
     }
-
     .wrap {
       max-width: 100%;
       margin: 0 auto;
       padding: 16px;
     }
-
     h1 { font-size: 1.8rem; margin: 0 0 4px; line-height: 1.2; }
     h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 12px; }
     p { color: #94a3b8; font-size: 0.85rem; }
-
     .card {
       background: rgba(17, 24, 39, 0.96);
       border: 1px solid #334155;
@@ -37,14 +33,12 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.3);
       margin-top: 16px;
     }
-
     label {
       display: block;
       font-weight: 600;
       margin-bottom: 6px;
       font-size: 0.9rem;
     }
-
     input, select {
       width: 100%;
       padding: 12px;
@@ -55,13 +49,11 @@
       font-size: 1rem;
       font-family: inherit;
     }
-
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
-
     .flex-row {
       display: flex;
       gap: 8px;
@@ -70,6 +62,7 @@
     .flex-row > div { flex: 1; }
     .flex-row select { width: auto; flex: 0.45; min-width: 85px; }
 
+    /* CHECKBOX padrão */
     .checkbox-row {
       display: flex;
       align-items: center;
@@ -86,6 +79,35 @@
       margin-bottom: 0;
       font-weight: normal;
       font-size: 0.85rem;
+    }
+
+    /* Menu expansível */
+    .collapsible {
+      background-color: #1e293b;
+      border-radius: 16px;
+      margin: 12px 0;
+      overflow: hidden;
+    }
+    .collapsible-header {
+      background-color: #0f172a;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 600;
+      border-radius: 16px;
+      transition: 0.2s;
+      display: flex;
+      justify-content: space-between;
+    }
+    .collapsible-header:hover { background-color: #1e293b; }
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      padding: 0 16px;
+    }
+    .collapsible-content.open {
+      max-height: 500px;
+      padding: 12px 16px;
     }
 
     .alert {
@@ -107,7 +129,6 @@
       background: #052e16;
       color: #bbf7d0;
     }
-
     .table-wrapper {
       overflow-x: auto;
       margin: 10px 0;
@@ -132,7 +153,6 @@
       text-transform: uppercase;
     }
     .small { font-size: 0.7rem; color: #94a3b8; }
-
     .dose-cell {
       font-size: 0.9rem;
       font-weight: bold;
@@ -156,7 +176,6 @@
       font-weight: bold;
       cursor: pointer;
     }
-
     .btns {
       display: flex;
       gap: 10px;
@@ -175,7 +194,6 @@
       flex: 1 1 auto;
     }
     .secondary { background: #334155; color: #e5e7eb; }
-
     .checklist {
       display: grid;
       grid-template-columns: 1fr;
@@ -187,7 +205,6 @@
       padding: 6px 0;
       border-bottom: 1px solid #334155;
     }
-
     .references {
       font-size: 0.7rem;
       margin-top: 16px;
@@ -199,7 +216,6 @@
       text-decoration: none;
       word-break: break-all;
     }
-
     .modal {
       display: none;
       position: fixed;
@@ -232,7 +248,6 @@
       margin-top: 0;
       padding: 8px 20px;
     }
-
     @media (max-width: 560px) {
       .wrap { padding: 12px; }
       h1 { font-size: 1.5rem; }
@@ -272,14 +287,16 @@
       <label for="incluirAtropina">Incluir Atropina (não rotineira – apenas casos selecionados, ex: bradicardia sintomática)</label>
     </div>
 
-    <div class="grid-2" style="margin-top: 12px;">
-      <div><label>Condições clínicas</label></div>
-      <div></div>
-      <div class="checkbox-row"><input type="checkbox" id="choque"><label for="choque">Choque / instabilidade hemodinâmica</label></div>
-      <div class="checkbox-row"><input type="checkbox" id="hic"><label for="hic">Suspeita de hipertensão intracraniana (HIC)</label></div>
-      <div class="checkbox-row"><input type="checkbox" id="hipercalemia"><label for="hipercalemia">Hipercalemia conhecida</label></div>
-      <div class="checkbox-row"><input type="checkbox" id="hm"><label for="hm">História familiar de hipertermia maligna</label></div>
-      <div class="checkbox-row"><input type="checkbox" id="sepse"><label for="sepse">Sepse</label></div>
+    <!-- Menu expansível para condições clínicas -->
+    <div class="collapsible">
+      <div class="collapsible-header" id="btnCondicoes">➕ Condições clínicas (opcional) ▼</div>
+      <div class="collapsible-content" id="condicoesContent">
+        <div class="checkbox-row"><input type="checkbox" id="choque"><label for="choque">Choque / instabilidade hemodinâmica</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="hic"><label for="hic">Suspeita de hipertensão intracraniana (HIC)</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="hipercalemia"><label for="hipercalemia">Hipercalemia conhecida</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="hm"><label for="hm">História familiar de hipertermia maligna</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="sepse"><label for="sepse">Sepse</label></div>
+      </div>
     </div>
 
     <div class="btns no-print">
@@ -366,17 +383,15 @@
   // ---------- DOSES ESPECÍFICAS ----------
   function getSuccinylcholineDosePorKg(idadeMeses) {
     if (idadeMeses === null) return 1.5; // padrão se idade não informada
-    // < 6 meses -> 2 mg/kg (Radkowski 2025)
     if (idadeMeses < 6) return 2.0;
-    return 1.5; // >= 6 meses
+    return 1.5;
   }
 
-  // Verifica contraindicações absolutas para succinilcolina
   function isSuccinylcholineContraindicated() {
     return document.getElementById('hipercalemia').checked || document.getElementById('hm').checked;
   }
 
-  // ---------- LISTA DE MEDICAMENTOS (doses base, notas dinâmicas) ----------
+  // ---------- MEDICAMENTOS BASE ----------
   const medsBase = [
     { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 3, unidade: "mcg/kg", minMax: "2-5 mcg/kg", doseMaxKg: 5, concentracaoMgMl: 0.05, notasBase: "Opioide rápido. Infundir lentamente." },
     { etapa: "Pré‑medicação", nome: "Lidocaína", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Neuroproteção se HIC suspeita." },
@@ -423,7 +438,7 @@
     const peso = parseFloat(document.getElementById('peso').value.replace(',', '.'));
     const idadeMeses = getIdadeEmMeses();
     const incluirAtropina = document.getElementById('incluirAtropina').checked;
-    const unidadeFenta = document.getElementById('unidadeFentanil').value;
+    const unidadeFenta = document.getElementById('unidadeFentanil')?.value || 'mcg';
     const choque = document.getElementById('choque').checked;
     const hic = document.getElementById('hic').checked;
     const hipercalemia = document.getElementById('hipercalemia').checked;
@@ -436,7 +451,7 @@
     avisosDiv.innerHTML = '';
 
     if (!peso || peso <= 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="small">Informe o peso.</td></table>';
+      tbody.innerHTML = '<tr><td colspan="6" class="small">Informe o peso.</td></tr>';
       return;
     }
 
@@ -456,7 +471,6 @@
       avisoHtml += '<div class="alert">ℹ️ Idade não informada – succinilcolina usará dose padrão de 1,5 mg/kg.</div>';
     }
 
-    // Contraindicações succinilcolina
     const succContra = hipercalemia || hm;
     if (succContra) {
       avisoHtml += '<div class="alert danger">🚫 SUCCINILCOLINA CONTRAINDICADA: ' + 
@@ -483,7 +497,6 @@
       
       if (med.nome === 'Succinilcolina') {
         if (succContra) {
-          // Se contraindicada, exibe mensagem de erro e não calcula dose
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${med.etapa}</td>
@@ -527,20 +540,15 @@
         formulaVolume = `Volume = ${doseEmMg.toFixed(2)} mg ÷ ${med.concentracaoMgMl} mg/mL = ${vol.toFixed(2)} mL`;
       }
 
-      // Construir texto completo para o modal
-      let contexto = `🧪 ${med.nome}\n`;
-      contexto += formulaDose + '\n';
-      contexto += formulaVolume ? formulaVolume + '\n' : '';
+      let contexto = `🧪 ${med.nome}\n${formulaDose}\n`;
+      if (formulaVolume) contexto += formulaVolume + '\n';
       if (idadeStr) contexto += `📅 Idade considerada: ${idadeStr}\n`;
       if (choque && med.nome === 'Cetamina') contexto += '⭐ Choque: cetamina preferencial.\n';
       if (choque && (med.nome === 'Propofol' || med.nome === 'Etomidato')) contexto += '⚠️ Choque: evitar este agente.\n';
       if (sepse && med.nome === 'Etomidato') contexto += '⚠️ Sepse: evitar etomidato (supressão adrenal).\n';
       if (hic && med.nome === 'Lidocaína') contexto += '⭐ HIC: lidocaína indicada.\n';
       if (hic && med.nome === 'Propofol') contexto += '⭐ HIC: propofol reduz PIC.\n';
-      if (succContra && med.nome === 'Succinilcolina') contexto = '🚫 CONTRAINDICADA devido a hipercalemia ou hipertermia maligna.\n';
       contexto += med.notasBase + notasAdicionais;
-      
-      const tooltipText = contexto;
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -549,7 +557,7 @@
         <td>${dosePorKg.toFixed(2)} ${med.unidade}<br><span class="small">${med.minMax || ''}</span></td>
         <td class="dose-cell">
           <span class="dose-value">${fmt2(valorExib)} ${unidadeExib}</span>
-          <span class="info-icon" data-detalhe="${tooltipText.replace(/"/g, '&quot;')}">ⓘ</span>
+          <span class="info-icon" data-detalhe="${contexto.replace(/"/g, '&quot;')}">ⓘ</span>
         </td>
         <td>${volumeHtml}</td>
         <td class="small">${med.notasBase}${notasAdicionais}</td>
@@ -557,7 +565,6 @@
       tbody.appendChild(tr);
     });
 
-    // Adicionar eventos de clique
     document.querySelectorAll('.info-icon').forEach(icon => {
       icon.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -585,6 +592,14 @@
     userToggledAtropina = false;
     calcular();
   }
+
+  // Menu expansível
+  const btnCond = document.getElementById('btnCondicoes');
+  const condContent = document.getElementById('condicoesContent');
+  btnCond.addEventListener('click', () => {
+    condContent.classList.toggle('open');
+    btnCond.innerHTML = condContent.classList.contains('open') ? '➖ Condições clínicas (opcional) ▲' : '➕ Condições clínicas (opcional) ▼';
+  });
 
   // Event listeners
   const idadeNumero = document.getElementById('idadeNumero');

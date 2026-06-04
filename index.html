@@ -82,7 +82,6 @@
       font-family: inherit;
     }
 
-    /* Layout responsivo */
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -113,7 +112,6 @@
       width: 24px;
       height: 24px;
       margin: 0;
-      transform: scale(1);
       flex-shrink: 0;
     }
     .checkbox-row label {
@@ -144,7 +142,6 @@
       color: #bbf7d0;
     }
 
-    /* Tabela com rolagem horizontal */
     .table-wrapper {
       overflow-x: auto;
       margin: 10px 0;
@@ -253,6 +250,7 @@
 
     .references p {
       font-size: 0.7rem;
+      margin: 8px 0;
     }
 
     .references a {
@@ -261,7 +259,10 @@
       word-break: break-all;
     }
 
-    /* Modal para mobile */
+    .references a:hover {
+      text-decoration: underline;
+    }
+
     .modal {
       display: none;
       position: fixed;
@@ -294,7 +295,6 @@
       padding: 8px 20px;
     }
 
-    /* Ajustes específicos para telas muito pequenas */
     @media (max-width: 560px) {
       .wrap {
         padding: 12px;
@@ -434,7 +434,7 @@
           <tr><th>Etapa</th><th>Medicação</th><th>Dose usada</th><th>Dose calculada</th><th>Volume (mL)</th><th>Notas</th></tr>
         </thead>
         <tbody></tbody>
-       </table>
+      </table>
     </div>
     <p class="small" style="margin-top: 12px;">Doses conforme diretrizes 2025/2026. Bloqueador neuromuscular: succinilcolina padrão-ouro; rocurônio 1,2 mg/kg como alternativa.</p>
   </div>
@@ -456,15 +456,18 @@
   </div>
 
   <div class="card references">
-    <h2>Referências</h2>
+    <h2>Referências Bibliográficas</h2>
     <p class="small">
-      <sup>[1]</sup> Mendez D, et al. Succinylcholine vs Rocuronium for Pediatric RSI. <em>Pediatr Emerg Care</em>. 2026;42(3):203-208.<br>
-      <sup>[2]</sup> ESAIC/ESPA Guidelines on neuromuscular block in children. <em>Eur J Anaesthesiol</em>. 2026;43(4):295-323.<br>
-      <sup>[3]</sup> Radkowski P, et al. Age‑specific pharmacology of NMBA. <em>Med Sci Monit</em>. 2025;31:e949656.<br>
-      <sup>[4]</sup> Carvalho VEL, et al. Atropine in pediatric intubation. <em>Rev Paul Pediatr</em>. 2023;42:e2022220.<br>
-      <sup>[5]</sup> Mathews KS, et al. Ketamine vs Etomidate for RSI. <em>N Engl J Med</em>. 2025;393(14):1327-1338.<br>
-      <sup>[6]</sup> Zhou S, et al. Sugammadex in children. <em>Heliyon</em>. 2023;9(8):e18356.<br>
-      <sup>[7]</sup> AHA. <em>Pediatric Advanced Life Support</em>. 2020.
+      <sup>[1]</sup> Mendez D, Zatarain J, Paul K, et al. Succinylcholine Versus Rocuronium for Pediatric Rapid Sequence Intubation in the Emergency Department. <em>Pediatr Emerg Care</em>. 2026;42(3):203-208. DOI: 10.1097/PEC.0000000000003532. <a href="https://pubmed.ncbi.nlm.nih.gov/41489184/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[2]</sup> Engelhardt T, Fuchs A, Fuchs‑Buder T, et al. 2025 ESAIC and ESPA Guidelines on neuromuscular block in anaesthetised children: Indications, monitoring and reversal. <em>Eur J Anaesthesiol</em>. 2026;43(4):295-323. <a href="https://www.guidelinecentral.com/guideline/5131478/" target="_blank" rel="noopener noreferrer">Guideline Central</a><br>
+      <sup>[3]</sup> Radkowski P, Kowalczyk K, Łęczycka A, et al. Age‑Specific Pharmacology of Neuromuscular Blocking Agents: A Comprehensive Review. <em>Med Sci Monit</em>. 2025;31:e949656. DOI: 10.12659/MSM.949656. <a href="https://medscimonit.com/abstract/full/idArt/949656" target="_blank" rel="noopener noreferrer">MSM</a><br>
+      <sup>[4]</sup> Carvalho VEL, et al. Atropine does not prevent hypoxemia and bradycardia in tracheal intubation in the pediatric emergency department: observational study. <em>Rev Paul Pediatr</em>. 2023;42:e2022220. <a href="https://pubmed.ncbi.nlm.nih.gov/37937916/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[5]</sup> Mathews KS, et al. Ketamine vs Etomidate for Rapid-Sequence Intubation — The RSI Trial. <em>N Engl J Med</em>. 2025;393(14):1327-1338. DOI: 10.1056/NEJMoa2412322. <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2412322" target="_blank" rel="noopener noreferrer">NEJM</a><br>
+      <sup>[6]</sup> Mills LA, et al. Adverse Events in Patients Aged 90 Days or Younger Receiving Ketamine in the Emergency Department. <em>Pediatr Emerg Care</em>. 2024;40(9):665-667. <a href="https://pubmed.ncbi.nlm.nih.gov/38776429/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[7]</sup> Koepp‑Medina G, et al. Videolaryngoscopy versus direct laryngoscopy for paediatric tracheal intubation: a systematic review with meta‑analysis and trial sequential analysis. <em>Br J Anaesth</em>. 2025. <a href="https://pubmed.ncbi.nlm.nih.gov/40145188/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[8]</sup> Zhou S, et al. Efficacy and safety of sugammadex sodium in reversing rocuronium‑induced neuromuscular blockade in children: An updated systematic review and meta‑analysis. <em>Heliyon</em>. 2023;9(8):e18356. <a href="https://pubmed.ncbi.nlm.nih.gov/37576295/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[9]</sup> Werther Brunow de Carvalho. <em>Terapia Intensiva Pediátrica</em>. Coleção Pediatria. 2ª ed. <a href="https://www.amazon.com.br/Terapia-Intensiva-Pedi%C3%A1trica-Werther-Carvalho/dp/8520457141" target="_blank" rel="noopener noreferrer">Editora</a><br>
+      <sup>[10]</sup> American Heart Association. <em>Pediatric Advanced Life Support</em>. 2020. <a href="https://cpr.heart.org/en/resuscitation-science/pals" target="_blank" rel="noopener noreferrer">AHA</a>
     </p>
   </div>
 </div>
@@ -496,13 +499,9 @@
     return mesesRest === 0 ? `${anos} ano(s)` : `${anos} ano(s) e ${mesesRest} mes(es)`;
   }
 
-  // ========== DOSES ==========
-  function getSuccinylcholineDose() { return 1.5; } // fixo conforme Mendez 2026
-
-  // Atropina não é rotina (checkbox manual)
+  function getSuccinylcholineDose() { return 1.5; }
   function atropinaRecomendada() { return false; }
 
-  // ========== MEDICAMENTOS ==========
   const medsBase = [
     { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 3, unidade: "mcg/kg", minMax: "2-5 mcg/kg", doseMaxKg: 5, concentracaoMgMl: 0.05, notas: "Opioide rápido. Infundir lentamente." },
     { etapa: "Pré‑medicação", nome: "Lidocaína", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 20, notas: "Neuroproteção se HIC suspeita." },
@@ -537,7 +536,7 @@
 
   function atualizarAtropinaAuto() {
     const checkbox = document.getElementById('incluirAtropina');
-    if (!userToggledAtropina) checkbox.checked = false; // sempre desmarcado por padrão
+    if (!userToggledAtropina) checkbox.checked = false;
   }
 
   function calcular() {

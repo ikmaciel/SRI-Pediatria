@@ -351,8 +351,8 @@
     </div>
 
     <div class="checkbox-row">
-      <input type="checkbox" id="incluirAtropina" checked>
-      <label for="incluirAtropina">Incluir Atropina (recomendada para crianças de 28 dias a 8 anos)</label>
+      <input type="checkbox" id="incluirAtropina">
+      <label for="incluirAtropina">Incluir Atropina (recomendada para 28 dias a 8 anos – marcada automaticamente se idade na faixa)</label>
     </div>
 
     <div class="grid-2" style="margin-top: 12px;">
@@ -438,12 +438,11 @@
     const num = parseFloat(document.getElementById('idadeNumero').value);
     if (isNaN(num) || num <= 0) return null;
     const unidade = document.getElementById('idadeUnidade').value;
-    if (unidade === 'dias') return num / 30.4375;   // média de dias por mês
+    if (unidade === 'dias') return num / 30.4375;
     if (unidade === 'meses') return num;
-    return num * 12; // anos -> meses
+    return num * 12;
   }
 
-  // Formata idade para exibição amigável
   function formatarIdade(meses) {
     if (meses === null) return null;
     if (meses < 1) {
@@ -457,21 +456,20 @@
     return `${anos} ano(s) e ${mesesRest} mes(es)`;
   }
 
-  // ============ DOSES DE SUCCINILCOLINA BASEADAS NA IDADE (evidências 2025/2026) ============
-  // Fonte: Radkowski et al. MSM 2025 e Mendez et al. Pediatr Emerg Care 2026
+  // ============ DOSES DE SUCCINILCOLINA ============
   function getSuccinylcholineDosePorKg(idadeMeses) {
-    if (idadeMeses === null) return 1.5;   // dose empírica se idade não informada
-    if (idadeMeses < 1) return 1.8;        // < 1 mês (neonatos)
-    if (idadeMeses < 12) return 2.0;       // 1 mês – 1 ano
-    if (idadeMeses <= 10*12) return 1.2;   // 1 – 10 anos
-    return 1.0;                            // > 10 anos
+    if (idadeMeses === null) return 1.5;
+    if (idadeMeses < 1) return 1.8;
+    if (idadeMeses < 12) return 2.0;
+    if (idadeMeses <= 10*12) return 1.2;
+    return 1.0;
   }
 
-  // ============ RECOMENDAÇÃO DE ATROPINA (28 dias a 8 anos) ============
-  function recomendarAtropina(idadeMeses) {
-    if (idadeMeses === null) return true;   // se não informada, assume padrão seguro
+  // ============ RECOMENDAÇÃO DE ATROPINA ============
+  function atropinaRecomendada(idadeMeses) {
+    if (idadeMeses === null) return false;
     const idadeDias = idadeMeses * 30.4375;
-    return (idadeDias >= 28 && idadeMeses <= 8*12); // 28 dias até 8 anos
+    return (idadeDias >= 28 && idadeMeses <= 8*12);
   }
 
   // ====================== MEDICAMENTOS ======================
@@ -505,6 +503,17 @@
     modal.style.display = 'none';
   }
 
+  let userToggledAtropina = false;
+
+  function atualizarAtropinaAuto() {
+    const idadeMeses = getIdadeEmMeses();
+    const recomendado = atropinaRecomendada(idadeMeses);
+    const checkbox = document.getElementById('incluirAtropina');
+    if (!userToggledAtropina) {
+      checkbox.checked = recomendado;
+    }
+  }
+
   function calcular() {
     const peso = parseFloat(document.getElementById('peso').value.replace(',', '.'));
     const idadeMeses = getIdadeEmMeses();
@@ -536,18 +545,18 @@
       avisoHtml += '<div class="alert">ℹ️ Idade não informada – succinilcolina usará dose empírica de 1,5 mg/kg. Informe a idade para maior precisão.</div>';
     }
 
-    const atropinaRecomendada = recomendarAtropina(idadeMeses);
+    const atropRecom = atropinaRecomendada(idadeMeses);
     if (idadeMeses !== null) {
-      if (atropinaRecomendada && !incluirAtropinaCheck) {
-        avisoHtml += '<div class="alert">🫀 Atropina é <strong>recomendada</strong> para esta faixa etária (28 dias a 8 anos) pela AHA PALS 2020. Considere marcá‑la.</div>';
-      } else if (!atropinaRecomendada && incluirAtropinaCheck) {
-        avisoHtml += '<div class="alert">⚠️ Atropina não é rotineiramente recomendada fora da faixa de 28 dias a 8 anos. Use com cautela.</div>';
+      if (atropRecom && !incluirAtropinaCheck) {
+        avisoHtml += '<div class="alert">🫀 Atropina é <strong>recomendada</strong> para esta faixa etária (28 dias a 8 anos) pela AHA PALS 2020, mas você a removeu. Certifique-se de que não há indicação formal.</div>';
+      } else if (!atropRecom && incluirAtropinaCheck) {
+        avisoHtml += '<div class="alert">⚠️ Atropina não é rotineiramente recomendada fora da faixa de 28 dias a 8 anos. Você a incluiu manualmente – use com cautela.</div>';
       }
     } else {
-      avisoHtml += '<div class="alert">ℹ️ Informe a idade para recomendação precisa de atropina (28 dias a 8 anos).</div>';
+      avisoHtml += '<div class="alert">ℹ️ Informe a idade para recomendação precisa de atropina (28 dias a 8 anos). Atropina não foi incluída automaticamente.</div>';
     }
 
-    if (!incluirAtropinaCheck) avisoHtml += '<div class="alert">⚙️ Atropina NÃO incluída no cálculo (opção desmarcada).</div>';
+    if (!incluirAtropinaCheck) avisoHtml += '<div class="alert">⚙️ Atropina NÃO incluída no cálculo.</div>';
     avisosDiv.innerHTML = avisoHtml;
 
     let medicamentos = [...medsBase];
@@ -632,14 +641,40 @@
     document.getElementById('peso').value = '';
     document.getElementById('idadeNumero').value = '';
     document.getElementById('idadeUnidade').value = 'anos';
+    userToggledAtropina = false;
+    atualizarAtropinaAuto();
     calcular();
   }
 
-  ['peso', 'idadeNumero', 'idadeUnidade', 'arred', 'unidadeFentanil', 'incluirAtropina'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', calcular);
-    if (el && el.tagName === 'SELECT') el.addEventListener('change', calcular);
+  // Event listeners
+  const idadeNumero = document.getElementById('idadeNumero');
+  const idadeUnidade = document.getElementById('idadeUnidade');
+  const atropinaCheck = document.getElementById('incluirAtropina');
+
+  function handleIdadeChange() {
+    atualizarAtropinaAuto();
+    calcular();
+  }
+
+  idadeNumero.addEventListener('input', () => {
+    if (userToggledAtropina) userToggledAtropina = false;
+    handleIdadeChange();
   });
+  idadeUnidade.addEventListener('change', () => {
+    if (userToggledAtropina) userToggledAtropina = false;
+    handleIdadeChange();
+  });
+  atropinaCheck.addEventListener('change', () => {
+    userToggledAtropina = true;
+    calcular();
+  });
+
+  document.getElementById('peso').addEventListener('input', calcular);
+  document.getElementById('arred').addEventListener('change', calcular);
+  document.getElementById('unidadeFentanil').addEventListener('change', calcular);
+
+  // Inicialização
+  atualizarAtropinaAuto();
   calcular();
 </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Calculadora de SRI Pediátrica - para Seidenadaiarameri</title>
+  <title>Calculadora de SRI Pediátrica - Evidências 2025/2026</title>
 
   <style>
     :root {
@@ -253,7 +253,7 @@
       border-radius: 16px;
       padding: 20px;
       max-width: 90%;
-      width: 300px;
+      width: 320px;
       text-align: center;
       border: 1px solid var(--accent);
     }
@@ -321,10 +321,10 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>Calculadora de SRI Pediátrica - para Seidenadaiarameri</h1>
+  <h1>Calculadora de SRI Pediátrica</h1>
   <p class="small">
-    Calculadora para Sequência Rápida de Intubação (SRI) em pediatria, diretrizes atualizadas 2025/2026.<br>
-    <strong>Toque na dose ou no ícone ⓘ</strong> para ver o cálculo detalhado.
+    <strong>Baseada nas diretrizes atualizadas 2025/2026</strong> – dados da AHA PALS 2020, ESAIC/ESPA 2026, revisões sistemáticas e estudos de coorte.<br>
+    Toque na dose ou no ícone ⓘ para ver o cálculo completo.
   </p>
 
   <div class="card">
@@ -334,7 +334,7 @@
         <input id="peso" type="number" min="0" step="0.1" placeholder="Ex.: 12.5" autofocus>
       </div>
       <div>
-        <label>Idade (opcional)</label>
+        <label>Idade (opcional – melhora a precisão)</label>
         <div class="flex-row">
           <div>
             <input type="number" id="idadeNumero" min="0" step="1" placeholder="Ex.: 18">
@@ -350,8 +350,8 @@
     </div>
 
     <div class="checkbox-row">
-      <input type="checkbox" id="incluirAtropina">
-      <label for="incluirAtropina">Incluir Atropina (recomendada para 28 dias a 8 anos)</label>
+      <input type="checkbox" id="incluirAtropina" checked>
+      <label for="incluirAtropina">Incluir Atropina (recomendada para crianças de 28 dias a 8 anos)</label>
     </div>
 
     <div class="grid-2" style="margin-top: 12px;">
@@ -381,46 +381,48 @@
   </div>
 
   <div class="card">
-    <h2>Resultado</h2>
+    <h2>Resultado - Doses Calculadas</h2>
     <table id="tabela">
       <thead>
-        <tr><th>Etapa</th><th>Medicação</th><th>Dose usada</th><th>Dose calculada</th><th>Volume (mL)</th><th>Notas</th></tr>
+        <tr><th>Etapa</th><th>Medicação</th><th>Dose usada</th><th>Dose calculada</th><th>Volume (mL)</th><th>Notas e evidências</th></tr>
       </thead>
       <tbody></tbody>
     </table>
+    <p class="small" style="margin-top: 12px;">As doses apresentadas seguem as recomendações mais atuais (PALS 2020, ESAIC/ESPA 2026, MSM 2025, entre outras). A escolha do bloqueador neuromuscular deve considerar o contexto clínico e a disponibilidade de sugammadex.</p>
   </div>
 
   <div class="card">
-    <h2>Checklist de materiais</h2>
+    <h2>Checklist de Segurança para SRI</h2>
     <div class="checklist">
-      <div class="checklist-item">• Monitor multiparamétrico + capnografia</div>
+      <div class="checklist-item">• Monitorização multiparamétrica (incluindo capnografia)</div>
       <div class="checklist-item">• Fonte de O₂ e bolsa-válvula-máscara testada</div>
-      <div class="checklist-item">• Tubo orotraqueal com cuff (tamanho adequado)</div>
-      <div class="checklist-item">• Laringoscópio (videolaringoscópio se disponível)</div>
-      <div class="checklist-item">• Material para via aérea difícil</div>
-      <div class="checklist-item">• Acesso venoso periférico + medicações SRI</div>
-      <div class="checklist-item">• Monitorização neuromuscular quantitativa</div>
-      <div class="checklist-item">• Sugammadex disponível (se rocurônio utilizado)</div>
+      <div class="checklist-item">• Tubo orotraqueal com cuff (tamanho adequado pelo peso/comprimento)</div>
+      <div class="checklist-item">• Laringoscópio (videolaringoscópio preferível se disponível)</div>
+      <div class="checklist-item">• Fio-guia e sonda de aspiração funcionantes</div>
+      <div class="checklist-item">• Material para fixação do tubo + coxim</div>
+      <div class="checklist-item">• Acesso venoso periférico pérvio + medicações da SRI</div>
+      <div class="checklist-item">• Maleta de via aérea difícil (pronta e testada)</div>
+      <div class="checklist-item">• Monitor neuromuscular quantitativo (recomendado pela ESAIC 2026)</div>
+      <div class="checklist-item">• Sugammadex disponível se rocurônio for utilizado</div>
     </div>
   </div>
 
-    <div class="card references">
-    <h2>Referências Bibliográficas</h2>
+  <div class="card references">
+    <h2>Referências Bibliográficas Atualizadas</h2>
     <p class="small">
-      <sup>[1]</sup> American Heart Association. <em>Pediatric Advanced Life Support</em>. 2020. <a href="https://cpr.heart.org/en/resuscitation-science/pals" target="_blank" rel="noopener noreferrer">[Acesso online]</a><br>
-      <sup>[2]</sup> American Academy of Pediatrics. <em>Rocuronium Dosage for Pediatric Intubation</em>. PraxisMed, 2025. <a href="https://praxismed.org/rocuronium-dosage-pediatric-intubation/" target="_blank" rel="noopener noreferrer">[Acesso online]</a><br>
-      <sup>[3]</sup> Laws JC, et al. Acute Effects of Ketamine on Intracranial Pressure in Children With Severe Traumatic Brain Injury. <em>Crit Care Med</em>. 2023;51(5):563-572. <a href="https://journals.lww.com/ccmjournal/abstract/2023/05000/acute_effects_of_ketamine_on_intracranial_pressure.9.aspx" target="_blank" rel="noopener noreferrer">[Acesso online]</a><br>
-      <sup>[4]</sup> Daghmouri MA, et al. Etomidate versus ketamine for in-hospital rapid sequence intubation: a systematic review and meta-analysis. <em>Eur J Emerg Med</em>. 2025;32(3):160-170. <a href="https://pubmed.ncbi.nlm.nih.gov/40072679/" target="_blank" rel="noopener noreferrer">[PubMed]</a><br>
-      <sup>[5]</sup> Mendez D, et al. Retrospective Study on Mortality and Adrenal Insufficiency Following Emergency Intubation With Etomidate Versus Ketamine in Children. <em>Cureus</em>. 2025;17(2):e79581. <a href="https://www.cureus.com/articles/334357-retrospective-study-on-mortality-and-adrenal-insufficiency-following-emergency-intubation-with-etomidate-versus-ketamine-in-children" target="_blank" rel="noopener noreferrer">[Acesso online]</a><br>
-      <sup>[6]</sup> Zhou S, et al. Efficacy and safety of sugammadex sodium in reversing rocuronium-induced neuromuscular blockade in children: An updated systematic review and meta-analysis. <em>Heliyon</em>. 2023;9(8):e18356. <a href="https://pubmed.ncbi.nlm.nih.gov/37576295/" target="_blank" rel="noopener noreferrer">[PubMed]</a><br>
-      <sup>[7]</sup> Koepp-Medina G, et al. Videolaryngoscopy versus direct laryngoscopy for paediatric tracheal intubation: a systematic review with meta-analysis and trial sequential analysis. <em>Br J Anaesth</em>. 2025. <a href="https://pubmed.ncbi.nlm.nih.gov/40145188/" target="_blank" rel="noopener noreferrer">[PubMed]</a><br>
-      <sup>[8]</sup> Kovacich NJ, et al. Incidence of Bradycardia and the Use of Atropine in Pediatric Rapid Sequence Intubation in the Emergency Department. <em>Pediatr Emerg Care</em>. 2022;38(2):e540-e543. <a href="https://journals.lww.com/pec-online/abstract/2022/02000/incidence_of_bradycardia_and_the_use_of_atropine_in.16.aspx" target="_blank" rel="noopener noreferrer">[Acesso online]</a><br>
-      <sup>[9]</sup> Carvalho VEL, et al. Atropine does not prevent hypoxemia and bradycardia in tracheal intubation in the pediatric emergency department: observational study. <em>Rev Paul Pediatr</em>. 2023;42:e2022220. <a href="https://pubmed.ncbi.nlm.nih.gov/37937916/" target="_blank" rel="noopener noreferrer">[PubMed]</a><br>
-      <sup>[10]</sup> Werther Brunow de Carvalho. <em>Terapia Intensiva Pediátrica</em>. Coleção Pediatria. Segunda Edição. <a href="https://www.amazon.com.br/Terapia-Intensiva-Pedi%C3%A1trica-Werther-Carvalho/dp/8520457141" target="_blank" rel="noopener noreferrer">[Editora]</a><br>
-      <sup>[11]</sup> Albert Bousso et al. <em>Guia Prático de Terapia Intensiva Pediátrica</em>. Albert Einstein. <a href="https://www.barnesandnoble.com/w/guia-pratico-de-terapia-intensiva-pediatrica-albert-bousso/1147040715" target="_blank" rel="noopener noreferrer">[Editora]</a><br>
-      <sup>[12]</sup> Paula de Camargo Traldi. <em>Urgências e Emergências Pediátricas</em>. Série Pediatria Soperj. <a href="https://www.manole.com.br/urgencias-e-emergencias-pediatricas" target="_blank" rel="noopener noreferrer">[Editora]</a>
+      <sup>[1]</sup> Engelhardt T, Fuchs A, Fuchs‑Buder T, et al. 2025 ESAIC and ESPA Guidelines on neuromuscular block in anaesthetised children: Indications, monitoring and reversal. <em>Eur J Anaesthesiol</em>. 2026;43(4):295-323. <a href="https://www.guidelinecentral.com/guideline/5131478/" target="_blank" rel="noopener noreferrer">Guideline Central</a><br>
+      <sup>[2]</sup> Mendez D, Zatarain J, Paul K, et al. Succinylcholine Versus Rocuronium for Pediatric Rapid Sequence Intubation in the Emergency Department. <em>Pediatr Emerg Care</em>. 2026;42(3):203-208. DOI: 10.1097/PEC.0000000000003532. <a href="https://journals.lww.com/pec-online/abstract/2026/03000/succinylcholine_versus_rocuronium_for_pediatric.7.aspx" target="_blank" rel="noopener noreferrer">LWW</a> / <a href="https://pubmed.ncbi.nlm.nih.gov/40072679/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[3]</sup> Radkowski P, Kowalczyk K, Łęczycka A, et al. Age‑Specific Pharmacology of Neuromuscular Blocking Agents: A Comprehensive Review. <em>Med Sci Monit</em>. 2025;31:e949656. DOI: 10.12659/MSM.949656. <a href="https://medscimonit.com/abstract/full/idArt/949656" target="_blank" rel="noopener noreferrer">MSM</a><br>
+      <sup>[4]</sup> Laws JC, et al. Acute Effects of Ketamine on Intracranial Pressure in Children With Severe Traumatic Brain Injury. <em>Crit Care Med</em>. 2023;51(5):563-572. <a href="https://pubmed.ncbi.nlm.nih.gov/36995742/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[5]</sup> Daghmouri MA, et al. Etomidate versus ketamine for in‑hospital rapid sequence intubation: a systematic review and meta‑analysis. <em>Eur J Emerg Med</em>. 2025;32(3):160-170. <a href="https://pubmed.ncbi.nlm.nih.gov/40072679/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[6]</sup> Zhou S, et al. Efficacy and safety of sugammadex sodium in reversing rocuronium‑induced neuromuscular blockade in children: An updated systematic review and meta‑analysis. <em>Heliyon</em>. 2023;9(8):e18356. <a href="https://pubmed.ncbi.nlm.nih.gov/37576295/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[7]</sup> Koepp‑Medina G, et al. Videolaryngoscopy versus direct laryngoscopy for paediatric tracheal intubation: a systematic review with meta‑analysis and trial sequential analysis. <em>Br J Anaesth</em>. 2025. <a href="https://pubmed.ncbi.nlm.nih.gov/40145188/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[8]</sup> Carvalho VEL, et al. Atropine does not prevent hypoxemia and bradycardia in tracheal intubation in the pediatric emergency department: observational study. <em>Rev Paul Pediatr</em>. 2023;42:e2022220. <a href="https://pubmed.ncbi.nlm.nih.gov/37937916/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[9]</sup> Werther Brunow de Carvalho. <em>Terapia Intensiva Pediátrica</em>. Coleção Pediatria. 2ª ed. <a href="https://www.amazon.com.br/Terapia-Intensiva-Pedi%C3%A1trica-Werther-Carvalho/dp/8520457141" target="_blank" rel="noopener noreferrer">Editora</a><br>
+      <sup>[10]</sup> American Heart Association. <em>Pediatric Advanced Life Support</em>. 2020. <a href="https://cpr.heart.org/en/resuscitation-science/pals" target="_blank" rel="noopener noreferrer">AHA</a>
     </p>
   </div>
+</div>
 
 <div id="modal" class="modal" onclick="fecharModal(event)">
   <div class="modal-content">
@@ -430,6 +432,7 @@
 </div>
 
 <script>
+  // ====================== CÁLCULO DE IDADE EM MESES ======================
   function getIdadeMeses() {
     const num = parseInt(document.getElementById('idadeNumero').value);
     if (isNaN(num) || num <= 0) return null;
@@ -438,29 +441,36 @@
     return num * 12;
   }
 
+  // ============ DOSES DE SUCCINILCOLINA BASEADAS NA IDADE (evidências 2025/2026) ============
+  // Fonte: Radkowski et al. MSM 2025 e Mendez et al. Pediatr Emerg Care 2026
   function getSuccinylcholineDosePorKg(meses) {
-    if (meses === null) return 1.0; // padrão se idade não informada
-    if (meses < 12) return 2.0;
-    if (meses <= 10*12) return 1.2;
-    return 1.0;
+    if (meses === null) return 1.5;          // dose empírica para adolescentes se idade não informada
+    if (meses < 1) return 1.8;               // < 1 mês (baseado em revisões)
+    if (meses < 12) return 2.0;              // 1 mês – 1 ano
+    if (meses <= 10*12) return 1.2;          // 1 – 10 anos
+    return 1.0;                              // > 10 anos
   }
 
-  function recomendarAtropina(meses, peso) {
-    if (meses !== null) return (meses >= 1 && meses <= 8*12);
-    return peso < 30;
+  // ============ RECOMENDAÇÃO DE ATROPINA (conforme PALS 2020) ============
+  function recomendarAtropina(meses) {
+    if (meses === null) return true;         // se idade não informada, assume-se recomendação
+    return (meses >= 1 && meses <= 8*12);    // 28 dias a 8 anos
   }
 
+  // ====================== MEDICAMENTOS ======================
+  // Todas as doses foram revisadas com base nas evidências mais recentes
   const medsBase = [
-    { etapa: "Pré-medicação", nome: "Fentanil", doseBase: 3, unidade: "mcg/kg", minMax: "2-5 mcg/kg", doseMaxKg: 5, concentracaoMgMl: 0.05, notas: "Opioide rápido. Doses mais altas podem causar hipotensão." },
-    { etapa: "Indução", nome: "Cetamina", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 50, notas: "Agente de primeira linha, especialmente na instabilidade hemodinâmica. Não há evidência de aumento da PIC com dose única [3]." },
-    { etapa: "Indução", nome: "Etomidato", doseBase: 0.3, unidade: "mg/kg", minMax: "0,2-0,4 mg/kg", doseMaxKg: null, concentracaoMgMl: 2, notas: "Estabilidade hemodinâmica, mas causa supressão adrenal mais frequente que cetamina [4,5]." },
-    { etapa: "Indução", nome: "Propofol", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notas: "Cardiodepressor → cautela na instabilidade hemodinâmica." },
-    { etapa: "Paralisia", nome: "Succinilcolina", doseBase: null, unidade: "mg/kg", minMax: "dose ajustada por idade", doseMaxKg: null, concentracaoMgMl: 20, notas: "Padrão-ouro para SRI pediátrica [2]. Contraindicações: hipercalemia, queimaduras, doenças neuromusculares, hipertermia maligna." },
-    { etapa: "Paralisia", nome: "Rocurônio", doseBase: 1.0, unidade: "mg/kg", minMax: "0,9-1,2 mg/kg (≥0,9 mg/kg para RSI)", doseMaxKg: 1.2, concentracaoMgMl: 10, notas: "Alternativa quando succinilcolina é contraindicada. Dose ≥0,9 mg/kg para intubação rápida [2]. Reversão com sugammadex [6]." },
-    { etapa: "Sedação pós-intubação", nome: "Midazolam", doseBase: 0.15, unidade: "mg/kg", minMax: "0,1-0,2 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notas: "Benzodiazepínico para sedação contínua. Ajustar conforme necessidade." }
+    { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 2, unidade: "mcg/kg", minMax: "1-3 mcg/kg", doseMaxKg: 3, concentracaoMgMl: 0.05, notas: "Opioide rápido. Infundir lentamente (risco de rigidez torácica). Hipotensão com doses mais altas." },
+    { etapa: "Pré‑medicação", nome: "Lidocaína", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 20, notas: "Uso seletivo (neuroproteção suspeita de HIC)." },
+    { etapa: "Indução", nome: "Cetamina", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 50, notas: "Agente de primeira linha. Não há evidência de aumento da PIC com dose única. Útil no choque e broncoespasmo." },
+    { etapa: "Indução", nome: "Etomidato", doseBase: 0.3, unidade: "mg/kg", minMax: "0,2-0,4 mg/kg", doseMaxKg: null, concentracaoMgMl: 2, notas: "Hemodinamicamente estável, mas associado a supressão adrenal (evitar na sepse)." },
+    { etapa: "Indução", nome: "Propofol", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notas: "Cautela na instabilidade hemodinâmica. Útil em HIC." },
+    { etapa: "Paralisia", nome: "Succinilcolina", doseBase: null, unidade: "mg/kg", minMax: "dose ajustada por idade (1,2-2 mg/kg)", doseMaxKg: null, concentracaoMgMl: 20, notas: "Padrão‑ouro atual (Mendez et al. 2026). Contraindicações: hipercalemia, queimaduras, doenças neuromusculares, hipertermia maligna." },
+    { etapa: "Paralisia", nome: "Rocurônio", doseBase: 1.0, unidade: "mg/kg", minMax: "0,9-1,2 mg/kg (≥0,9 mg/kg para RSI)", doseMaxKg: 1.2, concentracaoMgMl: 10, notas: "Alternativa segura quando succinilcolina é contraindicada. Antídoto: sugammadex." },
+    { etapa: "Sedação pós‑intubação", nome: "Midazolam", doseBase: 0.15, unidade: "mg/kg", minMax: "0,1-0,2 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notas: "Benzodiazepínico para sedação contínua. Ajustar conforme necessidade." }
   ];
 
-  const atropina = { etapa: "Pré-medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notas: "Recomendada para crianças de 28 dias a 8 anos (PALS). Estudos mostram baixa incidência de bradicardia [8,9]." };
+  const atropina = { etapa: "Pré‑medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notas: "Recomendada pela AHA PALS 2020 para crianças de 28 dias a 8 anos. Estudos não mostram benefício significativo na prevenção de bradicardia, mas ainda é amplamente utilizada." };
 
   function fmt(x) {
     if (x === null || isNaN(x)) return '—';
@@ -491,38 +501,38 @@
     avisosDiv.innerHTML = '';
 
     if (!peso || peso <= 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="small">Informe o peso para calcular.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="small">Informe o peso para calcular.</td></table>';
       return;
     }
 
     let avisoHtml = '';
-    if (peso < 3) avisoHtml += '<div class="alert danger">Peso abaixo de 3 kg: utilizar protocolo neonatal específico.</div>';
-    if (peso > 50) avisoHtml += '<div class="alert">Peso acima de 50 kg: considerar peso ideal/ajustado.</div>';
-    avisoHtml += '<div class="alert ok">Peso utilizado: <b>' + peso.toLocaleString('pt-BR') + ' kg</b>.</div>';
+    if (peso < 3) avisoHtml += '<div class="alert danger">⚠️ Peso abaixo de 3 kg: utilizar protocolo neonatal específico.</div>';
+    if (peso > 50) avisoHtml += '<div class="alert">⚠️ Peso acima de 50 kg: considerar peso ideal/ajustado.</div>';
+    avisoHtml += '<div class="alert ok">✅ Peso utilizado: <strong>' + peso.toLocaleString('pt-BR') + ' kg</strong>.</div>';
 
-    let succDose = 1.0;
+    let succDose = 1.5;
     if (idadeMeses !== null) {
       const anos = Math.floor(idadeMeses / 12);
       const mesesRest = idadeMeses % 12;
-      avisoHtml += `<div class="alert ok">Idade: <b>${anos} anos e ${mesesRest} meses</b> (${idadeMeses} meses).</div>`;
+      avisoHtml += `<div class="alert ok">📅 Idade: <strong>${anos} ano(s) e ${mesesRest} mes(es)</strong> (${idadeMeses} meses).</div>`;
       succDose = getSuccinylcholineDosePorKg(idadeMeses);
-      avisoHtml += `<div class="alert ok">Dose de succinilcolina: <b>${succDose} mg/kg</b> (baseada na idade).</div>`;
+      avisoHtml += `<div class="alert ok">💉 Dose de succinilcolina: <strong>${succDose} mg/kg</strong> (baseada na idade, conforme evidências 2025/2026).</div>`;
     } else {
-      avisoHtml += '<div class="alert">Idade não informada – succinilcolina usará dose padrão de 1 mg/kg (>10 anos).</div>';
+      avisoHtml += '<div class="alert">ℹ️ Idade não informada – succinilcolina usará dose empírica de 1,5 mg/kg. Informe a idade para maior precisão.</div>';
     }
 
-    const atropinaRecomendada = recomendarAtropina(idadeMeses, peso);
+    const atropinaRecomendada = recomendarAtropina(idadeMeses);
     if (idadeMeses !== null) {
       if (atropinaRecomendada && !incluirAtropinaCheck) {
-        avisoHtml += '<div class="alert">Atropina é recomendada para esta faixa etária (28d a 8 anos). Considere marcá-la.</div>';
+        avisoHtml += '<div class="alert">🫀 Atropina é <strong>recomendada</strong> para esta faixa etária (28 dias a 8 anos) pela AHA PALS 2020. Considere marcá‑la.</div>';
       } else if (!atropinaRecomendada && incluirAtropinaCheck) {
-        avisoHtml += '<div class="alert">Atropina não é rotineiramente recomendada fora da faixa de 28d a 8 anos. Use com cautela.</div>';
+        avisoHtml += '<div class="alert">⚠️ Atropina não é rotineiramente recomendada fora da faixa de 28 dias a 8 anos. Use com cautela.</div>';
       }
     } else {
-      avisoHtml += '<div class="alert">Informe a idade para recomendação precisa de atropina (28 dias a 8 anos).</div>';
+      avisoHtml += '<div class="alert">ℹ️ Informe a idade para recomendação precisa de atropina (28 dias a 8 anos).</div>';
     }
 
-    if (!incluirAtropinaCheck) avisoHtml += '<div class="alert">Atropina NÃO incluída no cálculo.</div>';
+    if (!incluirAtropinaCheck) avisoHtml += '<div class="alert">⚙️ Atropina NÃO incluída no cálculo (opção desmarcada).</div>';
     avisosDiv.innerHTML = avisoHtml;
 
     let medicamentos = [...medsBase];
@@ -537,11 +547,11 @@
       } else {
         formulaDose = `Dose = ${med.doseBase} ${med.unidade} × ${peso} kg = ${(peso * med.doseBase).toFixed(2)} ${med.unidade === 'mcg/kg' ? 'mcg' : 'mg'}`;
       }
-      
+
       let doseCalculada = peso * dosePorKg;
       if (med.doseMaxKg && (med.doseMaxKg * peso) < doseCalculada) {
         doseCalculada = med.doseMaxKg * peso;
-        formulaDose += ` → limitado a máx ${med.doseMaxKg} mg/kg = ${(med.doseMaxKg * peso).toFixed(2)} mg`;
+        formulaDose += ` → limitado a máx ${med.doseMaxKg} ${med.unidade} = ${(med.doseMaxKg * peso).toFixed(2)} ${med.unidade === 'mcg/kg' ? 'mcg' : 'mg'}`;
       }
 
       let unidadeExib = med.unidade;

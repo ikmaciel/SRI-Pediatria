@@ -372,7 +372,7 @@
 <div class="wrap">
   <h1>Calculadora de SRI Pediátrica</h1>
   <p class="small">
-    <strong>Evidências 2025/2026</strong> – AHA PALS 2020, ESAIC/ESPA 2026.<br>
+    <strong>Evidências 2025/2026</strong> – ESAIC/ESPA 2026, AHA PALS 2020.<br>
     Toque na dose ou no ícone ⓘ para ver o cálculo.
   </p>
 
@@ -397,7 +397,7 @@
 
     <div class="checkbox-row">
       <input type="checkbox" id="incluirAtropina">
-      <label for="incluirAtropina">Incluir Atropina (não rotineira – apenas casos selecionados)</label>
+      <label for="incluirAtropina">Incluir Atropina (não rotineira – apenas casos selecionados, ex: bradicardia sintomática)</label>
     </div>
 
     <div class="grid-2">
@@ -436,7 +436,7 @@
         <tbody></tbody>
       </table>
     </div>
-    <p class="small" style="margin-top: 12px;">Doses conforme diretrizes 2025/2026. Bloqueador neuromuscular: succinilcolina padrão-ouro; rocurônio 1,2 mg/kg como alternativa.</p>
+    <p class="small" style="margin-top: 12px;">Doses conforme diretrizes 2025/2026. ESAIC/ESPA 2026 recomenda rocurônio 1,2 mg/kg como primeira linha para RSI. Succinilcolina 1,5 mg/kg é alternativa válida (Mendez 2026).</p>
   </div>
 
   <div class="card">
@@ -463,11 +463,10 @@
       <sup>[3]</sup> Radkowski P, Kowalczyk K, Łęczycka A, et al. Age‑Specific Pharmacology of Neuromuscular Blocking Agents: A Comprehensive Review. <em>Med Sci Monit</em>. 2025;31:e949656. DOI: 10.12659/MSM.949656. <a href="https://medscimonit.com/abstract/full/idArt/949656" target="_blank" rel="noopener noreferrer">MSM</a><br>
       <sup>[4]</sup> Carvalho VEL, et al. Atropine does not prevent hypoxemia and bradycardia in tracheal intubation in the pediatric emergency department: observational study. <em>Rev Paul Pediatr</em>. 2023;42:e2022220. <a href="https://pubmed.ncbi.nlm.nih.gov/37937916/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
       <sup>[5]</sup> Mathews KS, et al. Ketamine vs Etomidate for Rapid-Sequence Intubation — The RSI Trial. <em>N Engl J Med</em>. 2025;393(14):1327-1338. DOI: 10.1056/NEJMoa2412322. <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2412322" target="_blank" rel="noopener noreferrer">NEJM</a><br>
-      <sup>[6]</sup> Mills LA, et al. Adverse Events in Patients Aged 90 Days or Younger Receiving Ketamine in the Emergency Department. <em>Pediatr Emerg Care</em>. 2024;40(9):665-667. <a href="https://pubmed.ncbi.nlm.nih.gov/38776429/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
-      <sup>[7]</sup> Koepp‑Medina G, et al. Videolaryngoscopy versus direct laryngoscopy for paediatric tracheal intubation: a systematic review with meta‑analysis and trial sequential analysis. <em>Br J Anaesth</em>. 2025. <a href="https://pubmed.ncbi.nlm.nih.gov/40145188/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
-      <sup>[8]</sup> Zhou S, et al. Efficacy and safety of sugammadex sodium in reversing rocuronium‑induced neuromuscular blockade in children: An updated systematic review and meta‑analysis. <em>Heliyon</em>. 2023;9(8):e18356. <a href="https://pubmed.ncbi.nlm.nih.gov/37576295/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
-      <sup>[9]</sup> Werther Brunow de Carvalho. <em>Terapia Intensiva Pediátrica</em>. Coleção Pediatria. 2ª ed. <a href="https://www.amazon.com.br/Terapia-Intensiva-Pedi%C3%A1trica-Werther-Carvalho/dp/8520457141" target="_blank" rel="noopener noreferrer">Editora</a><br>
-      <sup>[10]</sup> American Heart Association. <em>Pediatric Advanced Life Support</em>. 2020. <a href="https://cpr.heart.org/en/resuscitation-science/pals" target="_blank" rel="noopener noreferrer">AHA</a>
+      <sup>[6]</sup> Koepp‑Medina G, et al. Videolaryngoscopy versus direct laryngoscopy for paediatric tracheal intubation: a systematic review with meta‑analysis and trial sequential analysis. <em>Br J Anaesth</em>. 2025. <a href="https://pubmed.ncbi.nlm.nih.gov/40145188/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[7]</sup> Mills LA, et al. Adverse Events in Patients Aged 90 Days or Younger Receiving Ketamine in the Emergency Department. <em>Pediatr Emerg Care</em>. 2024;40(9):665-667. <a href="https://pubmed.ncbi.nlm.nih.gov/38776429/" target="_blank" rel="noopener noreferrer">PubMed</a><br>
+      <sup>[8]</sup> Werther Brunow de Carvalho. <em>Terapia Intensiva Pediátrica</em>. Coleção Pediatria. 2ª ed. <a href="https://www.amazon.com.br/Terapia-Intensiva-Pedi%C3%A1trica-Werther-Carvalho/dp/8520457141" target="_blank" rel="noopener noreferrer">Editora</a><br>
+      <sup>[9]</sup> American Heart Association. <em>Pediatric Advanced Life Support</em>. 2020. <a href="https://cpr.heart.org/en/resuscitation-science/pals" target="_blank" rel="noopener noreferrer">AHA</a>
     </p>
   </div>
 </div>
@@ -499,21 +498,23 @@
     return mesesRest === 0 ? `${anos} ano(s)` : `${anos} ano(s) e ${mesesRest} mes(es)`;
   }
 
-  function getSuccinylcholineDose() { return 1.5; }
-  function atropinaRecomendada() { return false; }
+  // ========== DOSES ==========
+  function getSuccinylcholineDose() { return 1.5; } // fixo conforme Mendez 2026
+  function atropinaRecomendada() { return false; } // não rotineira
 
+  // ========== MEDICAMENTOS ==========
   const medsBase = [
-    { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 3, unidade: "mcg/kg", minMax: "2-5 mcg/kg", doseMaxKg: 5, concentracaoMgMl: 0.05, notas: "Opioide rápido. Infundir lentamente." },
+    { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 3, unidade: "mcg/kg", minMax: "2-5 mcg/kg", doseMaxKg: 5, concentracaoMgMl: 0.05, notas: "Opioide rápido. Infundir lentamente. Hipotensão com doses mais altas." },
     { etapa: "Pré‑medicação", nome: "Lidocaína", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 20, notas: "Neuroproteção se HIC suspeita." },
-    { etapa: "Indução", nome: "Cetamina", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 50, notas: "Primeira linha. NEJM 2025: desfechos similares ao etomidato." },
-    { etapa: "Indução", nome: "Etomidato", doseBase: 0.3, unidade: "mg/kg", minMax: "0,2-0,4 mg/kg", doseMaxKg: null, concentracaoMgMl: 2, notas: "Hemodinâmica estável, mas preferir cetamina na maioria dos casos." },
-    { etapa: "Indução", nome: "Propofol", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notas: "Cautela na instabilidade." },
-    { etapa: "Paralisia", nome: "Succinilcolina", doseBase: 1.5, unidade: "mg/kg", minMax: "1,5 mg/kg fixo", doseMaxKg: null, concentracaoMgMl: 20, notas: "Padrão-ouro (Mendez 2026). Contraindicações clássicas." },
-    { etapa: "Paralisia", nome: "Rocurônio", doseBase: 1.2, unidade: "mg/kg", minMax: "1,0-1,2 mg/kg (≥1,2 p/ RSI)", doseMaxKg: null, concentracaoMgMl: 10, notas: "Alternativa segura, antídoto sugammadex." },
-    { etapa: "Sedação pós‑intubação", nome: "Midazolam", doseBase: 0.15, unidade: "mg/kg", minMax: "0,1-0,2 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notas: "Ajustar conforme necessidade." }
+    { etapa: "Indução", nome: "Cetamina", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 50, notas: "Primeira linha. NEJM 2025: desfechos similares ao etomidato. Útil no choque e broncoespasmo." },
+    { etapa: "Indução", nome: "Etomidato", doseBase: 0.3, unidade: "mg/kg", minMax: "0,2-0,4 mg/kg", doseMaxKg: null, concentracaoMgMl: 2, notas: "Hemodinâmica estável, mas evitar na sepse (supressão adrenal)." },
+    { etapa: "Indução", nome: "Propofol", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notas: "Cautela na instabilidade hemodinâmica. Útil em HIC." },
+    { etapa: "Paralisia", nome: "Succinilcolina", doseBase: 1.5, unidade: "mg/kg", minMax: "1,5 mg/kg fixo", doseMaxKg: null, concentracaoMgMl: 20, notas: "Padrão-ouro (Mendez 2026). Contraindicações: hipercalemia, queimaduras, doenças neuromusculares, hipertermia maligna." },
+    { etapa: "Paralisia", nome: "Rocurônio", doseBase: 1.2, unidade: "mg/kg", minMax: "1,0-1,2 mg/kg (≥1,2 p/ RSI)", doseMaxKg: null, concentracaoMgMl: 10, notas: "Recomendado pela ESAIC/ESPA 2026 para RSI. Antídoto: sugammadex." },
+    { etapa: "Sedação pós‑intubação", nome: "Midazolam", doseBase: 0.15, unidade: "mg/kg", minMax: "0,1-0,2 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notas: "Benzodiazepínico para sedação contínua. Ajustar conforme necessidade." }
   ];
 
-  const atropina = { etapa: "Pré‑medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notas: "Não rotineira. Usar apenas se risco elevado de bradicardia (ex: lactentes <1 ano)." };
+  const atropina = { etapa: "Pré‑medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notas: "Não rotineira. Estudo Carvalho 2023 não mostrou benefício na prevenção de bradicardia. Usar apenas em situações de alto risco (ex: lactentes <1 ano com bradicardia)." };
 
   function fmt(x) {
     if (x === null || isNaN(x)) return '—';
@@ -536,7 +537,7 @@
 
   function atualizarAtropinaAuto() {
     const checkbox = document.getElementById('incluirAtropina');
-    if (!userToggledAtropina) checkbox.checked = false;
+    if (!userToggledAtropina) checkbox.checked = false; // sempre desmarcada por padrão
   }
 
   function calcular() {

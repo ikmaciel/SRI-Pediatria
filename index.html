@@ -65,8 +65,7 @@
       margin-bottom: 6px;
     }
 
-    input,
-    select {
+    input, select {
       width: 100%;
       padding: 14px;
       border-radius: 10px;
@@ -82,20 +81,31 @@
       gap: 16px;
     }
 
+    .flex-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .flex-row > div {
+      flex: 1;
+    }
+    .flex-row select {
+      width: auto;
+      flex: 0.5;
+    }
+
     .checkbox-row {
       display: flex;
       align-items: center;
       gap: 8px;
       margin: 16px 0;
     }
-
     .checkbox-row input {
       width: auto;
       margin: 0;
       transform: scale(1.1);
       flex-shrink: 0;
     }
-
     .checkbox-row label {
       margin-bottom: 0;
       font-weight: normal;
@@ -207,12 +217,6 @@
       color: #e5e7eb;
     }
 
-    .footer {
-      margin-top: 16px;
-      font-size: 12px;
-      color: #94a3b8;
-    }
-
     .checklist {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -232,16 +236,6 @@
       border-top: 1px solid var(--line);
     }
 
-    .references a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .references a:hover {
-      text-decoration: underline;
-    }
-
-    /* Modal simples para mobile */
     .modal {
       display: none;
       position: fixed;
@@ -278,9 +272,6 @@
       }
       th, td {
         padding: 6px;
-      }
-      .grid-2 {
-        grid-template-columns: 1fr;
       }
       .dose-cell {
         font-size: 16px;
@@ -343,8 +334,18 @@
         <input id="peso" type="number" min="0" step="0.1" placeholder="Ex.: 12.5" autofocus>
       </div>
       <div>
-        <label for="idade">Idade (meses ou anos) – opcional</label>
-        <input id="idade" type="text" placeholder="Ex.: 3 anos ou 18 meses">
+        <label>Idade (opcional)</label>
+        <div class="flex-row">
+          <div>
+            <input type="number" id="idadeNumero" min="0" step="1" placeholder="Ex.: 18">
+          </div>
+          <div>
+            <select id="idadeUnidade">
+              <option value="meses">Meses</option>
+              <option value="anos" selected>Anos</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -422,7 +423,6 @@
   </div>
 </div>
 
-<!-- Modal para mostrar detalhes do cálculo -->
 <div id="modal" class="modal" onclick="fecharModal(event)">
   <div class="modal-content">
     <p id="modal-text"></p>
@@ -431,35 +431,22 @@
 </div>
 
 <script>
-  // Funções auxiliares
-  function parseIdadeMeses(idadeStr) {
-    if (!idadeStr.trim()) return null;
-    const lower = idadeStr.toLowerCase();
-    let match = lower.match(/(\d+(?:[.,]\d+)?)\s*(ano|anos|meses|mês)/);
-    if (match) {
-      let valor = parseFloat(match[1].replace(',', '.'));
-      if (match[2].startsWith('ano')) return valor * 12;
-      if (match[2].startsWith('mês')) return valor;
-    }
-    let num = parseFloat(idadeStr.replace(',', '.'));
-    if (!isNaN(num)) return num * 12;
-    return null;
-  }
-
-  function getIdadeCategoria(meses) {
-    if (meses === null) return null;
-    if (meses < 12) return "< 1 ano";
-    if (meses < 10*12) return "1-10 anos";
-    return "> 10 anos";
+  function getIdadeMeses() {
+    const num = parseInt(document.getElementById('idadeNumero').value);
+    if (isNaN(num) || num <= 0) return null;
+    const unidade = document.getElementById('idadeUnidade').value;
+    if (unidade === 'meses') return num;
+    return num * 12;
   }
 
   function getSuccinylcholineDosePorKg(meses) {
-    if (meses !== null && meses < 12) return 2.0;
-    if (meses !== null && meses <= 10*12) return 1.2;
+    if (meses === null) return 1.0; // padrão se idade não informada
+    if (meses < 12) return 2.0;
+    if (meses <= 10*12) return 1.2;
     return 1.0;
   }
 
-  function recomendarAtropine(meses, peso) {
+  function recomendarAtropina(meses, peso) {
     if (meses !== null) return (meses >= 1 && meses <= 8*12);
     return peso < 30;
   }
@@ -474,7 +461,7 @@
     { etapa: "Sedação pós-intubação", nome: "Midazolam", doseBase: 0.15, unidade: "mg/kg", minMax: "0,1-0,2 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notas: "Benzodiazepínico para sedação contínua. Ajustar conforme necessidade." }
   ];
 
-  const atropina = { etapa: "Pré-medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notas: "Recomendada para crianças de 28 dias a 8 anos (PALS). Estudos mostram baixa incidência de bradicardia, independente do uso [8,9]." };
+  const atropina = { etapa: "Pré-medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notas: "Recomendada para crianças de 28 dias a 8 anos (PALS). Estudos mostram baixa incidência de bradicardia [8,9]." };
 
   function fmt(x) {
     if (x === null || isNaN(x)) return '—';
@@ -495,7 +482,7 @@
 
   function calcular() {
     const peso = parseFloat(document.getElementById('peso').value.replace(',', '.'));
-    const idadeStr = document.getElementById('idade').value;
+    const idadeMeses = getIdadeMeses();
     const incluirAtropinaCheck = document.getElementById('incluirAtropina').checked;
     const unidadeFenta = document.getElementById('unidadeFentanil').value;
     const tbody = document.querySelector('#tabela tbody');
@@ -509,28 +496,23 @@
       return;
     }
 
-    const idadeMeses = parseIdadeMeses(idadeStr);
-    const faixaEtaria = getIdadeCategoria(idadeMeses);
     let avisoHtml = '';
     if (peso < 3) avisoHtml += '<div class="alert danger">Peso abaixo de 3 kg: utilizar protocolo neonatal específico.</div>';
     if (peso > 50) avisoHtml += '<div class="alert">Peso acima de 50 kg: considerar peso ideal/ajustado.</div>';
     avisoHtml += '<div class="alert ok">Peso utilizado: <b>' + peso.toLocaleString('pt-BR') + ' kg</b>.</div>';
-    if (idadeMeses !== null) {
-      avisoHtml += `<div class="alert ok">Idade: <b>${Math.floor(idadeMeses/12)} anos ${idadeMeses%12} meses</b> (${faixaEtaria}).</div>`;
-    } else {
-      avisoHtml += '<div class="alert">Idade não informada – doses que dependem da idade (succinilcolina) usarão padrão para >10 anos (1 mg/kg).</div>';
-    }
 
     let succDose = 1.0;
     if (idadeMeses !== null) {
+      const anos = Math.floor(idadeMeses / 12);
+      const mesesRest = idadeMeses % 12;
+      avisoHtml += `<div class="alert ok">Idade: <b>${anos} anos e ${mesesRest} meses</b> (${idadeMeses} meses).</div>`;
       succDose = getSuccinylcholineDosePorKg(idadeMeses);
       avisoHtml += `<div class="alert ok">Dose de succinilcolina: <b>${succDose} mg/kg</b> (baseada na idade).</div>`;
     } else {
-      avisoHtml += '<div class="alert">Dose de succinilcolina usando padrão 1 mg/kg (idade >10 anos). Informe a idade para ajuste fino.</div>';
+      avisoHtml += '<div class="alert">Idade não informada – succinilcolina usará dose padrão de 1 mg/kg (>10 anos).</div>';
     }
 
-    const atropinaRecomendada = recomendarAtropine(idadeMeses, peso);
-    const atropinaCheckbox = document.getElementById('incluirAtropina');
+    const atropinaRecomendada = recomendarAtropina(idadeMeses, peso);
     if (idadeMeses !== null) {
       if (atropinaRecomendada && !incluirAtropinaCheck) {
         avisoHtml += '<div class="alert">Atropina é recomendada para esta faixa etária (28d a 8 anos). Considere marcá-la.</div>';
@@ -587,7 +569,6 @@
 
       const tooltipText = `${formulaDose}. ${formulaVolume}`.trim();
 
-      // Cria a célula da dose com ícone clicável
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${med.etapa}</td>
@@ -603,7 +584,6 @@
       tbody.appendChild(tr);
     });
 
-    // Adiciona eventos de clique para cada ícone e também na dose-value (opcional)
     document.querySelectorAll('.info-icon').forEach(icon => {
       icon.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -626,11 +606,12 @@
 
   function limpar() {
     document.getElementById('peso').value = '';
-    document.getElementById('idade').value = '';
+    document.getElementById('idadeNumero').value = '';
+    document.getElementById('idadeUnidade').value = 'anos';
     calcular();
   }
 
-  ['peso', 'idade', 'arred', 'unidadeFentanil', 'incluirAtropina'].forEach(id => {
+  ['peso', 'idadeNumero', 'idadeUnidade', 'arred', 'unidadeFentanil', 'incluirAtropina'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', calcular);
     if (el && el.tagName === 'SELECT') el.addEventListener('change', calcular);

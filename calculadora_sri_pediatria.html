@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Calculadora de SRI Pediátrica - para Seidenadaiarameri</title>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --muted: #94a3b8;
+      --text: #e5e7eb;
+      --line: #334155;
+      --accent: #38bdf8;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --ok: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #020617, #0f172a);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 0 0 6px;
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .card {
+      width: 100%;
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      margin-top: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #020617;
+      color: var(--text);
+      font-size: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .checkbox-row input {
+      width: auto;
+      margin: 0;
+      transform: scale(1.1);
+      flex-shrink: 0;
+    }
+
+    .checkbox-row label {
+      margin-bottom: 0;
+      font-weight: normal;
+      line-height: 1.4;
+    }
+
+    .alert {
+      border-left: 5px solid var(--warn);
+      background: #451a03;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 14px 0;
+      color: #fde68a;
+    }
+
+    .danger {
+      border-left-color: var(--danger);
+      background: #450a0a;
+      color: #fecaca;
+    }
+
+    .ok {
+      border-left-color: var(--ok);
+      background: #052e16;
+      color: #bbf7d0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      overflow-x: auto;
+      display: block;
+      border-radius: 12px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #020617;
+      color: #bae6fd;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    tr:hover {
+      background: #0b1220;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .dose-cell {
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .dose-value {
+      border-bottom: 1px dashed var(--accent);
+    }
+
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      background: var(--accent);
+      color: #001018;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btns {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: var(--accent);
+      color: #001018;
+      font-size: 16px;
+    }
+
+    .secondary {
+      background: #334155;
+      color: #e5e7eb;
+    }
+
+    .footer {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .checklist-item {
+      font-size: 13px;
+      padding: 4px 0;
+    }
+
+    .references {
+      font-size: 11px;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .references a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .references a:hover {
+      text-decoration: underline;
+    }
+
+    /* Modal simples para mobile */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #111827;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 90%;
+      width: 300px;
+      text-align: center;
+      border: 1px solid var(--accent);
+    }
+    .modal-content p {
+      margin: 0 0 12px;
+      font-size: 16px;
+    }
+    .modal-content button {
+      margin-top: 8px;
+      padding: 8px 16px;
+    }
+
+    @media (max-width: 800px) {
+      .wrap {
+        padding: 14px;
+      }
+      th, td {
+        padding: 6px;
+      }
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+      .dose-cell {
+        font-size: 16px;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      .card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        background: white;
+        color: black;
+      }
+      .small, p {
+        color: #444;
+      }
+      button, .no-print, .info-icon, .modal {
+        display: none;
+      }
+      input, select {
+        border: 1px solid #aaa;
+        color: black;
+        background: white;
+      }
+      th {
+        background: #eee;
+        color: black;
+      }
+      .alert {
+        background: #fff3cd;
+        color: #664d03;
+      }
+      .danger {
+        background: #f8d7da;
+        color: #842029;
+      }
+      .ok {
+        background: #d1e7dd;
+        color: #0f5132;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Calculadora de SRI Pediátrica - para Seidenadaiarameri</h1>
+  <p class="small">
+    Calculadora para Sequência Rápida de Intubação (SRI) em pediatria, diretrizes atualizadas 2025/2026.<br>
+    <strong>Toque na dose ou no ícone ⓘ</strong> para ver o cálculo detalhado.
+  </p>
+
+  <div class="card">
+    <div class="grid-2">
+      <div>
+        <label for="peso">Peso da criança (kg)</label>
+        <input id="peso" type="number" min="0" step="0.1" placeholder="Ex.: 12.5" autofocus>
+      </div>
+      <div>
+        <label for="idade">Idade (meses ou anos) – opcional</label>
+        <input id="idade" type="text" placeholder="Ex.: 3 anos ou 18 meses">
+      </div>
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="incluirAtropina">
+      <label for="incluirAtropina">Incluir Atropina (recomendada para 28 dias a 8 anos)</label>
+    </div>
+
+    <div class="grid-2" style="margin-top: 12px;">
+      <div>
+        <label for="arred">Arredondamento</label>
+        <select id="arred">
+          <option value="0.01">0,01</option>
+          <option value="0.1" selected>0,1</option>
+          <option value="1">1</option>
+        </select>
+      </div>
+      <div>
+        <label for="unidadeFentanil">Exibir Fentanil como</label>
+        <select id="unidadeFentanil">
+          <option value="mcg">microgramas (mcg)</option>
+          <option value="mg">miligramas (mg)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btns no-print">
+      <button onclick="window.print()">Imprimir</button>
+      <button class="secondary" onclick="limpar()">Limpar</button>
+    </div>
+
+    <div id="avisos"></div>
+  </div>
+
+  <div class="card">
+    <h2>Resultado</h2>
+    <table id="tabela">
+      <thead>
+        <tr><th>Etapa</th><th>Medicação</th><th>Dose usada</th><th>Dose calculada</th><th>Volume (mL)</th><th>Notas</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Checklist de materiais</h2>
+    <div class="checklist">
+      <div class="checklist-item">• Monitor multiparamétrico + capnografia</div>
+      <div class="checklist-item">• Fonte de O₂ e bolsa-válvula-máscara testada</div>
+      <div class="checklist-item">• Tubo orotraqueal com cuff (tamanho adequado)</div>
+      <div class="checklist-item">• Laringoscópio (videolaringoscópio se disponível)</div>
+      <div class="checklist-item">• Material para via aérea difícil</div>
+      <div class="checklist-item">• Acesso venoso periférico + medicações SRI</div>
+      <div class="checklist-item">• Monitorização neuromuscular quantitativa</div>
+      <div class="checklist-item">• Sugammadex disponível (se rocurônio utilizado)</div>
+    </div>
+  </div>
+
+  <div class="card references">
+    <h2>Referências Bibliográficas</h2>
+    <p class="small">
+      <sup>[1]</sup> American Heart Association. <em>Pediatric Advanced Life Support</em>. 2020.<br>
+      <sup>[2]</sup> American Academy of Pediatrics. <em>Rocuronium Dosage for Pediatric Intubation</em>. PraxisMed, 2025.<br>
+      <sup>[3]</sup> Laws JC, et al. Acute Effects of Ketamine on Intracranial Pressure in Children With Severe Traumatic Brain Injury. <em>Crit Care Med</em>. 2023;51(5):563-572.<br>
+      <sup>[4]</sup> Daghmouri MA, et al. Etomidate versus ketamine for in-hospital rapid sequence intubation: a systematic review and meta-analysis. <em>Eur J Emerg Med</em>. 2025;32(3):160-170.<br>
+      <sup>[5]</sup> Mendez D, et al. Retrospective Study on Mortality and Adrenal Insufficiency Following Emergency Intubation With Etomidate Versus Ketamine in Children. <em>Cureus</em>. 2025;17(2):e79581.<br>
+      <sup>[6]</sup> Zhou S, et al. Efficacy and safety of sugammadex sodium in reversing rocuronium-induced neuromuscular blockade in children: An updated systematic review and meta-analysis. <em>Heliyon</em>. 2023;9(8):e18356.<br>
+      <sup>[7]</sup> Koepp-Medina G, et al. Videolaryngoscopy versus direct laryngoscopy for paediatric tracheal intubation: a systematic review with meta-analysis and trial sequential analysis. <em>Br J Anaesth</em>. 2025;S0007-0912(25)00600-2.<br>
+      <sup>[8]</sup> Kovacich NJ, et al. Incidence of Bradycardia and the Use of Atropine in Pediatric Rapid Sequence Intubation in the Emergency Department. <em>Pediatr Emerg Care</em>. 2022;38(2):e540-e543.<br>
+      <sup>[9]</sup> Carvalho VEL, et al. Atropine does not prevent hypoxemia and bradycardia in tracheal intubation in the pediatric emergency department: observational study. <em>Rev Paul Pediatr</em>. 2023;42:e2022220.<br>
+      <sup>[10]</sup> Werther Brunow de Carvalho. <em>Terapia Intensiva Pediátrica</em>. Coleção Pediatria. Segunda Edição.<br>
+      <sup>[11]</sup> Albert Bousso et al. <em>Guia Prático de Terapia Intensiva Pediátrica</em>. Albert Einstein.<br>
+      <sup>[12]</sup> Paula de Camargo Traldi. <em>Urgências e Emergências Pediátricas</em>. Série Pediatria Soperj.
+    </p>
+  </div>
+</div>
+
+<!-- Modal para mostrar detalhes do cálculo -->
+<div id="modal" class="modal" onclick="fecharModal(event)">
+  <div class="modal-content">
+    <p id="modal-text"></p>
+    <button onclick="fecharModal()">Fechar</button>
+  </div>
+</div>
+
+<script>
+  // Funções auxiliares
+  function parseIdadeMeses(idadeStr) {
+    if (!idadeStr.trim()) return null;
+    const lower = idadeStr.toLowerCase();
+    let match = lower.match(/(\d+(?:[.,]\d+)?)\s*(ano|anos|meses|mês)/);
+    if (match) {
+      let valor = parseFloat(match[1].replace(',', '.'));
+      if (match[2].startsWith('ano')) return valor * 12;
+      if (match[2].startsWith('mês')) return valor;
+    }
+    let num = parseFloat(idadeStr.replace(',', '.'));
+    if (!isNaN(num)) return num * 12;
+    return null;
+  }
+
+  function getIdadeCategoria(meses) {
+    if (meses === null) return null;
+    if (meses < 12) return "< 1 ano";
+    if (meses < 10*12) return "1-10 anos";
+    return "> 10 anos";
+  }
+
+  function getSuccinylcholineDosePorKg(meses) {
+    if (meses !== null && meses < 12) return 2.0;
+    if (meses !== null && meses <= 10*12) return 1.2;
+    return 1.0;
+  }
+
+  function recomendarAtropine(meses, peso) {
+    if (meses !== null) return (meses >= 1 && meses <= 8*12);
+    return peso < 30;
+  }
+
+  const medsBase = [
+    { etapa: "Pré-medicação", nome: "Fentanil", doseBase: 3, unidade: "mcg/kg", minMax: "2-5 mcg/kg", doseMaxKg: 5, concentracaoMgMl: 0.05, notas: "Opioide rápido. Doses mais altas podem causar hipotensão." },
+    { etapa: "Indução", nome: "Cetamina", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 50, notas: "Agente de primeira linha, especialmente na instabilidade hemodinâmica. Não há evidência de aumento da PIC com dose única [3]." },
+    { etapa: "Indução", nome: "Etomidato", doseBase: 0.3, unidade: "mg/kg", minMax: "0,2-0,4 mg/kg", doseMaxKg: null, concentracaoMgMl: 2, notas: "Estabilidade hemodinâmica, mas causa supressão adrenal mais frequente que cetamina [4,5]." },
+    { etapa: "Indução", nome: "Propofol", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notas: "Cardiodepressor → cautela na instabilidade hemodinâmica." },
+    { etapa: "Paralisia", nome: "Succinilcolina", doseBase: null, unidade: "mg/kg", minMax: "dose ajustada por idade", doseMaxKg: null, concentracaoMgMl: 20, notas: "Padrão-ouro para SRI pediátrica [2]. Contraindicações: hipercalemia, queimaduras, doenças neuromusculares, hipertermia maligna." },
+    { etapa: "Paralisia", nome: "Rocurônio", doseBase: 1.0, unidade: "mg/kg", minMax: "0,9-1,2 mg/kg (≥0,9 mg/kg para RSI)", doseMaxKg: 1.2, concentracaoMgMl: 10, notas: "Alternativa quando succinilcolina é contraindicada. Dose ≥0,9 mg/kg para intubação rápida [2]. Reversão com sugammadex [6]." },
+    { etapa: "Sedação pós-intubação", nome: "Midazolam", doseBase: 0.15, unidade: "mg/kg", minMax: "0,1-0,2 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notas: "Benzodiazepínico para sedação contínua. Ajustar conforme necessidade." }
+  ];
+
+  const atropina = { etapa: "Pré-medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notas: "Recomendada para crianças de 28 dias a 8 anos (PALS). Estudos mostram baixa incidência de bradicardia, independente do uso [8,9]." };
+
+  function fmt(x) {
+    if (x === null || isNaN(x)) return '—';
+    const arred = parseFloat(document.getElementById('arred').value);
+    const valor = Math.round(x / arred) * arred;
+    return valor.toLocaleString('pt-BR', { maximumFractionDigits: 3 });
+  }
+
+  let modal = document.getElementById('modal');
+  function mostrarDetalhes(texto) {
+    document.getElementById('modal-text').innerText = texto;
+    modal.style.display = 'flex';
+  }
+  function fecharModal(event) {
+    if (event && event.target !== modal && event.target !== modal.querySelector('button')) return;
+    modal.style.display = 'none';
+  }
+
+  function calcular() {
+    const peso = parseFloat(document.getElementById('peso').value.replace(',', '.'));
+    const idadeStr = document.getElementById('idade').value;
+    const incluirAtropinaCheck = document.getElementById('incluirAtropina').checked;
+    const unidadeFenta = document.getElementById('unidadeFentanil').value;
+    const tbody = document.querySelector('#tabela tbody');
+    const avisosDiv = document.getElementById('avisos');
+
+    tbody.innerHTML = '';
+    avisosDiv.innerHTML = '';
+
+    if (!peso || peso <= 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="small">Informe o peso para calcular.</td></tr>';
+      return;
+    }
+
+    const idadeMeses = parseIdadeMeses(idadeStr);
+    const faixaEtaria = getIdadeCategoria(idadeMeses);
+    let avisoHtml = '';
+    if (peso < 3) avisoHtml += '<div class="alert danger">Peso abaixo de 3 kg: utilizar protocolo neonatal específico.</div>';
+    if (peso > 50) avisoHtml += '<div class="alert">Peso acima de 50 kg: considerar peso ideal/ajustado.</div>';
+    avisoHtml += '<div class="alert ok">Peso utilizado: <b>' + peso.toLocaleString('pt-BR') + ' kg</b>.</div>';
+    if (idadeMeses !== null) {
+      avisoHtml += `<div class="alert ok">Idade: <b>${Math.floor(idadeMeses/12)} anos ${idadeMeses%12} meses</b> (${faixaEtaria}).</div>`;
+    } else {
+      avisoHtml += '<div class="alert">Idade não informada – doses que dependem da idade (succinilcolina) usarão padrão para >10 anos (1 mg/kg).</div>';
+    }
+
+    let succDose = 1.0;
+    if (idadeMeses !== null) {
+      succDose = getSuccinylcholineDosePorKg(idadeMeses);
+      avisoHtml += `<div class="alert ok">Dose de succinilcolina: <b>${succDose} mg/kg</b> (baseada na idade).</div>`;
+    } else {
+      avisoHtml += '<div class="alert">Dose de succinilcolina usando padrão 1 mg/kg (idade >10 anos). Informe a idade para ajuste fino.</div>';
+    }
+
+    const atropinaRecomendada = recomendarAtropine(idadeMeses, peso);
+    const atropinaCheckbox = document.getElementById('incluirAtropina');
+    if (idadeMeses !== null) {
+      if (atropinaRecomendada && !incluirAtropinaCheck) {
+        avisoHtml += '<div class="alert">Atropina é recomendada para esta faixa etária (28d a 8 anos). Considere marcá-la.</div>';
+      } else if (!atropinaRecomendada && incluirAtropinaCheck) {
+        avisoHtml += '<div class="alert">Atropina não é rotineiramente recomendada fora da faixa de 28d a 8 anos. Use com cautela.</div>';
+      }
+    } else {
+      avisoHtml += '<div class="alert">Informe a idade para recomendação precisa de atropina (28 dias a 8 anos).</div>';
+    }
+
+    if (!incluirAtropinaCheck) avisoHtml += '<div class="alert">Atropina NÃO incluída no cálculo.</div>';
+    avisosDiv.innerHTML = avisoHtml;
+
+    let medicamentos = [...medsBase];
+    if (incluirAtropinaCheck) medicamentos.push(atropina);
+
+    medicamentos.forEach(med => {
+      let dosePorKg = med.doseBase;
+      let formulaDose = '';
+      if (med.nome === 'Succinilcolina') {
+        dosePorKg = succDose;
+        formulaDose = `Dose = ${dosePorKg} mg/kg (baseada na idade) × ${peso} kg = ${(peso * dosePorKg).toFixed(2)} mg`;
+      } else {
+        formulaDose = `Dose = ${med.doseBase} ${med.unidade} × ${peso} kg = ${(peso * med.doseBase).toFixed(2)} ${med.unidade === 'mcg/kg' ? 'mcg' : 'mg'}`;
+      }
+      
+      let doseCalculada = peso * dosePorKg;
+      if (med.doseMaxKg && (med.doseMaxKg * peso) < doseCalculada) {
+        doseCalculada = med.doseMaxKg * peso;
+        formulaDose += ` → limitado a máx ${med.doseMaxKg} mg/kg = ${(med.doseMaxKg * peso).toFixed(2)} mg`;
+      }
+
+      let unidadeExib = med.unidade;
+      let valorExib = doseCalculada;
+      if (med.nome === 'Fentanil' && unidadeFenta === 'mg') {
+        valorExib = doseCalculada / 1000;
+        unidadeExib = 'mg';
+        formulaDose = `Dose = ${med.doseBase} mcg/kg × ${peso} kg = ${(peso * med.doseBase).toFixed(0)} mcg → convertido para mg: ${valorExib.toFixed(3)} mg`;
+      } else if (med.nome === 'Fentanil' && unidadeFenta === 'mcg') {
+        valorExib = doseCalculada * 1000;
+        unidadeExib = 'mcg';
+        formulaDose = `Dose = ${med.doseBase} mcg/kg × ${peso} kg = ${valorExib.toFixed(0)} mcg`;
+      }
+
+      let doseEmMg = (med.nome === 'Fentanil' && unidadeFenta === 'mcg') ? (valorExib / 1000) : 
+                    (med.nome === 'Fentanil' && unidadeFenta === 'mg') ? valorExib : doseCalculada;
+      let volumeHtml = '—';
+      let formulaVolume = '';
+      if (med.concentracaoMgMl && doseEmMg) {
+        let vol = doseEmMg / med.concentracaoMgMl;
+        volumeHtml = fmt(vol) + ' mL';
+        formulaVolume = `Volume = ${doseEmMg.toFixed(2)} mg ÷ ${med.concentracaoMgMl} mg/mL = ${vol.toFixed(2)} mL`;
+      }
+
+      const tooltipText = `${formulaDose}. ${formulaVolume}`.trim();
+
+      // Cria a célula da dose com ícone clicável
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${med.etapa}</td>
+        <td><strong>${med.nome}</strong></td>
+        <td>${dosePorKg.toFixed(2)} ${med.unidade}<br><span class="small">${med.minMax || ''}</span></td>
+        <td class="dose-cell">
+          <span class="dose-value">${fmt(valorExib)} ${unidadeExib}</span>
+          <span class="info-icon" data-detalhe="${tooltipText.replace(/"/g, '&quot;')}">ⓘ</span>
+        </td>
+        <td>${volumeHtml}</td>
+        <td class="small">${med.notas}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Adiciona eventos de clique para cada ícone e também na dose-value (opcional)
+    document.querySelectorAll('.info-icon').forEach(icon => {
+      icon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const detalhe = icon.getAttribute('data-detalhe');
+        mostrarDetalhes(detalhe);
+      });
+    });
+    document.querySelectorAll('.dose-value').forEach(elem => {
+      elem.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const parent = elem.closest('.dose-cell');
+        const icon = parent?.querySelector('.info-icon');
+        if (icon) {
+          const detalhe = icon.getAttribute('data-detalhe');
+          mostrarDetalhes(detalhe);
+        }
+      });
+    });
+  }
+
+  function limpar() {
+    document.getElementById('peso').value = '';
+    document.getElementById('idade').value = '';
+    calcular();
+  }
+
+  ['peso', 'idade', 'arred', 'unidadeFentanil', 'incluirAtropina'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', calcular);
+    if (el && el.tagName === 'SELECT') el.addEventListener('change', calcular);
+  });
+  calcular();
+</script>
+</body>
+</html>

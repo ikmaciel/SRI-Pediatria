@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover" />
-  <title>Calculadora de SRI Pediátrica - Evidências 2025/2026</title>
+  <title>SRI Pediátrica - Recomendações 2026</title>
 
   <style>
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -17,14 +18,17 @@
       color: #e5e7eb;
       line-height: 1.4;
     }
+
     .wrap {
       max-width: 100%;
       margin: 0 auto;
       padding: 16px;
     }
+
     h1 { font-size: 1.8rem; margin: 0 0 4px; line-height: 1.2; }
-    h2 { font-size: 1.4rem; margin-top: 0; margin-bottom: 12px; }
+    h2 { font-size: 1.4rem; margin: 0 0 12px; }
     p { color: #94a3b8; font-size: 0.85rem; }
+
     .card {
       background: rgba(17, 24, 39, 0.96);
       border: 1px solid #334155;
@@ -33,12 +37,8 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.3);
       margin-top: 16px;
     }
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      font-size: 0.9rem;
-    }
+
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
     input, select {
       width: 100%;
       padding: 12px;
@@ -49,37 +49,20 @@
       font-size: 1rem;
       font-family: inherit;
     }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .flex-row {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .flex-row { display: flex; gap: 8px; align-items: flex-end; }
     .flex-row > div { flex: 1; }
     .flex-row select { width: auto; flex: 0.45; min-width: 85px; }
 
-    /* CHECKBOX padrão */
     .checkbox-row {
       display: flex;
       align-items: center;
       gap: 10px;
       margin: 12px 0;
     }
-    .checkbox-row input {
-      width: 24px;
-      height: 24px;
-      margin: 0;
-      flex-shrink: 0;
-    }
-    .checkbox-row label {
-      margin-bottom: 0;
-      font-weight: normal;
-      font-size: 0.85rem;
-    }
+    .checkbox-row input { width: 24px; height: 24px; margin: 0; flex-shrink: 0; }
+    .checkbox-row label { margin-bottom: 0; font-weight: normal; font-size: 0.85rem; }
 
     /* Menu expansível */
     .collapsible {
@@ -94,21 +77,16 @@
       cursor: pointer;
       font-weight: 600;
       border-radius: 16px;
-      transition: 0.2s;
       display: flex;
       justify-content: space-between;
     }
-    .collapsible-header:hover { background-color: #1e293b; }
     .collapsible-content {
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease-out;
       padding: 0 16px;
     }
-    .collapsible-content.open {
-      max-height: 500px;
-      padding: 12px 16px;
-    }
+    .collapsible-content.open { max-height: 500px; padding: 12px 16px; }
 
     .alert {
       border-left: 5px solid #f59e0b;
@@ -119,21 +97,15 @@
       color: #fde68a;
       font-size: 0.85rem;
     }
-    .danger {
-      border-left-color: #ef4444;
-      background: #450a0a;
-      color: #fecaca;
+    .danger { border-left-color: #ef4444; background: #450a0a; color: #fecaca; }
+    .ok { border-left-color: #22c55e; background: #052e16; color: #bbf7d0; }
+    .recomendacao {
+      border-left: 5px solid #38bdf8;
+      background: #1e3a5f;
+      color: #e0f2fe;
     }
-    .ok {
-      border-left-color: #22c55e;
-      background: #052e16;
-      color: #bbf7d0;
-    }
-    .table-wrapper {
-      overflow-x: auto;
-      margin: 10px 0;
-      border-radius: 16px;
-    }
+
+    .table-wrapper { overflow-x: auto; margin: 10px 0; border-radius: 16px; }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -146,12 +118,7 @@
       text-align: left;
       vertical-align: top;
     }
-    th {
-      background: #020617;
-      color: #bae6fd;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-    }
+    th { background: #020617; color: #bae6fd; font-size: 0.7rem; text-transform: uppercase; }
     .small { font-size: 0.7rem; color: #94a3b8; }
     .dose-cell {
       font-size: 0.9rem;
@@ -176,12 +143,7 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .btns {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 16px 0 8px;
-    }
+    .btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0 8px; }
     button {
       border: 0;
       border-radius: 40px;
@@ -194,28 +156,10 @@
       flex: 1 1 auto;
     }
     .secondary { background: #334155; color: #e5e7eb; }
-    .checklist {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .checklist-item {
-      font-size: 0.8rem;
-      padding: 6px 0;
-      border-bottom: 1px solid #334155;
-    }
-    .references {
-      font-size: 0.7rem;
-      margin-top: 16px;
-      padding-top: 12px;
-      border-top: 1px solid #334155;
-    }
-    .references a {
-      color: #38bdf8;
-      text-decoration: none;
-      word-break: break-all;
-    }
+    .checklist { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px; }
+    .checklist-item { font-size: 0.8rem; padding: 6px 0; border-bottom: 1px solid #334155; }
+    .references { font-size: 0.7rem; margin-top: 16px; padding-top: 12px; border-top: 1px solid #334155; }
+    .references a { color: #38bdf8; text-decoration: none; word-break: break-all; }
     .modal {
       display: none;
       position: fixed;
@@ -238,16 +182,9 @@
       text-align: center;
       border: 1px solid #38bdf8;
     }
-    .modal-content p {
-      margin: 0 0 16px;
-      font-size: 0.9rem;
-      white-space: pre-wrap;
-      text-align: left;
-    }
-    .modal-content button {
-      margin-top: 0;
-      padding: 8px 20px;
-    }
+    .modal-content p { margin: 0 0 16px; font-size: 0.9rem; white-space: pre-wrap; text-align: left; }
+    .modal-content button { margin-top: 0; padding: 8px 20px; }
+
     @media (max-width: 560px) {
       .wrap { padding: 12px; }
       h1 { font-size: 1.5rem; }
@@ -261,7 +198,7 @@
 <body>
 <div class="wrap">
   <h1>Calculadora de SRI Pediátrica</h1>
-  <p class="small"><strong>Evidências 2025/2026</strong> – ESAIC/ESPA 2026, AHA PALS 2020. Toque na dose ou no ícone ⓘ para ver o cálculo detalhado.</p>
+  <p class="small"><strong>Baseada em evidências 2025/2026</strong> – ESAIC/ESPA 2026, Mendez et al. 2026, Radkowski 2025. Toque na dose para ver detalhes.</p>
 
   <div class="card">
     <div class="grid-2">
@@ -284,18 +221,19 @@
 
     <div class="checkbox-row">
       <input type="checkbox" id="incluirAtropina">
-      <label for="incluirAtropina">Incluir Atropina (não rotineira – apenas casos selecionados, ex: bradicardia sintomática)</label>
+      <label for="incluirAtropina">Incluir Atropina (não rotineira – apenas bradicardia sintomática)</label>
     </div>
 
     <!-- Menu expansível para condições clínicas -->
     <div class="collapsible">
-      <div class="collapsible-header" id="btnCondicoes">➕ Condições clínicas (opcional) ▼</div>
+      <div class="collapsible-header" id="btnCondicoes">➕ Condições clínicas (opcional – melhora a recomendação) ▼</div>
       <div class="collapsible-content" id="condicoesContent">
         <div class="checkbox-row"><input type="checkbox" id="choque"><label for="choque">Choque / instabilidade hemodinâmica</label></div>
         <div class="checkbox-row"><input type="checkbox" id="hic"><label for="hic">Suspeita de hipertensão intracraniana (HIC)</label></div>
-        <div class="checkbox-row"><input type="checkbox" id="hipercalemia"><label for="hipercalemia">Hipercalemia conhecida</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="hipercalemia"><label for="hipercalemia">Hipercalemia conhecida (K+ >5,5)</label></div>
         <div class="checkbox-row"><input type="checkbox" id="hm"><label for="hm">História familiar de hipertermia maligna</label></div>
         <div class="checkbox-row"><input type="checkbox" id="sepse"><label for="sepse">Sepse</label></div>
+        <div class="checkbox-row"><input type="checkbox" id="asma"><label for="asma">Asma / broncoespasmo ativo</label></div>
       </div>
     </div>
 
@@ -303,11 +241,12 @@
       <button onclick="window.print()">Imprimir</button>
       <button class="secondary" onclick="limpar()">Limpar</button>
     </div>
+    <div id="recomendacaoBox"></div>
     <div id="avisos"></div>
   </div>
 
   <div class="card">
-    <h2>Resultado</h2>
+    <h2>Resultado – Doses calculadas</h2>
     <div class="table-wrapper">
       <table id="tabela">
         <thead><tr><th>Etapa</th><th>Medicação</th><th>Dose usada</th><th>Dose calculada</th><th>Volume (mL)</th><th>Notas</th></tr></thead>
@@ -320,15 +259,15 @@
     <h2>Checklist de segurança</h2>
     <div class="checklist">
       <div class="checklist-item">✓ Capnografia + monitor multiparamétrico</div>
-      <div class="checklist-item">✓ Fonte de O₂ e bolsa-válvula-máscara</div>
-      <div class="checklist-item">✓ Tubo com cuff (tamanho adequado)</div>
-      <div class="checklist-item">✓ Laringoscópio (preferível video)</div>
+      <div class="checklist-item">✓ Fonte de O₂ e bolsa-válvula-máscara testada</div>
+      <div class="checklist-item">✓ Tubo com cuff (tamanho adequado pelo peso/comprimento)</div>
+      <div class="checklist-item">✓ Laringoscópio (videolaringoscópio preferível)</div>
       <div class="checklist-item">✓ Aspirador + sonda + fio-guia</div>
       <div class="checklist-item">✓ Material de fixação e coxim</div>
-      <div class="checklist-item">✓ Acesso venoso + medicações SRI</div>
+      <div class="checklist-item">✓ Acesso venoso periférico + medicações SRI</div>
       <div class="checklist-item">✓ Maleta de via aérea difícil</div>
-      <div class="checklist-item">✓ Monitor neuromuscular quantitativo</div>
-      <div class="checklist-item">✓ Sugammadex disponível (se rocurônio)</div>
+      <div class="checklist-item">✓ Monitor neuromuscular quantitativo (recomendado ESAIC 2026)</div>
+      <div class="checklist-item">✓ Sugammadex disponível se rocurônio utilizado</div>
     </div>
   </div>
 
@@ -382,7 +321,7 @@
 
   // ---------- DOSES ESPECÍFICAS ----------
   function getSuccinylcholineDosePorKg(idadeMeses) {
-    if (idadeMeses === null) return 1.5; // padrão se idade não informada
+    if (idadeMeses === null) return 1.5;
     if (idadeMeses < 6) return 2.0;
     return 1.5;
   }
@@ -391,21 +330,34 @@
     return document.getElementById('hipercalemia').checked || document.getElementById('hm').checked;
   }
 
-  // ---------- MEDICAMENTOS BASE ----------
+  // ---------- RECOMENDAÇÃO INTELIGENTE ----------
+  function recomendarIndutor(choque, hic, sepse, asma) {
+    if (asma) return { nome: "Cetamina", dose: 1.5, razao: "Agente broncodilatador, ideal na asma." };
+    if (choque) return { nome: "Cetamina", dose: 1.5, razao: "Primeira linha no choque – estabilidade hemodinâmica." };
+    if (hic) return { nome: "Etomidato", dose: 0.3, razao: "Neuroproteção, reduz PIC, mantém PA." };
+    if (sepse) return { nome: "Cetamina", dose: 1.5, razao: "Evitar etomidato na sepse (supressão adrenal)." };
+    return { nome: "Cetamina", dose: 1.5, razao: "Agente versátil, seguro e eficaz na maioria dos cenários." };
+  }
+
+  function recomendarBloqueador(contraindicado) {
+    if (contraindicado) return { nome: "Rocurônio", dose: 1.2, razao: "Succinilcolina contraindicada. Rocurônio 1,2 mg/kg conforme ESAIC/ESPA 2026." };
+    return { nome: "Succinilcolina", dose: null, razao: "Padrão-ouro (Mendez 2026). Dose ajustada por idade." };
+  }
+
+  // ---------- MEDICAMENTOS BASE (doses padrão) ----------
   const medsBase = [
     { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 3, unidade: "mcg/kg", minMax: "2-5 mcg/kg", doseMaxKg: 5, concentracaoMgMl: 0.05, notasBase: "Opioide rápido. Infundir lentamente." },
     { etapa: "Pré‑medicação", nome: "Lidocaína", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Neuroproteção se HIC suspeita." },
-    { etapa: "Indução", nome: "Cetamina", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 50, notasBase: "Primeira linha. NEJM 2025: desfechos similares ao etomidato. Útil no choque e broncoespasmo." },
-    { etapa: "Indução", nome: "Etomidato", doseBase: 0.3, unidade: "mg/kg", minMax: "0,2-0,4 mg/kg", doseMaxKg: null, concentracaoMgMl: 2, notasBase: "Hemodinâmica estável, mas evitar na sepse (supressão adrenal)." },
+    { etapa: "Indução", nome: "Cetamina", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 50, notasBase: "Primeira linha. Estável hemodinamicamente. Útil no choque e asma." },
+    { etapa: "Indução", nome: "Etomidato", doseBase: 0.3, unidade: "mg/kg", minMax: "0,2-0,4 mg/kg", doseMaxKg: null, concentracaoMgMl: 2, notasBase: "Hemodinâmica estável, neuroproteção. Evitar na sepse." },
     { etapa: "Indução", nome: "Propofol", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notasBase: "Cautela na instabilidade hemodinâmica. Útil em HIC." },
-    { etapa: "Paralisia", nome: "Succinilcolina", doseBase: null, unidade: "mg/kg", minMax: "ajustada por idade (<6m:2; ≥6m:1,5)", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Padrão‑ouro (Mendez 2026). Contraindicações: hipercalemia, hipertermia maligna." },
-    { etapa: "Paralisia", nome: "Rocurônio", doseBase: 1.2, unidade: "mg/kg", minMax: "1,0-1,2 mg/kg (≥1,2 p/ RSI)", doseMaxKg: null, concentracaoMgMl: 10, notasBase: "Recomendado pela ESAIC/ESPA 2026 para RSI. Antídoto: sugammadex." },
+    { etapa: "Paralisia", nome: "Succinilcolina", doseBase: null, unidade: "mg/kg", minMax: "ajustada por idade", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Contraindicações: hipercalemia, HM, queimaduras." },
+    { etapa: "Paralisia", nome: "Rocurônio", doseBase: 1.2, unidade: "mg/kg", minMax: "1,0-1,2 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notasBase: "Recomendado pela ESAIC/ESPA 2026. Antídoto: sugammadex." },
     { etapa: "Sedação pós‑intubação", nome: "Midazolam", doseBase: 0.15, unidade: "mg/kg", minMax: "0,1-0,2 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notasBase: "Benzodiazepínico para sedação contínua." }
   ];
 
-  const atropina = { etapa: "Pré‑medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notasBase: "Não rotineira. Estudo Carvalho 2023 não mostrou benefício na prevenção de bradicardia." };
+  const atropina = { etapa: "Pré‑medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notasBase: "Não rotineira. Apenas bradicardia sintomática." };
 
-  // ---------- LÓGICA PRINCIPAL ----------
   let userToggledAtropina = false;
   let modal = document.getElementById('modal');
   function mostrarDetalhes(texto) {
@@ -426,10 +378,12 @@
     const choque = document.getElementById('choque').checked;
     const hic = document.getElementById('hic').checked;
     const sepse = document.getElementById('sepse').checked;
-    if (medNome === 'Cetamina' && choque) return " ⭐ Indicada em choque (estabilidade hemodinâmica).";
-    if (medNome === 'Propofol' && (choque || sepse)) return " ⚠️ Evitar em choque/sepse (risco de hipotensão).";
+    const asma = document.getElementById('asma').checked;
+    if (medNome === 'Cetamina' && choque) return " ⭐ Indicada em choque.";
+    if (medNome === 'Cetamina' && asma) return " ⭐ Broncodilatadora, preferida na asma.";
+    if (medNome === 'Propofol' && (choque || sepse)) return " ⚠️ Evitar em choque/sepse (hipotensão).";
     if (medNome === 'Etomidato' && sepse) return " ⚠️ Evitar na sepse (supressão adrenal).";
-    if (medNome === 'Lidocaína' && hic) return " ⭐ Indicada na suspeita de HIC (neuroproteção).";
+    if (medNome === 'Lidocaína' && hic) return " ⭐ Indicada na HIC.";
     if (medNome === 'Propofol' && hic) return " ⭐ Útil na HIC (reduz PIC).";
     return "";
   }
@@ -444,11 +398,14 @@
     const hipercalemia = document.getElementById('hipercalemia').checked;
     const hm = document.getElementById('hm').checked;
     const sepse = document.getElementById('sepse').checked;
+    const asma = document.getElementById('asma').checked;
 
     const tbody = document.querySelector('#tabela tbody');
     const avisosDiv = document.getElementById('avisos');
+    const recomendacaoDiv = document.getElementById('recomendacaoBox');
     tbody.innerHTML = '';
     avisosDiv.innerHTML = '';
+    recomendacaoDiv.innerHTML = '';
 
     if (!peso || peso <= 0) {
       tbody.innerHTML = '<tr><td colspan="6" class="small">Informe o peso.</td></tr>';
@@ -473,20 +430,29 @@
 
     const succContra = hipercalemia || hm;
     if (succContra) {
-      avisoHtml += '<div class="alert danger">🚫 SUCCINILCOLINA CONTRAINDICADA: ' + 
-        (hipercalemia ? 'Hipercalemia conhecida. ' : '') + 
-        (hm ? 'História de hipertermia maligna. ' : '') + 
-        'Utilize rocurônio 1,2 mg/kg.</div>';
+      avisoHtml += '<div class="alert danger">🚫 SUCCINILCOLINA CONTRAINDICADA: ' + (hipercalemia ? 'Hipercalemia. ' : '') + (hm ? 'Hipertermia maligna. ' : '') + 'Use rocurônio 1,2 mg/kg.</div>';
     }
 
-    if (choque) avisoHtml += '<div class="alert">⚠️ Choque/instabilidade: prefira cetamina. Evite propofol/etomidato.</div>';
+    if (choque) avisoHtml += '<div class="alert">⚠️ Choque: prefira cetamina. Evite propofol/etomidato.</div>';
     if (sepse) avisoHtml += '<div class="alert">⚠️ Sepse: evitar etomidato (supressão adrenal).</div>';
     if (hic) avisoHtml += '<div class="alert">⚠️ HIC: lidocaína e propofol são benéficos.</div>';
+    if (asma) avisoHtml += '<div class="alert">💨 Asma: cetamina é broncodilatadora, preferida.</div>';
     if (incluirAtropina) avisoHtml += '<div class="alert">⚙️ Atropina incluída MANUALMENTE. Não é rotina (Carvalho 2023).</div>';
     else avisoHtml += '<div class="alert">⚙️ Atropina NÃO incluída (padrão atual).</div>';
 
     avisosDiv.innerHTML = avisoHtml;
 
+    // --- Recomendação inteligente ---
+    const melhorIndutor = recomendarIndutor(choque, hic, sepse, asma);
+    const melhorBloq = recomendarBloqueador(succContra);
+    let recomendacaoHtml = `<div class="alert recomendacao"><strong>💡 Recomendação baseada nas condições informadas:</strong><br>`;
+    recomendacaoHtml += `🔹 <strong>Indutor:</strong> ${melhorIndutor.nome} (${melhorIndutor.dose} mg/kg) – ${melhorIndutor.razao}<br>`;
+    recomendacaoHtml += `🔹 <strong>Bloqueador neuromuscular:</strong> ${melhorBloq.nome} (${melhorBloq.dose ? melhorBloq.dose + ' mg/kg' : 'dose ajustada por idade'}) – ${melhorBloq.razao}<br>`;
+    recomendacaoHtml += `🔹 <strong>Atropina:</strong> ${incluirAtropina ? 'Incluída manualmente' : 'Não incluída (padrão atual)'}<br>`;
+    recomendacaoHtml += `⚠️ A decisão final deve ser individualizada.</div>`;
+    recomendacaoDiv.innerHTML = recomendacaoHtml;
+
+    // --- Montagem da tabela de medicamentos ---
     let medicamentos = [...medsBase];
     if (incluirAtropina) medicamentos.push(atropina);
 
@@ -498,11 +464,7 @@
       if (med.nome === 'Succinilcolina') {
         if (succContra) {
           const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${med.etapa}</td>
-            <td><strong>${med.nome}</strong></td>
-            <td colspan="4" class="danger">🚫 Contraindicada (hipercalemia ou hipertermia maligna). Use rocurônio.</td>
-          `;
+          tr.innerHTML = `<td>${med.etapa}</td><td><strong>${med.nome}</strong></td><td colspan="4" class="danger">🚫 Contraindicada (hipercalemia ou hipertermia maligna). Use rocurônio.</td>`;
           tbody.appendChild(tr);
           return;
         }
@@ -545,9 +507,10 @@
       if (idadeStr) contexto += `📅 Idade considerada: ${idadeStr}\n`;
       if (choque && med.nome === 'Cetamina') contexto += '⭐ Choque: cetamina preferencial.\n';
       if (choque && (med.nome === 'Propofol' || med.nome === 'Etomidato')) contexto += '⚠️ Choque: evitar este agente.\n';
-      if (sepse && med.nome === 'Etomidato') contexto += '⚠️ Sepse: evitar etomidato (supressão adrenal).\n';
+      if (sepse && med.nome === 'Etomidato') contexto += '⚠️ Sepse: evitar etomidato.\n';
       if (hic && med.nome === 'Lidocaína') contexto += '⭐ HIC: lidocaína indicada.\n';
       if (hic && med.nome === 'Propofol') contexto += '⭐ HIC: propofol reduz PIC.\n';
+      if (asma && med.nome === 'Cetamina') contexto += '⭐ Asma: cetamina broncodilatadora.\n';
       contexto += med.notasBase + notasAdicionais;
 
       const tr = document.createElement('tr');
@@ -589,11 +552,16 @@
     document.getElementById('hipercalemia').checked = false;
     document.getElementById('hm').checked = false;
     document.getElementById('sepse').checked = false;
+    document.getElementById('asma').checked = false;
     userToggledAtropina = false;
+    // Fechar menu expansível opcional
+    const condContent = document.getElementById('condicoesContent');
+    if (condContent.classList.contains('open')) condContent.classList.remove('open');
+    document.getElementById('btnCondicoes').innerHTML = '➕ Condições clínicas (opcional) ▼';
     calcular();
   }
 
-  // Menu expansível
+  // Event listeners e menu expansível
   const btnCond = document.getElementById('btnCondicoes');
   const condContent = document.getElementById('condicoesContent');
   btnCond.addEventListener('click', () => {
@@ -601,7 +569,6 @@
     btnCond.innerHTML = condContent.classList.contains('open') ? '➖ Condições clínicas (opcional) ▲' : '➕ Condições clínicas (opcional) ▼';
   });
 
-  // Event listeners
   const idadeNumero = document.getElementById('idadeNumero');
   const idadeUnidade = document.getElementById('idadeUnidade');
   const atropinaCheck = document.getElementById('incluirAtropina');
@@ -616,7 +583,7 @@
   atropinaCheck.addEventListener('change', () => { userToggledAtropina = true; calcular(); });
   document.getElementById('peso').addEventListener('input', calcular);
   document.getElementById('unidadeFentanil').addEventListener('change', calcular);
-  ['choque', 'hic', 'hipercalemia', 'hm', 'sepse'].forEach(id => {
+  ['choque', 'hic', 'hipercalemia', 'hm', 'sepse', 'asma'].forEach(id => {
     document.getElementById(id).addEventListener('change', calcular);
   });
 

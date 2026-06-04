@@ -20,7 +20,7 @@
     }
 
     .wrap {
-      max-width: 100%;
+      max-width: 1400px;
       margin: 0 auto;
       padding: 16px;
     }
@@ -184,6 +184,26 @@
     .modal-content p { margin: 0 0 16px; font-size: 0.9rem; white-space: pre-wrap; text-align: left; }
     .modal-content button { margin-top: 0; padding: 8px 20px; }
 
+    /* Desktop improvements */
+    @media (min-width: 1024px) {
+      .wrap { padding: 24px; }
+      h1 { font-size: 2.2rem; }
+      .card { padding: 24px; }
+      .grid-2 { gap: 24px; }
+      .checkbox-row label { font-size: 0.9rem; }
+      /* Condições clínicas em grid no desktop */
+      .cond-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px 16px;
+      }
+      .table-wrapper { overflow-x: visible; }
+      table { font-size: 0.85rem; min-width: auto; }
+      th, td { padding: 12px 10px; }
+      .dose-cell { font-size: 1rem; }
+      .checklist { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    }
+
     @media (max-width: 560px) {
       .wrap { padding: 12px; }
       h1 { font-size: 1.5rem; }
@@ -238,12 +258,14 @@
     <div class="collapsible">
       <div class="collapsible-header" id="btnCondicoes">➕ Condições clínicas (opcional – melhora a recomendação) ▼</div>
       <div class="collapsible-content" id="condicoesContent">
-        <div class="checkbox-row"><input type="checkbox" id="choque"><label for="choque">Choque / instabilidade hemodinâmica</label></div>
-        <div class="checkbox-row"><input type="checkbox" id="hic"><label for="hic">Suspeita de hipertensão intracraniana (HIC)</label></div>
-        <div class="checkbox-row"><input type="checkbox" id="hipercalemia"><label for="hipercalemia">Hipercalemia conhecida (K+ >5,5)</label></div>
-        <div class="checkbox-row"><input type="checkbox" id="hm"><label for="hm">História familiar de hipertermia maligna</label></div>
-        <div class="checkbox-row"><input type="checkbox" id="sepse"><label for="sepse">Sepse</label></div>
-        <div class="checkbox-row"><input type="checkbox" id="asma"><label for="asma">Asma / broncoespasmo ativo</label></div>
+        <div class="cond-grid">
+          <div class="checkbox-row"><input type="checkbox" id="choque"><label for="choque">Choque / instabilidade hemodinâmica</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="hic"><label for="hic">Suspeita de hipertensão intracraniana (HIC)</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="hipercalemia"><label for="hipercalemia">Hipercalemia conhecida (K+ >5,5)</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="hm"><label for="hm">História familiar de hipertermia maligna</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="sepse"><label for="sepse">Sepse</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="asma"><label for="asma">Asma / broncoespasmo ativo</label></div>
+        </div>
       </div>
     </div>
 
@@ -354,7 +376,7 @@
     return { nome: "Succinilcolina", dose: null, razao: "Padrão-ouro (Mendez 2026). Dose ajustada por idade." };
   }
 
-  // ---------- MEDICAMENTOS BASE (doses padrão) ----------
+  // ---------- MEDICAMENTOS BASE ----------
   const medsBase = [
     { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 3, unidade: "mcg/kg", minMax: "2-5 mcg/kg", doseMaxKg: 5, concentracaoMgMl: 0.05, notasBase: "Opioide rápido. Infundir lentamente." },
     { etapa: "Pré‑medicação", nome: "Lidocaína", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Neuroproteção se HIC suspeita." },
@@ -452,7 +474,7 @@
 
     avisosDiv.innerHTML = avisoHtml;
 
-    // --- Recomendação inteligente ---
+    // Recomendação
     const melhorIndutor = recomendarIndutor(choque, hic, sepse, asma);
     const melhorBloq = recomendarBloqueador(succContra);
     let recomendacaoHtml = `<div class="alert recomendacao"><strong>💡 Recomendação baseada nas condições informadas:</strong><br>`;
@@ -462,7 +484,6 @@
     recomendacaoHtml += `⚠️ A decisão final deve ser individualizada.</div>`;
     recomendacaoDiv.innerHTML = recomendacaoHtml;
 
-    // --- Montagem da tabela de medicamentos ---
     let medicamentos = [...medsBase];
     if (incluirAtropina) medicamentos.push(atropina);
 
@@ -564,14 +585,13 @@
     document.getElementById('sepse').checked = false;
     document.getElementById('asma').checked = false;
     userToggledAtropina = false;
-    // Fechar menu expansível opcional
     const condContent = document.getElementById('condicoesContent');
     if (condContent.classList.contains('open')) condContent.classList.remove('open');
     document.getElementById('btnCondicoes').innerHTML = '➕ Condições clínicas (opcional) ▼';
     calcular();
   }
 
-  // Event listeners e menu expansível
+  // Event listeners
   const btnCond = document.getElementById('btnCondicoes');
   const condContent = document.getElementById('condicoesContent');
   btnCond.addEventListener('click', () => {
@@ -594,7 +614,6 @@
   document.getElementById('peso').addEventListener('input', calcular);
   document.getElementById('unidadeFentanil').addEventListener('change', calcular);
   
-  // Garantir que todos os checkboxes de condições clínicas chamem calcular
   const condCheckboxes = ['choque', 'hic', 'hipercalemia', 'hm', 'sepse', 'asma'];
   condCheckboxes.forEach(id => {
     const el = document.getElementById(id);

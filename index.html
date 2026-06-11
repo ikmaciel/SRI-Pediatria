@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover" />
-  <title>SRI Pediátrica - Recomendações 2026</title>
+  <title>SRI Pediátrica - FRO (Ferramenta de Recomendação e Otimização)</title>
 
   <style>
+    /* (mesmo CSS da versão anterior, mantido) */
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
     }
-
     body {
       margin: 0;
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
@@ -18,17 +18,21 @@
       color: #e5e7eb;
       line-height: 1.4;
     }
-
     .wrap {
       max-width: 1400px;
       margin: 0 auto;
       padding: 16px;
     }
-
     h1 { font-size: 1.8rem; margin: 0 0 4px; line-height: 1.2; }
+    .subtitle {
+      font-size: 1rem;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      border-left: 3px solid #38bdf8;
+      padding-left: 12px;
+    }
     h2 { font-size: 1.4rem; margin: 0 0 12px; }
     p { color: #94a3b8; font-size: 0.85rem; }
-
     .card {
       background: rgba(17, 24, 39, 0.96);
       border: 1px solid #334155;
@@ -37,7 +41,6 @@
       box-shadow: 0 8px 20px rgba(0,0,0,0.3);
       margin-top: 16px;
     }
-
     label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
     input, select {
       width: 100%;
@@ -49,12 +52,10 @@
       font-size: 1rem;
       font-family: inherit;
     }
-
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .flex-row { display: flex; gap: 8px; align-items: flex-end; }
     .flex-row > div { flex: 1; }
     .flex-row select { width: auto; flex: 0.45; min-width: 85px; }
-
     .checkbox-row {
       display: flex;
       align-items: center;
@@ -63,7 +64,6 @@
     }
     .checkbox-row input { width: 24px; height: 24px; margin: 0; flex-shrink: 0; }
     .checkbox-row label { margin-bottom: 0; font-weight: normal; font-size: 0.85rem; }
-
     .collapsible {
       background-color: #1e293b;
       border-radius: 16px;
@@ -86,7 +86,6 @@
       padding: 0 16px;
     }
     .collapsible-content.open { max-height: 500px; padding: 12px 16px; }
-
     .alert {
       border-left: 5px solid #f59e0b;
       background: #451a03;
@@ -103,7 +102,6 @@
       background: #1e3a5f;
       color: #e0f2fe;
     }
-
     .table-wrapper { overflow-x: auto; margin: 10px 0; border-radius: 16px; }
     table {
       width: 100%;
@@ -184,14 +182,13 @@
     .modal-content p { margin: 0 0 16px; font-size: 0.9rem; white-space: pre-wrap; text-align: left; }
     .modal-content button { margin-top: 0; padding: 8px 20px; }
 
-    /* Desktop improvements */
     @media (min-width: 1024px) {
       .wrap { padding: 24px; }
       h1 { font-size: 2.2rem; }
+      .subtitle { font-size: 1.1rem; }
       .card { padding: 24px; }
       .grid-2 { gap: 24px; }
       .checkbox-row label { font-size: 0.9rem; }
-      /* Condições clínicas em grid no desktop */
       .cond-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -207,6 +204,7 @@
     @media (max-width: 560px) {
       .wrap { padding: 12px; }
       h1 { font-size: 1.5rem; }
+      .subtitle { font-size: 0.85rem; }
       .grid-2 { grid-template-columns: 1fr; gap: 12px; }
       .flex-row { flex-direction: column; align-items: stretch; gap: 6px; }
       .flex-row select { width: 100%; }
@@ -216,9 +214,10 @@
 </head>
 <body>
 <div class="wrap">
- <h1>Calculadora de SRI Pediátrica</h1>
-<p class="small"><strong>Ferramenta de Recomendação e Otimização - FRO</strong><br>
-Baseada em evidências 2025/2026 – ESAIC/ESPA 2026, Mendez et al. 2026, Radkowski 2025. Toque na dose para ver detalhes.</p>
+  <h1>Calculadora de SRI Pediátrica</h1>
+  <div class="subtitle"><strong>Ferramenta de Recomendação e Otimização - FRO</strong></div>
+  <p class="small">Baseada em evidências 2025/2026 – ESAIC/ESPA 2026, Mendez et al. 2026, Radkowski 2025. Toque na dose para ver detalhes.</p>
+
   <div class="card">
     <div class="grid-2">
       <div>
@@ -254,7 +253,6 @@ Baseada em evidências 2025/2026 – ESAIC/ESPA 2026, Mendez et al. 2026, Radkow
       <label for="incluirAtropina">Incluir Atropina (não rotineira – apenas bradicardia sintomática)</label>
     </div>
 
-    <!-- Menu expansível para condições clínicas -->
     <div class="collapsible">
       <div class="collapsible-header" id="btnCondicoes">➕ Condições clínicas (opcional – melhora a recomendação) ▼</div>
       <div class="collapsible-content" id="condicoesContent">
@@ -495,44 +493,68 @@ Baseada em evidências 2025/2026 – ESAIC/ESPA 2026, Mendez et al. 2026, Radkow
       if (med.nome === 'Succinilcolina') {
         if (succContra) {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${med.etapa}</td><td><strong>${med.nome}</strong></td><td colspan="4" class="danger">🚫 Contraindicada (hipercalemia ou hipertermia maligna). Use rocurônio.</td>`;
+          tr.innerHTML = `<tr><td>${med.etapa}</td><td><strong>${med.nome}</strong></td><td colspan="4" class="danger">🚫 Contraindicada (hipercalemia ou hipertermia maligna). Use rocurônio.</td></tr>`;
           tbody.appendChild(tr);
           return;
         }
         dosePorKg = succDose;
         formulaDose = `Dose = ${dosePorKg} mg/kg (${idadeMeses !== null ? (idadeMeses < 6 ? 'idade <6 meses' : 'idade ≥6 meses') : 'dose padrão'}) × ${peso} kg = ${(peso * dosePorKg).toFixed(2)} mg`;
+      } else if (med.nome === 'Fentanil') {
+        // Para Fentanil, a doseBase está em mcg/kg, então doseCalculada já está em mcg
+        const doseCalculadaEmMcg = peso * med.doseBase;
+        if (unidadeFenta === 'mg') {
+          const valorEmMg = doseCalculadaEmMcg / 1000;
+          formulaDose = `${med.doseBase} mcg/kg × ${peso} kg = ${doseCalculadaEmMcg.toFixed(0)} mcg → ${valorEmMg.toFixed(3)} mg`;
+        } else {
+          formulaDose = `${med.doseBase} mcg/kg × ${peso} kg = ${doseCalculadaEmMcg.toFixed(0)} mcg`;
+        }
       } else {
         formulaDose = `Dose = ${med.doseBase} ${med.unidade} × ${peso} kg = ${(peso * med.doseBase).toFixed(2)} ${med.unidade === 'mcg/kg' ? 'mcg' : 'mg'}`;
       }
-
-      let doseCalculada = peso * dosePorKg;
-      if (med.doseMaxKg && (med.doseMaxKg * peso) < doseCalculada) {
+      
+      let doseCalculada = (med.nome === 'Fentanil') ? peso * med.doseBase : peso * dosePorKg; // em mcg para Fentanil, mg para outros
+      if (med.nome !== 'Fentanil' && med.doseMaxKg && (med.doseMaxKg * peso) < doseCalculada) {
         doseCalculada = med.doseMaxKg * peso;
         formulaDose += ` → limitado a máx ${med.doseMaxKg} ${med.unidade} = ${(med.doseMaxKg * peso).toFixed(2)} ${med.unidade === 'mcg/kg' ? 'mcg' : 'mg'}`;
       }
 
       let unidadeExib = med.unidade;
       let valorExib = doseCalculada;
-      if (med.nome === 'Fentanil' && unidadeFenta === 'mg') {
-        valorExib = doseCalculada / 1000;
-        unidadeExib = 'mg';
-        formulaDose = `${med.doseBase} mcg/kg × ${peso} kg = ${(peso * med.doseBase).toFixed(0)} mcg → ${valorExib.toFixed(3)} mg`;
-      } else if (med.nome === 'Fentanil' && unidadeFenta === 'mcg') {
-        valorExib = doseCalculada * 1000;
-        unidadeExib = 'mcg';
-        formulaDose = `${med.doseBase} mcg/kg × ${peso} kg = ${valorExib.toFixed(0)} mcg`;
+      
+      // Tratamento especial para Fentanil (exibição)
+      if (med.nome === 'Fentanil') {
+        if (unidadeFenta === 'mg') {
+          valorExib = doseCalculada / 1000;
+          unidadeExib = 'mg';
+        } else {
+          valorExib = doseCalculada; // já em mcg
+          unidadeExib = 'mcg';
+        }
       }
 
-      let doseEmMg = (med.nome === 'Fentanil' && unidadeFenta === 'mcg') ? (valorExib / 1000) : 
-                    (med.nome === 'Fentanil' && unidadeFenta === 'mg') ? valorExib : doseCalculada;
+      // Cálculo do volume (sempre em mL)
+      let doseEmMg = 0;
       let volumeHtml = '—';
       let formulaVolume = '';
-      if (med.concentracaoMgMl && doseEmMg) {
-        let vol = doseEmMg / med.concentracaoMgMl;
-        volumeHtml = fmt2(vol) + ' mL';
-        formulaVolume = `Volume = ${doseEmMg.toFixed(2)} mg ÷ ${med.concentracaoMgMl} mg/mL = ${vol.toFixed(2)} mL`;
+      
+      if (med.nome === 'Fentanil') {
+        // doseCalculada está em mcg. Converter para mg para o volume.
+        const doseEmMgFenta = doseCalculada / 1000;
+        if (med.concentracaoMgMl && doseEmMgFenta) {
+          const vol = doseEmMgFenta / med.concentracaoMgMl;
+          volumeHtml = fmt2(vol) + ' mL';
+          formulaVolume = `Volume = ${doseEmMgFenta.toFixed(2)} mg ÷ ${med.concentracaoMgMl} mg/mL = ${vol.toFixed(2)} mL`;
+        }
+      } else {
+        // Demais medicamentos: doseCalculada já está em mg
+        if (med.concentracaoMgMl && doseCalculada) {
+          const vol = doseCalculada / med.concentracaoMgMl;
+          volumeHtml = fmt2(vol) + ' mL';
+          formulaVolume = `Volume = ${doseCalculada.toFixed(2)} mg ÷ ${med.concentracaoMgMl} mg/mL = ${vol.toFixed(2)} mL`;
+        }
       }
 
+      // Construir tooltip com todos os detalhes
       let contexto = `🧪 ${med.nome}\n${formulaDose}\n`;
       if (formulaVolume) contexto += formulaVolume + '\n';
       if (idadeStr) contexto += `📅 Idade considerada: ${idadeStr}\n`;
@@ -548,7 +570,7 @@ Baseada em evidências 2025/2026 – ESAIC/ESPA 2026, Mendez et al. 2026, Radkow
       tr.innerHTML = `
         <td>${med.etapa}</td>
         <td><strong>${med.nome}</strong></td>
-        <td>${dosePorKg.toFixed(2)} ${med.unidade}<br><span class="small">${med.minMax || ''}</span></td>
+        <td>${dosePorKg ? dosePorKg.toFixed(2) : '—'} ${med.unidade}<br><span class="small">${med.minMax || ''}</span></td>
         <td class="dose-cell">
           <span class="dose-value">${fmt2(valorExib)} ${unidadeExib}</span>
           <span class="info-icon" data-detalhe="${contexto.replace(/"/g, '&quot;')}">ⓘ</span>

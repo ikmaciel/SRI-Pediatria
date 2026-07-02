@@ -6,7 +6,6 @@
   <title>SRI Pediátrica - FRO (Ferramenta de Recomendação e Otimização)</title>
 
   <style>
-    /* (mesmo CSS da versão anterior, mantido) */
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
@@ -107,7 +106,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.75rem;
-      min-width: 600px;
+      min-width: 900px;
     }
     th, td {
       border-bottom: 1px solid #334155;
@@ -182,6 +181,25 @@
     .modal-content p { margin: 0 0 16px; font-size: 0.9rem; white-space: pre-wrap; text-align: left; }
     .modal-content button { margin-top: 0; padding: 8px 20px; }
 
+    /* Estilo do input de infusão dentro da tabela */
+    .infusao-input {
+      width: 80px;
+      padding: 4px 6px;
+      font-size: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      background: #020617;
+      color: #e5e7eb;
+      display: inline-block;
+    }
+    .infusao-input:focus {
+      outline: 1px solid #38bdf8;
+    }
+    .infusao-result {
+      font-weight: bold;
+      color: #38bdf8;
+    }
+
     @media (min-width: 1024px) {
       .wrap { padding: 24px; }
       h1 { font-size: 2.2rem; }
@@ -199,6 +217,7 @@
       th, td { padding: 12px 10px; }
       .dose-cell { font-size: 1rem; }
       .checklist { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .infusao-input { width: 100px; font-size: 0.85rem; }
     }
 
     @media (max-width: 560px) {
@@ -209,6 +228,7 @@
       .flex-row { flex-direction: column; align-items: stretch; gap: 6px; }
       .flex-row select { width: 100%; }
       .dose-cell { font-size: 0.85rem; }
+      .infusao-input { width: 60px; font-size: 0.7rem; }
     }
   </style>
 </head>
@@ -216,7 +236,7 @@
 <div class="wrap">
   <h1>Calculadora de SRI Pediátrica</h1>
   <div class="subtitle"><strong>Ferramenta de Recomendação e Otimização - FRO</strong></div>
-  <p class="small">Baseada em evidências 2025/2026 – ESAIC/ESPA 2026, Mendez et al. 2026, Radkowski 2025. Toque na dose para ver detalhes.</p>
+  <p class="small">Baseada em evidências 2025/2026 – ESAIC/ESPA 2026, Mendez et al. 2026. Toque na dose para ver detalhes. Na coluna "Infusão", digite a dose desejada para calcular o fluxo em mL/h.</p>
 
   <div class="card">
     <div class="grid-2">
@@ -276,13 +296,25 @@
   </div>
 
   <div class="card">
-    <h2>Resultado – Doses calculadas</h2>
+    <h2>Resultado – Doses calculadas e Infusão</h2>
     <div class="table-wrapper">
       <table id="tabela">
-        <thead><tr><th>Etapa</th><th>Medicação</th><th>Dose usada</th><th>Dose calculada</th><th>Volume (mL)</th><th>Notas</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Etapa</th>
+            <th>Medicação</th>
+            <th>Dose usada</th>
+            <th>Dose calculada</th>
+            <th>Volume (mL)</th>
+            <th>Ampolas (unid.)</th>
+            <th>Infusão (mL/h)</th>
+            <th>Notas</th>
+          </tr>
+        </thead>
         <tbody></tbody>
       </table>
     </div>
+    <p class="small" style="margin-top: 12px;">Na coluna "Infusão", digite a dose desejada (dentro da faixa) para ver o fluxo em mL/h. A diluição padrão do HRSM é usada para os cálculos.</p>
   </div>
 
   <div class="card">
@@ -312,7 +344,8 @@
       <sup>[6]</sup> Koepp‑Medina G, et al. Videolaryngoscopy in children. <em>Br J Anaesth</em>. 2025. <a href="https://pubmed.ncbi.nlm.nih.gov/40145188/" target="_blank">PubMed</a><br>
       <sup>[7]</sup> Mills LA, et al. Ketamine safety in infants. <em>Pediatr Emerg Care</em>. 2024;40(9):665-667. <a href="https://pubmed.ncbi.nlm.nih.gov/38776429/" target="_blank">PubMed</a><br>
       <sup>[8]</sup> Werther Brunow de Carvalho. <em>Terapia Intensiva Pediátrica</em>. 2ª ed. <a href="https://www.amazon.com.br/Terapia-Intensiva-Pedi%C3%A1trica-Werther-Carvalho/dp/8520457141" target="_blank">Editora</a><br>
-      <sup>[9]</sup> AHA. <em>Pediatric Advanced Life Support</em>. 2020. <a href="https://cpr.heart.org/en/resuscitation-science/pals" target="_blank">AHA</a>
+      <sup>[9]</sup> AHA. <em>Pediatric Advanced Life Support</em>. 2020. <a href="https://cpr.heart.org/en/resuscitation-science/pals" target="_blank">AHA</a><br>
+      <sup>[10]</sup> HRSM. <em>Soluções de Infusão Contínua – Diluição Padrão Box Pediatria</em>. Protocolo institucional.
     </p>
   </div>
 </div>
@@ -350,44 +383,170 @@
   }
 
   // ---------- DOSES ESPECÍFICAS ----------
-  function getSuccinylcholineDosePorKg(idadeMeses) {
-    if (idadeMeses === null) return 1.5;
-    if (idadeMeses < 6) return 2.0;
-    return 1.5;
-  }
-
+  function getSuccinylcholineDose() { return 1.5; }
   function isSuccinylcholineContraindicated() {
     return document.getElementById('hipercalemia').checked || document.getElementById('hm').checked;
   }
 
   // ---------- RECOMENDAÇÃO INTELIGENTE ----------
   function recomendarIndutor(choque, hic, sepse, asma) {
-    if (asma) return { nome: "Cetamina", dose: 1.5, razao: "Agente broncodilatador, ideal na asma." };
-    if (choque) return { nome: "Cetamina", dose: 1.5, razao: "Primeira linha no choque – estabilidade hemodinâmica." };
+    if (asma) return { nome: "Cetamina", dose: 1.0, razao: "Agente broncodilatador, ideal na asma." };
+    if (choque) return { nome: "Cetamina", dose: 1.0, razao: "Primeira linha no choque – estabilidade hemodinâmica." };
     if (hic) return { nome: "Etomidato", dose: 0.3, razao: "Neuroproteção, reduz PIC, mantém PA." };
-    if (sepse) return { nome: "Cetamina", dose: 1.5, razao: "Evitar etomidato na sepse (supressão adrenal)." };
-    return { nome: "Cetamina", dose: 1.5, razao: "Agente versátil, seguro e eficaz na maioria dos cenários." };
+    if (sepse) return { nome: "Cetamina", dose: 1.0, razao: "Evitar etomidato na sepse (supressão adrenal)." };
+    return { nome: "Cetamina", dose: 1.0, razao: "Agente versátil, seguro e eficaz na maioria dos cenários." };
   }
 
   function recomendarBloqueador(contraindicado) {
-    if (contraindicado) return { nome: "Rocurônio", dose: 1.2, razao: "Succinilcolina contraindicada. Rocurônio 1,2 mg/kg conforme ESAIC/ESPA 2026." };
-    return { nome: "Succinilcolina", dose: null, razao: "Padrão-ouro (Mendez 2026). Dose ajustada por idade." };
+    if (contraindicado) return { nome: "Rocurônio", dose: 0.6, razao: "Succinilcolina contraindicada. Rocurônio 0,6 mg/kg." };
+    return { nome: "Succinilcolina", dose: 1.5, razao: "Padrão-ouro (Mendez 2026). Dose fixa 1,5 mg/kg." };
   }
+
+  // ---------- DADOS DE INFUSÃO (BOX PEDIATRIA HRSM) ----------
+  const infusaoData = {
+    "Adrenalina": { 
+      diluicao: "2 mL + 98 mL SF → 100 mL", 
+      concFinal: "0,02 mg/mL (20 mcg/mL)", 
+      fluxoBase: 0.33, // 1 mL/h = 0,33 mcg/min
+      unidadeFluxo: "mcg/min",
+      unidadeDose: "mcg/kg/min",
+      doseMin: 0.05,
+      doseMax: 2,
+      tipo: "mcg/kg/min"
+    },
+    "Noradrenalina": { 
+      diluicao: "2 mL + 98 mL SF → 100 mL", 
+      concFinal: "0,02 mg/mL (20 mcg/mL)", 
+      fluxoBase: 0.33,
+      unidadeFluxo: "mcg/min",
+      unidadeDose: "mcg/kg/min",
+      doseMin: 0.05,
+      doseMax: 2,
+      tipo: "mcg/kg/min"
+    },
+    "Dobutamina": { 
+      diluicao: "20 mL + 80 mL SF → 100 mL", 
+      concFinal: "2,5 mg/mL (2500 mcg/mL)", 
+      fluxoBase: 41.6,
+      unidadeFluxo: "mcg/min",
+      unidadeDose: "mcg/kg/min",
+      doseMin: 5,
+      doseMax: 20,
+      tipo: "mcg/kg/min"
+    },
+    "Milrinona": { 
+      diluicao: "10 mL + 40 mL SF → 50 mL", 
+      concFinal: "0,2 mg/mL (200 mcg/mL)", 
+      fluxoBase: 3.33,
+      unidadeFluxo: "mcg/min",
+      unidadeDose: "mcg/kg/min",
+      doseMin: 0.25,
+      doseMax: 0.75,
+      tipo: "mcg/kg/min"
+    },
+    "Morfina": { 
+      diluicao: "1 mL + 50 mL SG → 51 mL", 
+      concFinal: "196 mcg/mL", 
+      fluxoBase: 196, // 1 mL/h = 196 mcg/h (convertido para mcg/h)
+      unidadeFluxo: "mcg/h",
+      unidadeDose: "mcg/kg/h",
+      doseMin: 20,
+      doseMax: 40,
+      tipo: "mcg/kg/h"
+    },
+    "Fentanil": { 
+      diluicao: "10 mL + 40 mL SF → 50 mL", 
+      concFinal: "10 mcg/mL", 
+      fluxoBase: 10,
+      unidadeFluxo: "mcg/h",
+      unidadeDose: "mcg/kg/h",
+      doseMin: 1,
+      doseMax: 4,
+      tipo: "mcg/kg/h"
+    },
+    "Precedex": { 
+      diluicao: "2 mL + 48 mL SF → 50 mL", 
+      concFinal: "4 mcg/mL", 
+      fluxoBase: 4,
+      unidadeFluxo: "mcg/h",
+      unidadeDose: "mcg/kg/h",
+      doseMin: 0.3,
+      doseMax: 1.5,
+      tipo: "mcg/kg/h"
+    },
+    "Midazolam": { 
+      diluicao: "10 mL + 40 mL SF → 50 mL", 
+      concFinal: "1 mg/mL", 
+      fluxoBase: 1, // 1 mL/h = 1 mg/h (convertido para mcg/h? mas a dose é em mg/kg/h)
+      unidadeFluxo: "mg/h",
+      unidadeDose: "mg/kg/h",
+      doseMin: 0.1,
+      doseMax: 0.4,
+      tipo: "mg/kg/h"
+    },
+    "Cetamina": { 
+      diluicao: "6 mL + 54 mL SF → 60 mL", 
+      concFinal: "5 mg/mL (5000 mcg/mL)", 
+      fluxoBase: 83.3,
+      unidadeFluxo: "mcg/min",
+      unidadeDose: "mcg/kg/min",
+      doseMin: 5,
+      doseMax: 20,
+      tipo: "mcg/kg/min"
+    },
+    "Rocurônio": { 
+      diluicao: "10 mL + 40 mL SF → 50 mL", 
+      concFinal: "2 mg/mL (2000 mcg/mL)", 
+      fluxoBase: 33.3,
+      unidadeFluxo: "mcg/min",
+      unidadeDose: "mcg/kg/min",
+      doseMin: 10,
+      doseMax: 12,
+      tipo: "mcg/kg/min"
+    },
+    "Salbutamol": { 
+      diluicao: "20 mL + 80 mL SF → 100 mL", 
+      concFinal: "0,1 mg/mL (100 mcg/mL)", 
+      fluxoBase: 1.6,
+      unidadeFluxo: "mcg/min",
+      unidadeDose: "mcg/kg/min",
+      doseMin: 0.1,
+      doseMax: 0.6,
+      tipo: "mcg/kg/min"
+    }
+  };
+
+  // ---------- AMPOLAS ----------
+  const ampolaInfo = {
+    "Fentanil": { mgPorAmpola: 0.1 },
+    "Lidocaína": { mgPorAmpola: 200 },
+    "Cetamina": { mgPorAmpola: 500 },
+    "Etomidato": { mgPorAmpola: 20 },
+    "Propofol": { mgPorAmpola: 200 },
+    "Succinilcolina": { mgPorAmpola: 200 },
+    "Rocurônio": { mgPorAmpola: 50 },
+    "Midazolam": { mgPorAmpola: 15 },
+    "Atropina": { mgPorAmpola: 0.25 },
+    "Epinefrina": { mgPorAmpola: 0.1 }
+  };
 
   // ---------- MEDICAMENTOS BASE ----------
   const medsBase = [
-    { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 3, unidade: "mcg/kg", minMax: "2-5 mcg/kg", doseMaxKg: 5, concentracaoMgMl: 0.05, notasBase: "Opioide rápido. Infundir lentamente." },
-    { etapa: "Pré‑medicação", nome: "Lidocaína", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Neuroproteção se HIC suspeita." },
-    { etapa: "Indução", nome: "Cetamina", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 50, notasBase: "Primeira linha. Estável hemodinamicamente. Útil no choque e asma." },
-    { etapa: "Indução", nome: "Etomidato", doseBase: 0.3, unidade: "mg/kg", minMax: "0,2-0,4 mg/kg", doseMaxKg: null, concentracaoMgMl: 2, notasBase: "Hemodinâmica estável, neuroproteção. Evitar na sepse." },
-    { etapa: "Indução", nome: "Propofol", doseBase: 1.5, unidade: "mg/kg", minMax: "1-2 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notasBase: "Cautela na instabilidade hemodinâmica. Útil em HIC." },
-    { etapa: "Paralisia", nome: "Succinilcolina", doseBase: null, unidade: "mg/kg", minMax: "ajustada por idade", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Contraindicações: hipercalemia, HM, queimaduras." },
-    { etapa: "Paralisia", nome: "Rocurônio", doseBase: 1.2, unidade: "mg/kg", minMax: "1,0-1,2 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notasBase: "Recomendado pela ESAIC/ESPA 2026. Antídoto: sugammadex." },
-    { etapa: "Sedação pós‑intubação", nome: "Midazolam", doseBase: 0.15, unidade: "mg/kg", minMax: "0,1-0,2 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notasBase: "Benzodiazepínico para sedação contínua." }
+    { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 1.0, unidade: "mcg/kg", minMax: "1 mcg/kg (padrão)", doseMaxKg: null, concentracaoMgMl: 0.05, notasBase: "Opioide rápido. Infundir lentamente." },
+    { etapa: "Pré‑medicação", nome: "Lidocaína", doseBase: 1.0, unidade: "mg/kg", minMax: "1 mg/kg", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Neuroproteção se HIC suspeita." },
+    { etapa: "Indução", nome: "Cetamina", doseBase: 1.0, unidade: "mg/kg", minMax: "1 mg/kg", doseMaxKg: null, concentracaoMgMl: 50, notasBase: "Primeira linha. Estável hemodinamicamente. Útil no choque e asma." },
+    { etapa: "Indução", nome: "Etomidato", doseBase: 0.3, unidade: "mg/kg", minMax: "0,3 mg/kg", doseMaxKg: null, concentracaoMgMl: 2, notasBase: "Hemodinâmica estável, neuroproteção. Evitar na sepse." },
+    { etapa: "Indução", nome: "Propofol", doseBase: 1.5, unidade: "mg/kg", minMax: "1,5 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notasBase: "Cautela na instabilidade hemodinâmica. Útil em HIC." },
+    { etapa: "Paralisia", nome: "Succinilcolina", doseBase: null, unidade: "mg/kg", minMax: "1,5 mg/kg fixo", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Contraindicações: hipercalemia, HM, queimaduras." },
+    { etapa: "Paralisia", nome: "Rocurônio", doseBase: 0.6, unidade: "mg/kg", minMax: "0,6 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notasBase: "Alternativa à succinilcolina. Antídoto: sugammadex." },
+    { etapa: "Sedação pós‑intubação", nome: "Midazolam", doseBase: 0.1, unidade: "mg/kg", minMax: "0,1 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notasBase: "Benzodiazepínico para sedação contínua." },
+    { etapa: "Emergência", nome: "Epinefrina", doseBase: 0.01, unidade: "mg/kg", minMax: "0,01 mg/kg (10 mcg/kg)", doseMaxKg: null, concentracaoMgMl: 0.1, notasBase: "Dose padrão intravenosa/intraóssea para parada cardiorrespiratória ou anafilaxia grave. Apresentação: ampola 1:10.000 (0,1 mg/mL)." }
   ];
 
+  // A Atropina é adicionada separadamente se marcada
   const atropina = { etapa: "Pré‑medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notasBase: "Não rotineira. Apenas bradicardia sintomática." };
 
+  // ---------- ESTADO ----------
   let userToggledAtropina = false;
   let modal = document.getElementById('modal');
   function mostrarDetalhes(texto) {
@@ -418,6 +577,52 @@
     return "";
   }
 
+  function calcularInfusao(medNome, peso, doseAlvo) {
+    const dados = infusaoData[medNome];
+    if (!dados || !peso || peso <= 0 || !doseAlvo || isNaN(doseAlvo) || doseAlvo <= 0) return null;
+    // Verifica se a dose está dentro da faixa
+    if (doseAlvo < dados.doseMin || doseAlvo > dados.doseMax) {
+      return { erro: `Dose fora da faixa (${dados.doseMin}–${dados.doseMax} ${dados.unidadeDose})` };
+    }
+    // Dose total por minuto ou hora
+    let doseTotal;
+    let fluxo;
+    if (dados.tipo === 'mcg/kg/min') {
+      doseTotal = doseAlvo * peso; // mcg/min
+      fluxo = doseTotal / dados.fluxoBase; // mL/h
+    } else if (dados.tipo === 'mcg/kg/h') {
+      doseTotal = doseAlvo * peso; // mcg/h
+      fluxo = doseTotal / dados.fluxoBase; // mL/h
+    } else if (dados.tipo === 'mg/kg/h') {
+      doseTotal = doseAlvo * peso; // mg/h
+      fluxo = doseTotal / dados.fluxoBase; // mL/h (pois fluxoBase é mg/h)
+    } else {
+      return null;
+    }
+    return { fluxo: fluxo, doseTotal: doseTotal, unidade: dados.unidadeFluxo };
+  }
+
+  function atualizarInfusao(medNome, peso) {
+    const inputId = `infusao_${medNome.replace(/\s/g, '')}`;
+    const input = document.getElementById(inputId);
+    const resultSpan = document.getElementById(`result_${medNome.replace(/\s/g, '')}`);
+    if (!input || !resultSpan) return;
+    const doseAlvo = parseFloat(input.value);
+    const resultado = calcularInfusao(medNome, peso, doseAlvo);
+    if (resultado === null) {
+      resultSpan.textContent = '—';
+      return;
+    }
+    if (resultado.erro) {
+      resultSpan.textContent = '⚠️ ' + resultado.erro;
+      return;
+    }
+    resultSpan.textContent = fmt2(resultado.fluxo) + ' mL/h';
+    // Adiciona tooltip com detalhes
+    resultSpan.title = `Dose: ${doseAlvo} ${infusaoData[medNome].unidadeDose} → ${fmt2(resultado.doseTotal)} ${infusaoData[medNome].unidadeFluxo} → ${fmt2(resultado.fluxo)} mL/h`;
+  }
+
+  // ---------- CÁLCULO PRINCIPAL ----------
   function calcular() {
     const peso = parseFloat(document.getElementById('peso').value.replace(',', '.'));
     const idadeMeses = getIdadeEmMeses();
@@ -438,7 +643,7 @@
     recomendacaoDiv.innerHTML = '';
 
     if (!peso || peso <= 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="small">Informe o peso.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="small">Informe o peso.</td></tr>';
       return;
     }
 
@@ -447,20 +652,20 @@
     if (peso > 50) avisoHtml += '<div class="alert">⚠️ Peso > 50 kg: considerar peso ideal/ajustado.</div>';
     avisoHtml += `<div class="alert ok">✅ Peso: <strong>${peso.toFixed(2)} kg</strong>.</div>`;
 
-    let succDose = 1.5;
     let idadeStr = null;
     if (idadeMeses !== null) {
       idadeStr = formatarIdade(idadeMeses);
       avisoHtml += `<div class="alert ok">📅 Idade: ${idadeStr} (${idadeMeses.toFixed(1)} meses).</div>`;
-      succDose = getSuccinylcholineDosePorKg(idadeMeses);
-      avisoHtml += `<div class="alert ok">💉 Succinilcolina dose ajustada: <strong>${succDose} mg/kg</strong> (${idadeMeses < 6 ? '<6 meses' : '≥6 meses'}).</div>`;
     } else {
-      avisoHtml += '<div class="alert">ℹ️ Idade não informada – succinilcolina usará dose padrão de 1,5 mg/kg.</div>';
+      avisoHtml += '<div class="alert">ℹ️ Idade não informada – não interfere nas doses.</div>';
     }
 
     const succContra = hipercalemia || hm;
+    const succDose = getSuccinylcholineDose();
     if (succContra) {
-      avisoHtml += '<div class="alert danger">🚫 SUCCINILCOLINA CONTRAINDICADA: ' + (hipercalemia ? 'Hipercalemia. ' : '') + (hm ? 'Hipertermia maligna. ' : '') + 'Use rocurônio 1,2 mg/kg.</div>';
+      avisoHtml += '<div class="alert danger">🚫 SUCCINILCOLINA CONTRAINDICADA: ' + (hipercalemia ? 'Hipercalemia. ' : '') + (hm ? 'Hipertermia maligna. ' : '') + 'Use rocurônio 0,6 mg/kg.</div>';
+    } else {
+      avisoHtml += `<div class="alert ok">💉 Succinilcolina dose: <strong>${succDose} mg/kg</strong> (fixa).</div>`;
     }
 
     if (choque) avisoHtml += '<div class="alert">⚠️ Choque: prefira cetamina. Evite propofol/etomidato.</div>';
@@ -477,7 +682,7 @@
     const melhorBloq = recomendarBloqueador(succContra);
     let recomendacaoHtml = `<div class="alert recomendacao"><strong>💡 Recomendação baseada nas condições informadas:</strong><br>`;
     recomendacaoHtml += `🔹 <strong>Indutor:</strong> ${melhorIndutor.nome} (${melhorIndutor.dose} mg/kg) – ${melhorIndutor.razao}<br>`;
-    recomendacaoHtml += `🔹 <strong>Bloqueador neuromuscular:</strong> ${melhorBloq.nome} (${melhorBloq.dose ? melhorBloq.dose + ' mg/kg' : 'dose ajustada por idade'}) – ${melhorBloq.razao}<br>`;
+    recomendacaoHtml += `🔹 <strong>Bloqueador neuromuscular:</strong> ${melhorBloq.nome} (${melhorBloq.dose} mg/kg) – ${melhorBloq.razao}<br>`;
     recomendacaoHtml += `🔹 <strong>Atropina:</strong> ${incluirAtropina ? 'Incluída manualmente' : 'Não incluída (padrão atual)'}<br>`;
     recomendacaoHtml += `⚠️ A decisão final deve ser individualizada.</div>`;
     recomendacaoDiv.innerHTML = recomendacaoHtml;
@@ -493,14 +698,13 @@
       if (med.nome === 'Succinilcolina') {
         if (succContra) {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<tr><td>${med.etapa}</td><td><strong>${med.nome}</strong></td><td colspan="4" class="danger">🚫 Contraindicada (hipercalemia ou hipertermia maligna). Use rocurônio.</td></tr>`;
+          tr.innerHTML = `<tr><td colspan="8" class="danger">🚫 Contraindicada. Use rocurônio.</td></tr>`;
           tbody.appendChild(tr);
           return;
         }
         dosePorKg = succDose;
-        formulaDose = `Dose = ${dosePorKg} mg/kg (${idadeMeses !== null ? (idadeMeses < 6 ? 'idade <6 meses' : 'idade ≥6 meses') : 'dose padrão'}) × ${peso} kg = ${(peso * dosePorKg).toFixed(2)} mg`;
+        formulaDose = `Dose = ${dosePorKg} mg/kg (fixa) × ${peso} kg = ${(peso * dosePorKg).toFixed(2)} mg`;
       } else if (med.nome === 'Fentanil') {
-        // Para Fentanil, a doseBase está em mcg/kg, então doseCalculada já está em mcg
         const doseCalculadaEmMcg = peso * med.doseBase;
         if (unidadeFenta === 'mg') {
           const valorEmMg = doseCalculadaEmMcg / 1000;
@@ -512,7 +716,7 @@
         formulaDose = `Dose = ${med.doseBase} ${med.unidade} × ${peso} kg = ${(peso * med.doseBase).toFixed(2)} ${med.unidade === 'mcg/kg' ? 'mcg' : 'mg'}`;
       }
       
-      let doseCalculada = (med.nome === 'Fentanil') ? peso * med.doseBase : peso * dosePorKg; // em mcg para Fentanil, mg para outros
+      let doseCalculada = (med.nome === 'Fentanil') ? peso * med.doseBase : peso * dosePorKg;
       if (med.nome !== 'Fentanil' && med.doseMaxKg && (med.doseMaxKg * peso) < doseCalculada) {
         doseCalculada = med.doseMaxKg * peso;
         formulaDose += ` → limitado a máx ${med.doseMaxKg} ${med.unidade} = ${(med.doseMaxKg * peso).toFixed(2)} ${med.unidade === 'mcg/kg' ? 'mcg' : 'mg'}`;
@@ -521,32 +725,27 @@
       let unidadeExib = med.unidade;
       let valorExib = doseCalculada;
       
-      // Tratamento especial para Fentanil (exibição)
       if (med.nome === 'Fentanil') {
         if (unidadeFenta === 'mg') {
           valorExib = doseCalculada / 1000;
           unidadeExib = 'mg';
         } else {
-          valorExib = doseCalculada; // já em mcg
+          valorExib = doseCalculada;
           unidadeExib = 'mcg';
         }
       }
 
-      // Cálculo do volume (sempre em mL)
-      let doseEmMg = 0;
+      // Volume
       let volumeHtml = '—';
       let formulaVolume = '';
-      
       if (med.nome === 'Fentanil') {
-        // doseCalculada está em mcg. Converter para mg para o volume.
         const doseEmMgFenta = doseCalculada / 1000;
         if (med.concentracaoMgMl && doseEmMgFenta) {
           const vol = doseEmMgFenta / med.concentracaoMgMl;
           volumeHtml = fmt2(vol) + ' mL';
-          formulaVolume = `Volume = ${doseEmMgFenta.toFixed(2)} mg ÷ ${med.concentracaoMgMl} mg/mL = ${vol.toFixed(2)} mL`;
+          formulaVolume = `Volume = ${doseEmMgFenta.toFixed(3)} mg ÷ ${med.concentracaoMgMl} mg/mL = ${vol.toFixed(2)} mL`;
         }
       } else {
-        // Demais medicamentos: doseCalculada já está em mg
         if (med.concentracaoMgMl && doseCalculada) {
           const vol = doseCalculada / med.concentracaoMgMl;
           volumeHtml = fmt2(vol) + ' mL';
@@ -554,9 +753,45 @@
         }
       }
 
-      // Construir tooltip com todos os detalhes
+      // Ampolas
+      let ampolasHtml = '—';
+      let formulaAmpolas = '';
+      const ampola = ampolaInfo[med.nome];
+      if (ampola) {
+        let doseEmMgParaAmpola;
+        if (med.nome === 'Fentanil') {
+          doseEmMgParaAmpola = doseCalculada / 1000;
+        } else {
+          doseEmMgParaAmpola = doseCalculada;
+        }
+        const numAmpolas = doseEmMgParaAmpola / ampola.mgPorAmpola;
+        if (!isNaN(numAmpolas) && isFinite(numAmpolas)) {
+          ampolasHtml = fmt2(numAmpolas);
+          formulaAmpolas = `Ampolas = ${doseEmMgParaAmpola.toFixed(2)} mg ÷ ${ampola.mgPorAmpola} mg/ampola = ${numAmpolas.toFixed(2)} ampola(s)`;
+        }
+      }
+
+      // Infusão (coluna)
+      let infusaoHtml = '—';
+      const dadosInfusao = infusaoData[med.nome];
+      if (dadosInfusao) {
+        const inputId = `infusao_${med.nome.replace(/\s/g, '')}`;
+        const resultId = `result_${med.nome.replace(/\s/g, '')}`;
+        infusaoHtml = `
+          <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
+            <span class="small">${dadosInfusao.diluicao}</span>
+            <input type="number" id="${inputId}" class="infusao-input" placeholder="Dose" step="0.01" min="${dadosInfusao.doseMin}" max="${dadosInfusao.doseMax}" 
+              oninput="atualizarInfusao('${med.nome}', ${peso})" />
+            <span id="${resultId}" class="infusao-result">—</span>
+            <span class="small">${dadosInfusao.doseMin}–${dadosInfusao.doseMax} ${dadosInfusao.unidadeDose}</span>
+          </div>
+        `;
+      }
+
+      // Tooltip completo
       let contexto = `🧪 ${med.nome}\n${formulaDose}\n`;
       if (formulaVolume) contexto += formulaVolume + '\n';
+      if (formulaAmpolas) contexto += formulaAmpolas + '\n';
       if (idadeStr) contexto += `📅 Idade considerada: ${idadeStr}\n`;
       if (choque && med.nome === 'Cetamina') contexto += '⭐ Choque: cetamina preferencial.\n';
       if (choque && (med.nome === 'Propofol' || med.nome === 'Etomidato')) contexto += '⚠️ Choque: evitar este agente.\n';
@@ -576,11 +811,14 @@
           <span class="info-icon" data-detalhe="${contexto.replace(/"/g, '&quot;')}">ⓘ</span>
         </td>
         <td>${volumeHtml}</td>
+        <td>${ampolasHtml}</td>
+        <td>${infusaoHtml}</td>
         <td class="small">${med.notasBase}${notasAdicionais}</td>
       `;
       tbody.appendChild(tr);
     });
 
+    // Reaplicar eventos nos ícones de informação
     document.querySelectorAll('.info-icon').forEach(icon => {
       icon.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -641,6 +879,9 @@
     const el = document.getElementById(id);
     if (el) el.addEventListener('change', calcular);
   });
+
+  // Inicialização e expor função de atualização de infusão globalmente
+  window.atualizarInfusao = atualizarInfusao;
 
   atualizarAtropinaAuto();
   calcular();

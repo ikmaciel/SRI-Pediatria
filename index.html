@@ -112,7 +112,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.75rem;
-      min-width: 800px;
+      min-width: 900px;
     }
     th, td {
       border-bottom: 1px solid #334155;
@@ -200,6 +200,7 @@
     .infusao-input:focus { outline: 1px solid #38bdf8; }
     .infusao-result { font-weight: bold; color: #38bdf8; }
     .infusao-detalhe { font-size: 0.65rem; color: #94a3b8; display: block; line-height: 1.3; }
+    .ampola-detalhe { font-size: 0.6rem; color: #94a3b8; display: block; }
 
     @media (min-width: 1024px) {
       .wrap { padding: 24px; }
@@ -292,7 +293,7 @@
   </div>
 
   <div class="card">
-    <h2>Resultado – Doses e Infusão Contínua</h2>
+    <h2>Resultado – Doses, Infusão e Ampolas</h2>
     <div class="table-wrapper">
       <table id="tabela">
         <thead>
@@ -302,6 +303,7 @@
             <th>Dose usada</th>
             <th>Dose calculada</th>
             <th>Volume (mL)</th>
+            <th>Ampolas (unid.)</th>
             <th>Infusão (mL/h)</th>
             <th>Notas</th>
           </tr>
@@ -309,7 +311,7 @@
         <tbody></tbody>
       </table>
     </div>
-    <p class="small" style="margin-top: 12px;">Infusão calculada a partir da dose alvo (pré‑preenchida com a média da faixa). Diluição padrão HRSM. Alertas de interações medicamentosas são exibidos acima da tabela.</p>
+    <p class="small" style="margin-top: 12px;">Ampolas calculadas com base nas apresentações comerciais informadas. Infusão calculada a partir da dose alvo (média da faixa). Diluição padrão HRSM.</p>
   </div>
 
   <div class="card">
@@ -406,6 +408,20 @@
     "Cetamina": { diluicao: "6 mL + 54 mL SF → 60 mL", fluxoBase: 83.3, unidadeFluxo: "mcg/min", unidadeDose: "mcg/kg/min", doseMin: 5, doseMax: 20, tipo: "mcg/kg/min", sugestao: 10 },
     "Rocurônio": { diluicao: "10 mL + 40 mL SF → 50 mL", fluxoBase: 33.3, unidadeFluxo: "mcg/min", unidadeDose: "mcg/kg/min", doseMin: 10, doseMax: 12, tipo: "mcg/kg/min", sugestao: 11 },
     "Salbutamol": { diluicao: "20 mL + 80 mL SF → 100 mL", fluxoBase: 1.6, unidadeFluxo: "mcg/min", unidadeDose: "mcg/kg/min", doseMin: 0.1, doseMax: 0.6, tipo: "mcg/kg/min", sugestao: 0.3 }
+  };
+
+  // ---------- APRESENTAÇÕES COMERCIAIS (AMPOLAS) ----------
+  const ampolaInfo = {
+    "Fentanil": { mgPorAmpola: 0.5, nome: "Fentanil 0,05 mg/mL amp 10 mL" },
+    "Lidocaína": { mgPorAmpola: 400, nome: "Lidocaína 2% 20 mL" },
+    "Cetamina": { mgPorAmpola: 100, nome: "Cetamina 50 mg/mL amp 2 mL" },
+    "Etomidato": { mgPorAmpola: 20, nome: "Etomidato 2 mg/mL amp 10 mL" },
+    "Propofol": { mgPorAmpola: 200, nome: "Propofol 10 mg/mL amp 20 mL" },
+    "Succinilcolina": { mgPorAmpola: 200, nome: "Succinilcolina 20 mg/mL amp 10 mL" },
+    "Rocurônio": { mgPorAmpola: 50, nome: "Rocurônio 10 mg/mL frasco-amp 5 mL" },
+    "Midazolam": { mgPorAmpola: 50, nome: "Midazolam 5 mg/mL amp 10 mL" },
+    "Atropina": { mgPorAmpola: 0.25, nome: "Atropina 0,25 mg/mL amp 1 mL" },
+    "Epinefrina": { mgPorAmpola: 1, nome: "Epinefrina 1 mg/mL amp 1 mL" }
   };
 
   // ---------- MEDICAMENTOS BASE (com notas enriquecidas) ----------
@@ -506,42 +522,32 @@
     salvarEstado();
   }
 
-  // ---------- INTERAÇÕES MEDICAMENTOSAS ----------
+  // ---------- INTERAÇÕES ----------
   function detectarInteracoes(medicamentosSelecionados) {
     const nomes = medicamentosSelecionados.map(m => m.nome);
     const alertas = [];
-
-    // Depressão respiratória: Fentanil + Midazolam
     if (nomes.includes('Fentanil') && nomes.includes('Midazolam')) {
       alertas.push('⚠️ Fentanil + Midazolam: potencialização da depressão respiratória e sedação. Monitorizar ventilação e SpO₂.');
     }
-    // Depressão respiratória: Fentanil + Propofol
     if (nomes.includes('Fentanil') && nomes.includes('Propofol')) {
       alertas.push('⚠️ Fentanil + Propofol: potencialização da depressão respiratória e hipotensão. Ajustar doses e monitorizar.');
     }
-    // Sedação/hipotensão: Midazolam + Propofol
     if (nomes.includes('Midazolam') && nomes.includes('Propofol')) {
       alertas.push('⚠️ Midazolam + Propofol: potencialização da sedação e hipotensão. Usar com cautela em instabilidade.');
     }
-    // Cetamina + Midazolam: benéfico (não alerta)
     if (nomes.includes('Cetamina') && nomes.includes('Midazolam')) {
       alertas.push('ℹ️ Cetamina + Midazolam: midazolam pode reduzir o risco de agitação pós‑cetamina (benéfico).');
     }
-    // Atropina + Cetamina: benéfico (não alerta)
     if (nomes.includes('Atropina') && nomes.includes('Cetamina')) {
       alertas.push('ℹ️ Atropina + Cetamina: atropina pode atenuar a taquicardia induzida por cetamina (benéfico).');
     }
-    // Rocurônio + Succinilcolina: não devem ser usados juntos (já tratado)
     if (nomes.includes('Rocurônio') && nomes.includes('Succinilcolina')) {
       alertas.push('⚠️ Rocurônio + Succinilcolina: não administrar em sequência (bloqueio despolarizante e não‑despolarizante). Escolher um deles.');
     }
-    // Epinefrina + qualquer beta‑bloqueador? (não está na lista)
-    // Lidocaína + Propofol? (pode potencializar efeitos cardíacos, mas raro)
-
     return alertas;
   }
 
-  // ---------- NOTAS ADICIONAIS POR MEDICAMENTO ----------
+  // ---------- NOTAS ADICIONAIS ----------
   function getNotaAdicional(medNome) {
     const choque = document.getElementById('choque').checked;
     const hic = document.getElementById('hic').checked;
@@ -591,27 +597,23 @@
     recomendacaoDiv.innerHTML = '';
 
     if (!peso || peso <= 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="small">Informe o peso.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="small">Informe o peso.</td></tr>';
       salvarEstado();
       return;
     }
 
-    // --- Montar lista de medicamentos a serem exibidos ---
     let medicamentos = [...medsBase];
     if (incluirAtropina) medicamentos.push(atropina);
 
-    // --- Detectar interações ---
+    // Interações
     const interacoes = detectarInteracoes(medicamentos);
     let avisoHtml = '';
     if (interacoes.length > 0) {
       avisoHtml += `<div class="alert interacao-alerta"><strong>⚠️ Interações medicamentosas detectadas:</strong><br>`;
-      interacoes.forEach(inter => {
-        avisoHtml += `• ${inter}<br>`;
-      });
+      interacoes.forEach(inter => { avisoHtml += `• ${inter}<br>`; });
       avisoHtml += `</div>`;
     }
 
-    // --- Avisos gerais ---
     if (peso < 3) avisoHtml += '<div class="alert danger">⚠️ Peso < 3 kg: protocolo neonatal específico.</div>';
     if (peso > 50) avisoHtml += '<div class="alert">⚠️ Peso > 50 kg: considerar peso ideal/ajustado.</div>';
     avisoHtml += `<div class="alert ok">✅ Peso: <strong>${peso.toFixed(2)} kg</strong>.</div>`;
@@ -631,17 +633,15 @@
     } else {
       avisoHtml += `<div class="alert ok">💉 Succinilcolina dose: <strong>${succDose} mg/kg</strong> (fixa).</div>`;
     }
-
     if (choque) avisoHtml += '<div class="alert">⚠️ Choque: prefira cetamina. Evite propofol/etomidato.</div>';
     if (sepse) avisoHtml += '<div class="alert">⚠️ Sepse: evitar etomidato (supressão adrenal).</div>';
     if (hic) avisoHtml += '<div class="alert">⚠️ HIC: lidocaína e propofol são benéficos.</div>';
     if (asma) avisoHtml += '<div class="alert">💨 Asma: cetamina é broncodilatadora, preferida.</div>';
     if (incluirAtropina) avisoHtml += '<div class="alert">⚙️ Atropina incluída MANUALMENTE. Não é rotina (Carvalho 2023).</div>';
     else avisoHtml += '<div class="alert">⚙️ Atropina NÃO incluída (padrão atual).</div>';
-
     avisosDiv.innerHTML = avisoHtml;
 
-    // --- Recomendação ---
+    // Recomendação
     const melhorIndutor = recomendarIndutor(choque, hic, sepse, asma);
     const melhorBloq = recomendarBloqueador(succContra);
     let recomendacaoHtml = `<div class="alert recomendacao"><strong>💡 Recomendação baseada nas condições informadas:</strong><br>`;
@@ -651,10 +651,8 @@
     recomendacaoHtml += `⚠️ A decisão final deve ser individualizada.</div>`;
     recomendacaoDiv.innerHTML = recomendacaoHtml;
 
-    // --- Restaurar valores de infusão salvos ---
     const infusoesSalvas = window._infusoesSalvas || {};
 
-    // --- Montar tabela ---
     medicamentos.forEach(med => {
       let dosePorKg = med.doseBase;
       let formulaDose = '';
@@ -663,7 +661,7 @@
       if (med.nome === 'Succinilcolina') {
         if (succContra) {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<tr><td colspan="7" class="danger">🚫 Contraindicada. Use rocurônio.</td></tr>`;
+          tr.innerHTML = `<tr><td colspan="8" class="danger">🚫 Contraindicada. Use rocurônio.</td></tr>`;
           tbody.appendChild(tr);
           return;
         }
@@ -689,7 +687,6 @@
 
       let unidadeExib = med.unidade;
       let valorExib = doseCalculada;
-      
       if (med.nome === 'Fentanil') {
         if (unidadeFenta === 'mg') {
           valorExib = doseCalculada / 1000;
@@ -718,6 +715,33 @@
         }
       }
 
+      // Ampolas
+      let ampolasHtml = '—';
+      let formulaAmpolas = '';
+      const ampola = ampolaInfo[med.nome];
+      if (ampola) {
+        let doseEmMgParaAmpola;
+        if (med.nome === 'Fentanil') {
+          doseEmMgParaAmpola = doseCalculada / 1000;
+        } else {
+          doseEmMgParaAmpola = doseCalculada;
+        }
+        const numAmpolas = doseEmMgParaAmpola / ampola.mgPorAmpola;
+        if (!isNaN(numAmpolas) && isFinite(numAmpolas)) {
+          const ampExato = fmt2(numAmpolas);
+          let ampPratica = '';
+          if (numAmpolas > 0 && numAmpolas < 1) {
+            ampPratica = ' → 1 ampola';
+          } else if (numAmpolas > 0 && Number.isInteger(numAmpolas)) {
+            ampPratica = ` → ${Math.round(numAmpolas)} ampolas`;
+          } else {
+            ampPratica = ` → ${Math.ceil(numAmpolas)} ampolas (arredondado)`;
+          }
+          ampolasHtml = `${ampExato}${ampPratica}`;
+          formulaAmpolas = `Ampolas = ${doseEmMgParaAmpola.toFixed(2)} mg ÷ ${ampola.mgPorAmpola} mg/ampola = ${numAmpolas.toFixed(2)} ampola(s)`;
+        }
+      }
+
       // Infusão
       let infusaoHtml = '—';
       const dadosInfusao = infusaoData[med.nome];
@@ -727,7 +751,6 @@
         const valorSalvo = infusoesSalvas[med.nome.replace(/\s/g, '')];
         const valorInicial = (valorSalvo !== undefined && valorSalvo !== '') ? parseFloat(valorSalvo) : dadosInfusao.sugestao;
         const valorInicialStr = isNaN(valorInicial) ? dadosInfusao.sugestao.toFixed(1) : valorInicial.toFixed(1);
-        
         infusaoHtml = `
           <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
             <span class="infusao-detalhe">${dadosInfusao.diluicao}</span>
@@ -745,9 +768,10 @@
         }, 50);
       }
 
-      // Tooltip completo
+      // Tooltip
       let contexto = `🧪 ${med.nome}\n${formulaDose}\n`;
       if (formulaVolume) contexto += formulaVolume + '\n';
+      if (formulaAmpolas) contexto += formulaAmpolas + '\n';
       if (idadeStr) contexto += `📅 Idade considerada: ${idadeStr}\n`;
       if (choque && med.nome === 'Cetamina') contexto += '⭐ Choque: cetamina preferencial.\n';
       if (choque && (med.nome === 'Propofol' || med.nome === 'Etomidato')) contexto += '⚠️ Choque: evitar este agente.\n';
@@ -767,13 +791,13 @@
           <span class="info-icon" data-detalhe="${contexto.replace(/"/g, '&quot;')}">ⓘ</span>
         </td>
         <td>${volumeHtml}</td>
+        <td>${ampolasHtml}</td>
         <td>${infusaoHtml}</td>
         <td class="small">${med.notasBase}${notasAdicionais}</td>
       `;
       tbody.appendChild(tr);
     });
 
-    // Reaplicar eventos
     document.querySelectorAll('.info-icon').forEach(icon => {
       icon.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -786,11 +810,9 @@
         if (icon) mostrarDetalhes(icon.getAttribute('data-detalhe'));
       });
     });
-
     salvarEstado();
   }
 
-  // ---------- LIMPAR ----------
   function limpar() {
     document.getElementById('peso').value = '';
     document.getElementById('idadeNumero').value = '';
@@ -811,11 +833,10 @@
     calcular();
   }
 
-  // ---------- EXPOR FUNÇÕES ----------
   window.atualizarInfusao = atualizarInfusao;
   window.limpar = limpar;
 
-  // ---------- EVENT LISTENERS ----------
+  // Event listeners
   const btnCond = document.getElementById('btnCondicoes');
   const condContent = document.getElementById('condicoesContent');
   btnCond.addEventListener('click', () => {
@@ -852,7 +873,7 @@
   idadeUnidade.addEventListener('change', () => { userToggledAtropina = false; handleIdadeChange(); });
   atropinaCheck.addEventListener('change', () => { userToggledAtropina = true; calcular(); });
 
-  // ---------- INICIALIZAÇÃO ----------
+  // Inicialização
   const estadoRestaurado = carregarEstado();
   if (estadoRestaurado) {
     restaurarEstado(estadoRestaurado);

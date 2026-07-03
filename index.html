@@ -191,19 +191,9 @@
       color: #e5e7eb;
       display: inline-block;
     }
-    .infusao-input:focus {
-      outline: 1px solid #38bdf8;
-    }
-    .infusao-result {
-      font-weight: bold;
-      color: #38bdf8;
-    }
-    .infusao-detalhe {
-      font-size: 0.65rem;
-      color: #94a3b8;
-      display: block;
-      line-height: 1.3;
-    }
+    .infusao-input:focus { outline: 1px solid #38bdf8; }
+    .infusao-result { font-weight: bold; color: #38bdf8; }
+    .infusao-detalhe { font-size: 0.65rem; color: #94a3b8; display: block; line-height: 1.3; }
 
     @media (min-width: 1024px) {
       .wrap { padding: 24px; }
@@ -212,11 +202,7 @@
       .card { padding: 24px; }
       .grid-2 { gap: 24px; }
       .checkbox-row label { font-size: 0.9rem; }
-      .cond-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px 16px;
-      }
+      .cond-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; }
       .table-wrapper { overflow-x: visible; }
       table { font-size: 0.85rem; min-width: auto; }
       th, td { padding: 12px 10px; }
@@ -224,7 +210,6 @@
       .checklist { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .infusao-input { width: 100px; font-size: 0.85rem; }
     }
-
     @media (max-width: 560px) {
       .wrap { padding: 12px; }
       h1 { font-size: 1.5rem; }
@@ -241,7 +226,7 @@
 <div class="wrap">
   <h1>Calculadora de SRI Pediátrica</h1>
   <div class="subtitle"><strong>Ferramenta de Recomendação e Otimização - FRO</strong></div>
-  <p class="small">Baseada em evidências 2025/2026 – ESAIC/ESPA 2026, Mendez et al. 2026. Infusão calculada a partir da diluição padrão HRSM. Campo pré‑preenchido com dose média da faixa (editável).</p>
+  <p class="small">Baseada em evidências 2025/2026. Infusão calculada a partir da diluição padrão HRSM. Dados salvos automaticamente no navegador.</p>
 
   <div class="card">
     <div class="grid-2">
@@ -294,7 +279,7 @@
 
     <div class="btns no-print">
       <button onclick="window.print()">Imprimir</button>
-      <button class="secondary" onclick="limpar()">Limpar</button>
+      <button class="secondary" onclick="limpar()">Limpar tudo</button>
     </div>
     <div id="recomendacaoBox"></div>
     <div id="avisos"></div>
@@ -411,13 +396,13 @@
     "Adrenalina": {
       diluicao: "2 mL + 98 mL SF → 100 mL",
       concFinal: "0,02 mg/mL (20 mcg/mL)",
-      fluxoBase: 0.33, // 1 mL/h = 0,33 mcg/min
+      fluxoBase: 0.33,
       unidadeFluxo: "mcg/min",
       unidadeDose: "mcg/kg/min",
       doseMin: 0.05,
       doseMax: 2,
       tipo: "mcg/kg/min",
-      sugestao: 0.5 // média da faixa (0,05+2)/2 ≈ 1,0, mas vou usar 0,5 por ser mais comum na prática
+      sugestao: 0.5
     },
     "Noradrenalina": {
       diluicao: "2 mL + 98 mL SF → 100 mL",
@@ -541,13 +526,112 @@
     { etapa: "Paralisia", nome: "Succinilcolina", doseBase: null, unidade: "mg/kg", minMax: "1,5 mg/kg fixo", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Contraindicações: hipercalemia, HM, queimaduras." },
     { etapa: "Paralisia", nome: "Rocurônio", doseBase: 0.6, unidade: "mg/kg", minMax: "0,6 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notasBase: "Alternativa à succinilcolina. Antídoto: sugammadex." },
     { etapa: "Sedação pós‑intubação", nome: "Midazolam", doseBase: 0.1, unidade: "mg/kg", minMax: "0,1 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notasBase: "Benzodiazepínico para sedação contínua." },
-    { etapa: "Emergência", nome: "Epinefrina", doseBase: 0.01, unidade: "mg/kg", minMax: "0,01 mg/kg (10 mcg/kg)", doseMaxKg: null, concentracaoMgMl: 0.1, notasBase: "Dose padrão intravenosa/intraóssea para parada cardiorrespiratória ou anafilaxia grave. Apresentação: ampola 1:10.000 (0,1 mg/mL)." }
+    { etapa: "Emergência", nome: "Epinefrina", doseBase: 0.01, unidade: "mg/kg", minMax: "0,01 mg/kg (10 mcg/kg)", doseMaxKg: null, concentracaoMgMl: 0.1, notasBase: "Dose padrão intravenosa/intraóssea para parada cardiorrespiratória ou anafilaxia grave." }
   ];
 
   const atropina = { etapa: "Pré‑medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notasBase: "Não rotineira. Apenas bradicardia sintomática." };
 
+  // ---------- ESTADO GLOBAL ----------
   let userToggledAtropina = false;
   let modal = document.getElementById('modal');
+  let estadoSalvo = {};
+
+  // ---------- FUNÇÕES DE SALVAMENTO ----------
+  function salvarEstado() {
+    const estado = {
+      peso: document.getElementById('peso').value,
+      idadeNumero: document.getElementById('idadeNumero').value,
+      idadeUnidade: document.getElementById('idadeUnidade').value,
+      unidadeFentanil: document.getElementById('unidadeFentanil').value,
+      incluirAtropina: document.getElementById('incluirAtropina').checked,
+      choque: document.getElementById('choque').checked,
+      hic: document.getElementById('hic').checked,
+      hipercalemia: document.getElementById('hipercalemia').checked,
+      hm: document.getElementById('hm').checked,
+      sepse: document.getElementById('sepse').checked,
+      asma: document.getElementById('asma').checked,
+      infusoes: {}
+    };
+    // Salvar valores dos inputs de infusão (dinâmicos)
+    document.querySelectorAll('.infusao-input').forEach(input => {
+      const key = input.id.replace('infusao_', '');
+      estado.infusoes[key] = input.value;
+    });
+    try {
+      localStorage.setItem('fro_estado', JSON.stringify(estado));
+    } catch (e) {}
+  }
+
+  function carregarEstado() {
+    try {
+      const raw = localStorage.getItem('fro_estado');
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+
+  function restaurarEstado(estado) {
+    if (!estado) return;
+    // Campos fixos
+    if (estado.peso) document.getElementById('peso').value = estado.peso;
+    if (estado.idadeNumero) document.getElementById('idadeNumero').value = estado.idadeNumero;
+    if (estado.idadeUnidade) document.getElementById('idadeUnidade').value = estado.idadeUnidade;
+    if (estado.unidadeFentanil) document.getElementById('unidadeFentanil').value = estado.unidadeFentanil;
+    document.getElementById('incluirAtropina').checked = !!estado.incluirAtropina;
+    document.getElementById('choque').checked = !!estado.choque;
+    document.getElementById('hic').checked = !!estado.hic;
+    document.getElementById('hipercalemia').checked = !!estado.hipercalemia;
+    document.getElementById('hm').checked = !!estado.hm;
+    document.getElementById('sepse').checked = !!estado.sepse;
+    document.getElementById('asma').checked = !!estado.asma;
+    // Salvar infusões para restaurar após o cálculo
+    if (estado.infusoes) {
+      window._infusoesSalvas = estado.infusoes;
+    }
+  }
+
+  // ---------- FUNÇÕES DE INFUSÃO ----------
+  function calcularInfusao(medNome, peso, doseAlvo) {
+    const dados = infusaoData[medNome];
+    if (!dados || !peso || peso <= 0 || !doseAlvo || isNaN(doseAlvo) || doseAlvo <= 0) return null;
+    if (doseAlvo < dados.doseMin || doseAlvo > dados.doseMax) {
+      return { erro: `Dose fora da faixa (${dados.doseMin}–${dados.doseMax} ${dados.unidadeDose})` };
+    }
+    let doseTotal;
+    if (dados.tipo === 'mcg/kg/min') {
+      doseTotal = doseAlvo * peso;
+    } else if (dados.tipo === 'mcg/kg/h') {
+      doseTotal = doseAlvo * peso;
+    } else if (dados.tipo === 'mg/kg/h') {
+      doseTotal = doseAlvo * peso;
+    } else {
+      return null;
+    }
+    const fluxo = doseTotal / dados.fluxoBase;
+    return { fluxo: fluxo, doseTotal: doseTotal, unidade: dados.unidadeFluxo };
+  }
+
+  function atualizarInfusao(medNome, peso) {
+    const inputId = `infusao_${medNome.replace(/\s/g, '')}`;
+    const input = document.getElementById(inputId);
+    const resultSpan = document.getElementById(`result_${medNome.replace(/\s/g, '')}`);
+    if (!input || !resultSpan) return;
+    const doseAlvo = parseFloat(input.value);
+    const resultado = calcularInfusao(medNome, peso, doseAlvo);
+    if (resultado === null) {
+      resultSpan.textContent = '—';
+      return;
+    }
+    if (resultado.erro) {
+      resultSpan.textContent = '⚠️ ' + resultado.erro;
+      return;
+    }
+    resultSpan.textContent = fmt2(resultado.fluxo) + ' mL/h';
+    resultSpan.title = `Dose: ${doseAlvo} ${infusaoData[medNome].unidadeDose} → ${fmt2(resultado.doseTotal)} ${infusaoData[medNome].unidadeFluxo} → ${fmt2(resultado.fluxo)} mL/h`;
+    salvarEstado(); // salvar após alteração
+  }
+
+  // ---------- FUNÇÕES DE UI ----------
   function mostrarDetalhes(texto) {
     document.getElementById('modal-text').innerText = texto;
     modal.style.display = 'flex';
@@ -576,60 +660,6 @@
     return "";
   }
 
-  // Função para calcular infusão a partir da dose alvo (digitada pelo usuário ou pré-preenchida)
-  function calcularInfusao(medNome, peso, doseAlvo) {
-    const dados = infusaoData[medNome];
-    if (!dados || !peso || peso <= 0 || !doseAlvo || isNaN(doseAlvo) || doseAlvo <= 0) return null;
-    if (doseAlvo < dados.doseMin || doseAlvo > dados.doseMax) {
-      return { erro: `Dose fora da faixa (${dados.doseMin}–${dados.doseMax} ${dados.unidadeDose})` };
-    }
-    let doseTotal;
-    if (dados.tipo === 'mcg/kg/min') {
-      doseTotal = doseAlvo * peso; // mcg/min
-    } else if (dados.tipo === 'mcg/kg/h') {
-      doseTotal = doseAlvo * peso; // mcg/h
-    } else if (dados.tipo === 'mg/kg/h') {
-      doseTotal = doseAlvo * peso; // mg/h
-    } else {
-      return null;
-    }
-    const fluxo = doseTotal / dados.fluxoBase; // mL/h
-    return { fluxo: fluxo, doseTotal: doseTotal, unidade: dados.unidadeFluxo };
-  }
-
-  // Atualiza a célula de infusão quando o usuário altera o valor
-  function atualizarInfusao(medNome, peso) {
-    const inputId = `infusao_${medNome.replace(/\s/g, '')}`;
-    const input = document.getElementById(inputId);
-    const resultSpan = document.getElementById(`result_${medNome.replace(/\s/g, '')}`);
-    if (!input || !resultSpan) return;
-    const doseAlvo = parseFloat(input.value);
-    const resultado = calcularInfusao(medNome, peso, doseAlvo);
-    if (resultado === null) {
-      resultSpan.textContent = '—';
-      return;
-    }
-    if (resultado.erro) {
-      resultSpan.textContent = '⚠️ ' + resultado.erro;
-      return;
-    }
-    resultSpan.textContent = fmt2(resultado.fluxo) + ' mL/h';
-    resultSpan.title = `Dose: ${doseAlvo} ${infusaoData[medNome].unidadeDose} → ${fmt2(resultado.doseTotal)} ${infusaoData[medNome].unidadeFluxo} → ${fmt2(resultado.fluxo)} mL/h`;
-  }
-
-  // Pré‑preencher campo de infusão com sugestão (média da faixa)
-  function preencherSugestaoInfusao(medNome) {
-    const dados = infusaoData[medNome];
-    if (!dados) return;
-    const inputId = `infusao_${medNome.replace(/\s/g, '')}`;
-    const input = document.getElementById(inputId);
-    if (input && !input.value) {
-      input.value = dados.sugestao.toFixed(1);
-      // Disparar evento para calcular automaticamente
-      input.dispatchEvent(new Event('input'));
-    }
-  }
-
   // ---------- CÁLCULO PRINCIPAL ----------
   function calcular() {
     const peso = parseFloat(document.getElementById('peso').value.replace(',', '.'));
@@ -652,6 +682,7 @@
 
     if (!peso || peso <= 0) {
       tbody.innerHTML = '<tr><td colspan="7" class="small">Informe o peso.</td></tr>';
+      salvarEstado();
       return;
     }
 
@@ -697,6 +728,9 @@
 
     let medicamentos = [...medsBase];
     if (incluirAtropina) medicamentos.push(atropina);
+
+    // Restaurar valores de infusão salvos (se existirem)
+    const infusoesSalvas = window._infusoesSalvas || {};
 
     medicamentos.forEach(med => {
       let dosePorKg = med.doseBase;
@@ -761,24 +795,29 @@
         }
       }
 
-      // Infusão (com campo pré‑preenchido)
+      // Infusão
       let infusaoHtml = '—';
       const dadosInfusao = infusaoData[med.nome];
       if (dadosInfusao) {
         const inputId = `infusao_${med.nome.replace(/\s/g, '')}`;
         const resultId = `result_${med.nome.replace(/\s/g, '')}`;
+        // Valor salvo ou sugestão
+        const valorSalvo = infusoesSalvas[med.nome.replace(/\s/g, '')];
+        const valorInicial = (valorSalvo !== undefined && valorSalvo !== '') ? parseFloat(valorSalvo) : dadosInfusao.sugestao;
+        const valorInicialStr = isNaN(valorInicial) ? dadosInfusao.sugestao.toFixed(1) : valorInicial.toFixed(1);
+        
         infusaoHtml = `
           <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
             <span class="infusao-detalhe">${dadosInfusao.diluicao}</span>
             <input type="number" id="${inputId}" class="infusao-input" placeholder="Dose" step="0.01" 
               min="${dadosInfusao.doseMin}" max="${dadosInfusao.doseMax}" 
-              value="${dadosInfusao.sugestao.toFixed(1)}"
+              value="${valorInicialStr}"
               oninput="atualizarInfusao('${med.nome}', ${peso})" />
             <span id="${resultId}" class="infusao-result">—</span>
             <span class="infusao-detalhe">1 mL/h = ${dadosInfusao.fluxoBase} ${dadosInfusao.unidadeFluxo}</span>
           </div>
         `;
-        // Disparar cálculo inicial após renderizar
+        // Disparar cálculo após renderizar
         setTimeout(() => {
           const input = document.getElementById(inputId);
           if (input) input.dispatchEvent(new Event('input'));
@@ -826,11 +865,12 @@
         if (icon) mostrarDetalhes(icon.getAttribute('data-detalhe'));
       });
     });
+
+    // Salvar estado após cada cálculo
+    salvarEstado();
   }
 
-  // Expor função global para o oninput
-  window.atualizarInfusao = atualizarInfusao;
-
+  // ---------- LIMPAR ----------
   function limpar() {
     document.getElementById('peso').value = '';
     document.getElementById('idadeNumero').value = '';
@@ -843,13 +883,19 @@
     document.getElementById('sepse').checked = false;
     document.getElementById('asma').checked = false;
     userToggledAtropina = false;
+    localStorage.removeItem('fro_estado');
+    window._infusoesSalvas = {};
     const condContent = document.getElementById('condicoesContent');
     if (condContent.classList.contains('open')) condContent.classList.remove('open');
     document.getElementById('btnCondicoes').innerHTML = '➕ Condições clínicas (opcional) ▼';
     calcular();
   }
 
-  // Event listeners
+  // ---------- EXPOR FUNÇÕES GLOBAIS ----------
+  window.atualizarInfusao = atualizarInfusao;
+  window.limpar = limpar;
+
+  // ---------- EVENT LISTENERS ----------
   const btnCond = document.getElementById('btnCondicoes');
   const condContent = document.getElementById('condicoesContent');
   btnCond.addEventListener('click', () => {
@@ -866,20 +912,38 @@
     calcular();
   }
 
+  // Registrar eventos com salvamento
+  const camposParaSalvar = ['peso', 'idadeNumero', 'idadeUnidade', 'unidadeFentanil', 'incluirAtropina', 'choque', 'hic', 'hipercalemia', 'hm', 'sepse', 'asma'];
+  camposParaSalvar.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'INPUT' && el.type === 'checkbox') {
+      el.addEventListener('change', () => {
+        if (id === 'incluirAtropina') userToggledAtropina = true;
+        calcular();
+      });
+    } else if (el.tagName === 'SELECT') {
+      el.addEventListener('change', calcular);
+    } else {
+      el.addEventListener('input', calcular);
+    }
+  });
+
+  // Tratamento especial para idade
   idadeNumero.addEventListener('input', () => { userToggledAtropina = false; handleIdadeChange(); });
   idadeUnidade.addEventListener('change', () => { userToggledAtropina = false; handleIdadeChange(); });
   atropinaCheck.addEventListener('change', () => { userToggledAtropina = true; calcular(); });
-  document.getElementById('peso').addEventListener('input', calcular);
-  document.getElementById('unidadeFentanil').addEventListener('change', calcular);
-  
-  const condCheckboxes = ['choque', 'hic', 'hipercalemia', 'hm', 'sepse', 'asma'];
-  condCheckboxes.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', calcular);
-  });
 
-  atualizarAtropinaAuto();
-  calcular();
+  // ---------- INICIALIZAÇÃO ----------
+  const estadoRestaurado = carregarEstado();
+  if (estadoRestaurado) {
+    restaurarEstado(estadoRestaurado);
+    // Forçar recálculo após restaurar
+    setTimeout(calcular, 100);
+  } else {
+    atualizarAtropinaAuto();
+    calcular();
+  }
 </script>
 </body>
 </html>

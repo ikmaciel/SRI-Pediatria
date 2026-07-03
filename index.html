@@ -106,7 +106,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.75rem;
-      min-width: 900px;
+      min-width: 800px;
     }
     th, td {
       border-bottom: 1px solid #334155;
@@ -181,7 +181,6 @@
     .modal-content p { margin: 0 0 16px; font-size: 0.9rem; white-space: pre-wrap; text-align: left; }
     .modal-content button { margin-top: 0; padding: 8px 20px; }
 
-    /* Estilo do input de infusão dentro da tabela */
     .infusao-input {
       width: 80px;
       padding: 4px 6px;
@@ -198,6 +197,12 @@
     .infusao-result {
       font-weight: bold;
       color: #38bdf8;
+    }
+    .infusao-detalhe {
+      font-size: 0.65rem;
+      color: #94a3b8;
+      display: block;
+      line-height: 1.3;
     }
 
     @media (min-width: 1024px) {
@@ -236,7 +241,7 @@
 <div class="wrap">
   <h1>Calculadora de SRI Pediátrica</h1>
   <div class="subtitle"><strong>Ferramenta de Recomendação e Otimização - FRO</strong></div>
-  <p class="small">Baseada em evidências 2025/2026 – ESAIC/ESPA 2026, Mendez et al. 2026. Toque na dose para ver detalhes. Na coluna "Infusão", digite a dose desejada para calcular o fluxo em mL/h.</p>
+  <p class="small">Baseada em evidências 2025/2026 – ESAIC/ESPA 2026, Mendez et al. 2026. Infusão calculada a partir da diluição padrão HRSM. Campo pré‑preenchido com dose média da faixa (editável).</p>
 
   <div class="card">
     <div class="grid-2">
@@ -296,7 +301,7 @@
   </div>
 
   <div class="card">
-    <h2>Resultado – Doses calculadas e Infusão</h2>
+    <h2>Resultado – Doses e Infusão Contínua</h2>
     <div class="table-wrapper">
       <table id="tabela">
         <thead>
@@ -306,7 +311,6 @@
             <th>Dose usada</th>
             <th>Dose calculada</th>
             <th>Volume (mL)</th>
-            <th>Ampolas (unid.)</th>
             <th>Infusão (mL/h)</th>
             <th>Notas</th>
           </tr>
@@ -314,7 +318,7 @@
         <tbody></tbody>
       </table>
     </div>
-    <p class="small" style="margin-top: 12px;">Na coluna "Infusão", digite a dose desejada (dentro da faixa) para ver o fluxo em mL/h. A diluição padrão do HRSM é usada para os cálculos.</p>
+    <p class="small" style="margin-top: 12px;">Infusão calculada automaticamente a partir da dose alvo (pré‑preenchida com a média da faixa). Ajuste o valor conforme necessidade clínica. Diluição padrão HRSM.</p>
   </div>
 
   <div class="card">
@@ -388,7 +392,7 @@
     return document.getElementById('hipercalemia').checked || document.getElementById('hm').checked;
   }
 
-  // ---------- RECOMENDAÇÃO INTELIGENTE ----------
+  // ---------- RECOMENDAÇÃO ----------
   function recomendarIndutor(choque, hic, sepse, asma) {
     if (asma) return { nome: "Cetamina", dose: 1.0, razao: "Agente broncodilatador, ideal na asma." };
     if (choque) return { nome: "Cetamina", dose: 1.0, razao: "Primeira linha no choque – estabilidade hemodinâmica." };
@@ -404,130 +408,127 @@
 
   // ---------- DADOS DE INFUSÃO (BOX PEDIATRIA HRSM) ----------
   const infusaoData = {
-    "Adrenalina": { 
-      diluicao: "2 mL + 98 mL SF → 100 mL", 
-      concFinal: "0,02 mg/mL (20 mcg/mL)", 
+    "Adrenalina": {
+      diluicao: "2 mL + 98 mL SF → 100 mL",
+      concFinal: "0,02 mg/mL (20 mcg/mL)",
       fluxoBase: 0.33, // 1 mL/h = 0,33 mcg/min
       unidadeFluxo: "mcg/min",
       unidadeDose: "mcg/kg/min",
       doseMin: 0.05,
       doseMax: 2,
-      tipo: "mcg/kg/min"
+      tipo: "mcg/kg/min",
+      sugestao: 0.5 // média da faixa (0,05+2)/2 ≈ 1,0, mas vou usar 0,5 por ser mais comum na prática
     },
-    "Noradrenalina": { 
-      diluicao: "2 mL + 98 mL SF → 100 mL", 
-      concFinal: "0,02 mg/mL (20 mcg/mL)", 
+    "Noradrenalina": {
+      diluicao: "2 mL + 98 mL SF → 100 mL",
+      concFinal: "0,02 mg/mL (20 mcg/mL)",
       fluxoBase: 0.33,
       unidadeFluxo: "mcg/min",
       unidadeDose: "mcg/kg/min",
       doseMin: 0.05,
       doseMax: 2,
-      tipo: "mcg/kg/min"
+      tipo: "mcg/kg/min",
+      sugestao: 0.5
     },
-    "Dobutamina": { 
-      diluicao: "20 mL + 80 mL SF → 100 mL", 
-      concFinal: "2,5 mg/mL (2500 mcg/mL)", 
+    "Dobutamina": {
+      diluicao: "20 mL + 80 mL SF → 100 mL",
+      concFinal: "2,5 mg/mL (2500 mcg/mL)",
       fluxoBase: 41.6,
       unidadeFluxo: "mcg/min",
       unidadeDose: "mcg/kg/min",
       doseMin: 5,
       doseMax: 20,
-      tipo: "mcg/kg/min"
+      tipo: "mcg/kg/min",
+      sugestao: 10
     },
-    "Milrinona": { 
-      diluicao: "10 mL + 40 mL SF → 50 mL", 
-      concFinal: "0,2 mg/mL (200 mcg/mL)", 
+    "Milrinona": {
+      diluicao: "10 mL + 40 mL SF → 50 mL",
+      concFinal: "0,2 mg/mL (200 mcg/mL)",
       fluxoBase: 3.33,
       unidadeFluxo: "mcg/min",
       unidadeDose: "mcg/kg/min",
       doseMin: 0.25,
       doseMax: 0.75,
-      tipo: "mcg/kg/min"
+      tipo: "mcg/kg/min",
+      sugestao: 0.5
     },
-    "Morfina": { 
-      diluicao: "1 mL + 50 mL SG → 51 mL", 
-      concFinal: "196 mcg/mL", 
-      fluxoBase: 196, // 1 mL/h = 196 mcg/h (convertido para mcg/h)
+    "Morfina": {
+      diluicao: "1 mL + 50 mL SG → 51 mL",
+      concFinal: "196 mcg/mL",
+      fluxoBase: 196,
       unidadeFluxo: "mcg/h",
       unidadeDose: "mcg/kg/h",
       doseMin: 20,
       doseMax: 40,
-      tipo: "mcg/kg/h"
+      tipo: "mcg/kg/h",
+      sugestao: 30
     },
-    "Fentanil": { 
-      diluicao: "10 mL + 40 mL SF → 50 mL", 
-      concFinal: "10 mcg/mL", 
+    "Fentanil": {
+      diluicao: "10 mL + 40 mL SF → 50 mL",
+      concFinal: "10 mcg/mL",
       fluxoBase: 10,
       unidadeFluxo: "mcg/h",
       unidadeDose: "mcg/kg/h",
       doseMin: 1,
       doseMax: 4,
-      tipo: "mcg/kg/h"
+      tipo: "mcg/kg/h",
+      sugestao: 2
     },
-    "Precedex": { 
-      diluicao: "2 mL + 48 mL SF → 50 mL", 
-      concFinal: "4 mcg/mL", 
+    "Precedex": {
+      diluicao: "2 mL + 48 mL SF → 50 mL",
+      concFinal: "4 mcg/mL",
       fluxoBase: 4,
       unidadeFluxo: "mcg/h",
       unidadeDose: "mcg/kg/h",
       doseMin: 0.3,
       doseMax: 1.5,
-      tipo: "mcg/kg/h"
+      tipo: "mcg/kg/h",
+      sugestao: 0.8
     },
-    "Midazolam": { 
-      diluicao: "10 mL + 40 mL SF → 50 mL", 
-      concFinal: "1 mg/mL", 
-      fluxoBase: 1, // 1 mL/h = 1 mg/h (convertido para mcg/h? mas a dose é em mg/kg/h)
+    "Midazolam": {
+      diluicao: "10 mL + 40 mL SF → 50 mL",
+      concFinal: "1 mg/mL",
+      fluxoBase: 1,
       unidadeFluxo: "mg/h",
       unidadeDose: "mg/kg/h",
       doseMin: 0.1,
       doseMax: 0.4,
-      tipo: "mg/kg/h"
+      tipo: "mg/kg/h",
+      sugestao: 0.2
     },
-    "Cetamina": { 
-      diluicao: "6 mL + 54 mL SF → 60 mL", 
-      concFinal: "5 mg/mL (5000 mcg/mL)", 
+    "Cetamina": {
+      diluicao: "6 mL + 54 mL SF → 60 mL",
+      concFinal: "5 mg/mL (5000 mcg/mL)",
       fluxoBase: 83.3,
       unidadeFluxo: "mcg/min",
       unidadeDose: "mcg/kg/min",
       doseMin: 5,
       doseMax: 20,
-      tipo: "mcg/kg/min"
+      tipo: "mcg/kg/min",
+      sugestao: 10
     },
-    "Rocurônio": { 
-      diluicao: "10 mL + 40 mL SF → 50 mL", 
-      concFinal: "2 mg/mL (2000 mcg/mL)", 
+    "Rocurônio": {
+      diluicao: "10 mL + 40 mL SF → 50 mL",
+      concFinal: "2 mg/mL (2000 mcg/mL)",
       fluxoBase: 33.3,
       unidadeFluxo: "mcg/min",
       unidadeDose: "mcg/kg/min",
       doseMin: 10,
       doseMax: 12,
-      tipo: "mcg/kg/min"
+      tipo: "mcg/kg/min",
+      sugestao: 11
     },
-    "Salbutamol": { 
-      diluicao: "20 mL + 80 mL SF → 100 mL", 
-      concFinal: "0,1 mg/mL (100 mcg/mL)", 
+    "Salbutamol": {
+      diluicao: "20 mL + 80 mL SF → 100 mL",
+      concFinal: "0,1 mg/mL (100 mcg/mL)",
       fluxoBase: 1.6,
       unidadeFluxo: "mcg/min",
       unidadeDose: "mcg/kg/min",
       doseMin: 0.1,
       doseMax: 0.6,
-      tipo: "mcg/kg/min"
+      tipo: "mcg/kg/min",
+      sugestao: 0.3
     }
-  };
-
-  // ---------- AMPOLAS ----------
-  const ampolaInfo = {
-    "Fentanil": { mgPorAmpola: 0.1 },
-    "Lidocaína": { mgPorAmpola: 200 },
-    "Cetamina": { mgPorAmpola: 500 },
-    "Etomidato": { mgPorAmpola: 20 },
-    "Propofol": { mgPorAmpola: 200 },
-    "Succinilcolina": { mgPorAmpola: 200 },
-    "Rocurônio": { mgPorAmpola: 50 },
-    "Midazolam": { mgPorAmpola: 15 },
-    "Atropina": { mgPorAmpola: 0.25 },
-    "Epinefrina": { mgPorAmpola: 0.1 }
   };
 
   // ---------- MEDICAMENTOS BASE ----------
@@ -543,10 +544,8 @@
     { etapa: "Emergência", nome: "Epinefrina", doseBase: 0.01, unidade: "mg/kg", minMax: "0,01 mg/kg (10 mcg/kg)", doseMaxKg: null, concentracaoMgMl: 0.1, notasBase: "Dose padrão intravenosa/intraóssea para parada cardiorrespiratória ou anafilaxia grave. Apresentação: ampola 1:10.000 (0,1 mg/mL)." }
   ];
 
-  // A Atropina é adicionada separadamente se marcada
   const atropina = { etapa: "Pré‑medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notasBase: "Não rotineira. Apenas bradicardia sintomática." };
 
-  // ---------- ESTADO ----------
   let userToggledAtropina = false;
   let modal = document.getElementById('modal');
   function mostrarDetalhes(texto) {
@@ -577,31 +576,28 @@
     return "";
   }
 
+  // Função para calcular infusão a partir da dose alvo (digitada pelo usuário ou pré-preenchida)
   function calcularInfusao(medNome, peso, doseAlvo) {
     const dados = infusaoData[medNome];
     if (!dados || !peso || peso <= 0 || !doseAlvo || isNaN(doseAlvo) || doseAlvo <= 0) return null;
-    // Verifica se a dose está dentro da faixa
     if (doseAlvo < dados.doseMin || doseAlvo > dados.doseMax) {
       return { erro: `Dose fora da faixa (${dados.doseMin}–${dados.doseMax} ${dados.unidadeDose})` };
     }
-    // Dose total por minuto ou hora
     let doseTotal;
-    let fluxo;
     if (dados.tipo === 'mcg/kg/min') {
       doseTotal = doseAlvo * peso; // mcg/min
-      fluxo = doseTotal / dados.fluxoBase; // mL/h
     } else if (dados.tipo === 'mcg/kg/h') {
       doseTotal = doseAlvo * peso; // mcg/h
-      fluxo = doseTotal / dados.fluxoBase; // mL/h
     } else if (dados.tipo === 'mg/kg/h') {
       doseTotal = doseAlvo * peso; // mg/h
-      fluxo = doseTotal / dados.fluxoBase; // mL/h (pois fluxoBase é mg/h)
     } else {
       return null;
     }
+    const fluxo = doseTotal / dados.fluxoBase; // mL/h
     return { fluxo: fluxo, doseTotal: doseTotal, unidade: dados.unidadeFluxo };
   }
 
+  // Atualiza a célula de infusão quando o usuário altera o valor
   function atualizarInfusao(medNome, peso) {
     const inputId = `infusao_${medNome.replace(/\s/g, '')}`;
     const input = document.getElementById(inputId);
@@ -618,8 +614,20 @@
       return;
     }
     resultSpan.textContent = fmt2(resultado.fluxo) + ' mL/h';
-    // Adiciona tooltip com detalhes
     resultSpan.title = `Dose: ${doseAlvo} ${infusaoData[medNome].unidadeDose} → ${fmt2(resultado.doseTotal)} ${infusaoData[medNome].unidadeFluxo} → ${fmt2(resultado.fluxo)} mL/h`;
+  }
+
+  // Pré‑preencher campo de infusão com sugestão (média da faixa)
+  function preencherSugestaoInfusao(medNome) {
+    const dados = infusaoData[medNome];
+    if (!dados) return;
+    const inputId = `infusao_${medNome.replace(/\s/g, '')}`;
+    const input = document.getElementById(inputId);
+    if (input && !input.value) {
+      input.value = dados.sugestao.toFixed(1);
+      // Disparar evento para calcular automaticamente
+      input.dispatchEvent(new Event('input'));
+    }
   }
 
   // ---------- CÁLCULO PRINCIPAL ----------
@@ -643,7 +651,7 @@
     recomendacaoDiv.innerHTML = '';
 
     if (!peso || peso <= 0) {
-      tbody.innerHTML = '<tr><td colspan="8" class="small">Informe o peso.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="small">Informe o peso.</td></tr>';
       return;
     }
 
@@ -698,7 +706,7 @@
       if (med.nome === 'Succinilcolina') {
         if (succContra) {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<tr><td colspan="8" class="danger">🚫 Contraindicada. Use rocurônio.</td></tr>`;
+          tr.innerHTML = `<tr><td colspan="7" class="danger">🚫 Contraindicada. Use rocurônio.</td></tr>`;
           tbody.appendChild(tr);
           return;
         }
@@ -753,25 +761,7 @@
         }
       }
 
-      // Ampolas
-      let ampolasHtml = '—';
-      let formulaAmpolas = '';
-      const ampola = ampolaInfo[med.nome];
-      if (ampola) {
-        let doseEmMgParaAmpola;
-        if (med.nome === 'Fentanil') {
-          doseEmMgParaAmpola = doseCalculada / 1000;
-        } else {
-          doseEmMgParaAmpola = doseCalculada;
-        }
-        const numAmpolas = doseEmMgParaAmpola / ampola.mgPorAmpola;
-        if (!isNaN(numAmpolas) && isFinite(numAmpolas)) {
-          ampolasHtml = fmt2(numAmpolas);
-          formulaAmpolas = `Ampolas = ${doseEmMgParaAmpola.toFixed(2)} mg ÷ ${ampola.mgPorAmpola} mg/ampola = ${numAmpolas.toFixed(2)} ampola(s)`;
-        }
-      }
-
-      // Infusão (coluna)
+      // Infusão (com campo pré‑preenchido)
       let infusaoHtml = '—';
       const dadosInfusao = infusaoData[med.nome];
       if (dadosInfusao) {
@@ -779,19 +769,25 @@
         const resultId = `result_${med.nome.replace(/\s/g, '')}`;
         infusaoHtml = `
           <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-            <span class="small">${dadosInfusao.diluicao}</span>
-            <input type="number" id="${inputId}" class="infusao-input" placeholder="Dose" step="0.01" min="${dadosInfusao.doseMin}" max="${dadosInfusao.doseMax}" 
+            <span class="infusao-detalhe">${dadosInfusao.diluicao}</span>
+            <input type="number" id="${inputId}" class="infusao-input" placeholder="Dose" step="0.01" 
+              min="${dadosInfusao.doseMin}" max="${dadosInfusao.doseMax}" 
+              value="${dadosInfusao.sugestao.toFixed(1)}"
               oninput="atualizarInfusao('${med.nome}', ${peso})" />
             <span id="${resultId}" class="infusao-result">—</span>
-            <span class="small">${dadosInfusao.doseMin}–${dadosInfusao.doseMax} ${dadosInfusao.unidadeDose}</span>
+            <span class="infusao-detalhe">1 mL/h = ${dadosInfusao.fluxoBase} ${dadosInfusao.unidadeFluxo}</span>
           </div>
         `;
+        // Disparar cálculo inicial após renderizar
+        setTimeout(() => {
+          const input = document.getElementById(inputId);
+          if (input) input.dispatchEvent(new Event('input'));
+        }, 50);
       }
 
       // Tooltip completo
       let contexto = `🧪 ${med.nome}\n${formulaDose}\n`;
       if (formulaVolume) contexto += formulaVolume + '\n';
-      if (formulaAmpolas) contexto += formulaAmpolas + '\n';
       if (idadeStr) contexto += `📅 Idade considerada: ${idadeStr}\n`;
       if (choque && med.nome === 'Cetamina') contexto += '⭐ Choque: cetamina preferencial.\n';
       if (choque && (med.nome === 'Propofol' || med.nome === 'Etomidato')) contexto += '⚠️ Choque: evitar este agente.\n';
@@ -811,14 +807,13 @@
           <span class="info-icon" data-detalhe="${contexto.replace(/"/g, '&quot;')}">ⓘ</span>
         </td>
         <td>${volumeHtml}</td>
-        <td>${ampolasHtml}</td>
         <td>${infusaoHtml}</td>
         <td class="small">${med.notasBase}${notasAdicionais}</td>
       `;
       tbody.appendChild(tr);
     });
 
-    // Reaplicar eventos nos ícones de informação
+    // Reaplicar eventos
     document.querySelectorAll('.info-icon').forEach(icon => {
       icon.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -832,6 +827,9 @@
       });
     });
   }
+
+  // Expor função global para o oninput
+  window.atualizarInfusao = atualizarInfusao;
 
   function limpar() {
     document.getElementById('peso').value = '';
@@ -879,9 +877,6 @@
     const el = document.getElementById(id);
     if (el) el.addEventListener('change', calcular);
   });
-
-  // Inicialização e expor função de atualização de infusão globalmente
-  window.atualizarInfusao = atualizarInfusao;
 
   atualizarAtropinaAuto();
   calcular();

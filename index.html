@@ -553,6 +553,26 @@
       font-size: .88rem;
     }
 
+    .prep-flag {
+      display: inline-flex;
+      margin-top: 11px;
+      padding: 5px 8px;
+      border: 1px solid var(--warning-line);
+      border-radius: 8px;
+      background: var(--warning-bg);
+      color: var(--warning-ink);
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .035em;
+      text-transform: uppercase;
+    }
+
+    .prep-flag.reconstitution {
+      border-color: var(--brand);
+      background: var(--brand-soft);
+      color: var(--brand-ink);
+    }
+
     .warning {
       margin-top: 10px;
       padding: 10px 12px;
@@ -633,6 +653,147 @@
 
     .footer-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 
+    .profile-summary {
+      padding: 10px 12px;
+      border-left: 4px solid var(--warning-line);
+      border-radius: 9px;
+      background: var(--warning-bg);
+      color: var(--warning-ink);
+    }
+
+    .config-dialog {
+      width: min(720px, calc(100% - 24px));
+      max-height: calc(100dvh - 24px);
+      margin: auto;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .32);
+    }
+
+    .config-dialog::backdrop { background: rgba(4, 15, 20, .72); }
+
+    .config-shell {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      max-height: calc(100dvh - 24px);
+    }
+
+    .config-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .config-header h2 { font-size: 1.08rem; }
+
+    .icon-button {
+      width: 48px;
+      min-height: 48px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-soft);
+      color: var(--ink);
+      font-size: 1.35rem;
+      cursor: pointer;
+    }
+
+    .config-scroll { overflow: auto; padding: 16px; }
+
+    .config-banner {
+      padding: 12px;
+      border-left: 4px solid var(--danger);
+      border-radius: 10px;
+      background: var(--danger-bg);
+      color: var(--danger-ink);
+      font-size: .86rem;
+    }
+
+    .config-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .config-meta div,
+    .prep-config-card {
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-soft);
+    }
+
+    .config-meta span {
+      display: block;
+      color: var(--muted);
+      font-size: .7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .config-meta strong { display: block; margin-top: 3px; font-size: .86rem; }
+
+    .config-section { margin-top: 18px; }
+    .config-section h3 { margin: 0 0 9px; font-size: 1rem; }
+    .config-section > p { margin: 6px 0 10px; color: var(--muted); font-size: .84rem; }
+    .prep-config-list { display: grid; gap: 9px; }
+    .prep-config-card h4 { margin: 0 0 6px; font-size: .94rem; }
+    .prep-config-card p { margin: 4px 0; color: var(--muted); font-size: .82rem; }
+    .prep-config-card strong { color: var(--ink); }
+
+    .review-ack {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 9px;
+      align-items: start;
+      margin: 12px 0;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-soft);
+      font-size: .84rem;
+    }
+
+    .review-ack input { width: 22px; height: 22px; margin: 0; accent-color: var(--brand); }
+
+    .draft-editor[aria-disabled="true"] { opacity: .58; }
+
+    .draft-card {
+      display: grid;
+      gap: 9px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface-soft);
+    }
+
+    .draft-card h4 { margin: 0; font-size: .94rem; }
+
+    .config-field { margin: 0; font-size: .8rem; }
+
+    .config-field input {
+      width: 100%;
+      min-height: 48px;
+      margin-top: 5px;
+      padding: 9px 10px;
+      border: 1px solid var(--input-line);
+      border-radius: 10px;
+      background: var(--input-bg);
+      color: var(--ink);
+    }
+
+    .config-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .config-status { min-height: 22px; margin: 9px 0 0; color: var(--brand-ink); font-size: .84rem; font-weight: 750; }
+
     .offline-indicator {
       display: inline-block;
       margin-top: 8px;
@@ -656,12 +817,14 @@
       #novoPaciente { grid-column: 1 / -1; width: 100%; }
       .result-box { grid-template-columns: 1fr; }
       .tab { font-size: .78rem; }
+      .config-meta { grid-template-columns: 1fr; }
+      .config-actions .button { width: 100%; }
     }
 
     @media print {
       body { background: #fff; }
       .app { width: 100%; padding: 0; }
-      .toolbar, .footer-actions, .review-badge, .exact-calc { display: none !important; }
+      .toolbar, .footer-actions, .review-badge, .exact-calc, .config-dialog { display: none !important; }
       .panel, .med-card, .footer { box-shadow: none; break-inside: avoid; }
       details { display: none; }
       .med-list { grid-template-columns: repeat(2, 1fr); }
@@ -805,12 +968,56 @@
       <p>Adrenalina foi separada por via e indicação: PCR/bradicardia usa solução final 0,1 mg/mL EV/IO; anafilaxia usa 1 mg/mL IM sem diluição.</p>
       <p><a href="https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support" target="_blank" rel="noreferrer">AHA/AAP PALS 2025</a> · <a href="https://www.erc.edu/media/03xnpjmj/gl2025-09-pls-e.pdf" target="_blank" rel="noreferrer">ERC pediátrico 2025</a> · <a href="REVISAO_CLINICA.md">Revisão bibliográfica completa</a></p>
       <p><strong>Versão clínica:</strong> rascunho 2026-08-07. Exige aprovação do serviço antes do uso assistencial.</p>
+      <p class="profile-summary"><strong>Perfil de preparo embutido:</strong> HRSM Pediatria · versão 0.1 · em validação clínica. Rascunhos locais não alteram os cálculos.</p>
       <span id="connection-status" class="offline-indicator" role="status"></span>
       <div class="footer-actions">
         <button class="button secondary" type="button" onclick="window.print()">Imprimir</button>
+        <button id="configButton" class="button secondary" type="button">Configurações institucionais</button>
       </div>
     </footer>
   </main>
+
+  <dialog id="configDialog" class="config-dialog" aria-labelledby="config-title">
+    <div class="config-shell">
+      <header class="config-header">
+        <div>
+          <h2 id="config-title">Configurações institucionais</h2>
+          <span class="count">Diluições e reconstituições</span>
+        </div>
+        <button id="configClose" class="icon-button" type="button" aria-label="Fechar configurações">×</button>
+      </header>
+      <div class="config-scroll">
+        <div class="config-banner"><strong>Área de revisão — não é autenticação.</strong> Somente um perfil aprovado e publicado pode alterar os cálculos da tela de emergência. O rascunho salvo aqui fica apenas neste aparelho.</div>
+        <div class="config-meta">
+          <div><span>Perfil embutido</span><strong>HRSM Pediatria</strong></div>
+          <div><span>Versão</span><strong>0.1 · 07/08/2026</strong></div>
+          <div><span>Status</span><strong>Em validação clínica</strong></div>
+        </div>
+
+        <section class="config-section" aria-labelledby="active-preps-title">
+          <h3 id="active-preps-title">Valores usados atualmente</h3>
+          <p>Estes são os preparos efetivamente usados nos cálculos publicados.</p>
+          <div id="activePrepList" class="prep-config-list"></div>
+        </section>
+
+        <section class="config-section" aria-labelledby="draft-title">
+          <h3 id="draft-title">Rascunho para revisão médica/farmacêutica</h3>
+          <p>Edite a descrição institucional e exporte o arquivo para aprovação. Salvar não muda nenhuma dose.</p>
+          <label class="review-ack">
+            <input id="reviewAck" type="checkbox">
+            <span>Estou revisando estes dados em nome da equipe médica/farmácia e entendo que este rascunho não será aplicado automaticamente.</span>
+          </label>
+          <div id="draftEditor" class="draft-editor" aria-disabled="true"></div>
+          <div class="config-actions">
+            <button id="saveDraft" class="button" type="button" disabled>Salvar rascunho</button>
+            <button id="exportDraft" class="button secondary" type="button" disabled>Exportar JSON</button>
+            <button id="discardDraft" class="button secondary" type="button" disabled>Descartar rascunho</button>
+          </div>
+          <p id="configStatus" class="config-status" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+    </div>
+  </dialog>
 
   <script>
     "use strict";
@@ -862,6 +1069,7 @@
         id: "tiopental", categories: ["sri"], stage: "Indução", name: "Tiopental", route: "EV",
         doseMin: 3, doseMax: 5, doseUnit: "mg/kg", totalUnit: "mg",
         concentration: 20, concentrationUnit: "mg/mL", presentation: "1.000 mg/50 mL — 20 mg/mL",
+        reconstitution: { label: "Reconstituir 1.000 mg até volume final de 50 mL", finalConcentration: "20 mg/mL", diluent: "SF conforme planilha institucional" },
         warning: "Confirmar disponibilidade, preparo e estabilidade da solução no serviço."
       },
       {
@@ -875,6 +1083,7 @@
         id: "succinilcolina", categories: ["sri"], stage: "Bloqueio", name: "Succinilcolina", route: "EV",
         doseMin: 1, doseMax: 2, doseUnit: "mg/kg", totalUnit: "mg",
         concentration: 50, concentrationUnit: "mg/mL", presentation: "500 mg/10 mL — 50 mg/mL",
+        reconstitution: { label: "Reconstituir 500 mg até volume final de 10 mL", finalConcentration: "50 mg/mL", diluent: "AD conforme planilha institucional" },
         danger: "Em pediatria, reservar para intubação emergencial/necessidade imediata de via aérea. Há alerta em caixa para rabdomiólise hipercalêmica, disritmia, parada e morte em miopatia não diagnosticada.",
         sourceLabel: "Planilha institucional + bula regulatória", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f55dd1c0-c259-219a-5bca-f139e9515d07"
       },
@@ -994,6 +1203,16 @@
       }
     ];
 
+    const PREPARATION_PROFILE = Object.freeze({
+      id: "hrsm-pediatria-2026-08-draft",
+      name: "HRSM Pediatria",
+      version: "0.1",
+      date: "2026-08-07",
+      status: "Em validação clínica"
+    });
+
+    const PREPARATION_DRAFT_KEY = "sri-preparation-draft-v1";
+
     const CATEGORY_NAMES = {
       sri: "SRI",
       "reanimação": "Reanimação",
@@ -1023,6 +1242,169 @@
     const resultsTitle = document.getElementById("resultados-titulo");
     const clinicalAlertsBox = document.getElementById("clinical-alerts");
     const clinicalSummaryCount = document.getElementById("clinical-summary-count");
+    const configButton = document.getElementById("configButton");
+    const configDialog = document.getElementById("configDialog");
+    const configClose = document.getElementById("configClose");
+    const activePrepList = document.getElementById("activePrepList");
+    const draftEditor = document.getElementById("draftEditor");
+    const reviewAck = document.getElementById("reviewAck");
+    const saveDraft = document.getElementById("saveDraft");
+    const exportDraft = document.getElementById("exportDraft");
+    const discardDraft = document.getElementById("discardDraft");
+    const configStatus = document.getElementById("configStatus");
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+      })[character]);
+    }
+
+    function activePreparationRecords() {
+      return MEDICATIONS
+        .filter(med => med.dilution || med.reconstitution)
+        .map(med => {
+          const preparation = med.dilution || med.reconstitution;
+          return {
+            id: med.id,
+            medication: med.name,
+            type: med.dilution ? "Diluição antes de administrar" : "Reconstituição antes de aspirar",
+            route: med.route,
+            presentation: med.presentation,
+            instruction: preparation.label,
+            finalConcentration: preparation.finalConcentration,
+            diluent: preparation.diluent
+          };
+        });
+    }
+
+    function sanitizeDraftRecords(records) {
+      const active = activePreparationRecords();
+      if (!Array.isArray(records)) return active;
+      return active.map(base => {
+        const incoming = records.find(record => record && record.id === base.id) || {};
+        const safeString = (field, fallback) => {
+          const value = typeof incoming[field] === "string" ? incoming[field].trim().slice(0, 300) : "";
+          return value || fallback;
+        };
+        return {
+          ...base,
+          presentation: safeString("presentation", base.presentation),
+          instruction: safeString("instruction", base.instruction),
+          finalConcentration: safeString("finalConcentration", base.finalConcentration),
+          diluent: safeString("diluent", base.diluent)
+        };
+      });
+    }
+
+    function loadPreparationDraft() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(PREPARATION_DRAFT_KEY));
+        return saved?.records ? sanitizeDraftRecords(saved.records) : activePreparationRecords();
+      } catch {
+        return activePreparationRecords();
+      }
+    }
+
+    let preparationDraft = loadPreparationDraft();
+
+    function activePreparationCard(record) {
+      return `
+        <article class="prep-config-card">
+          <h4>${escapeHtml(record.medication)}</h4>
+          <p><strong>${escapeHtml(record.type)}</strong> · ${escapeHtml(record.route)}</p>
+          <p><strong>Apresentação:</strong> ${escapeHtml(record.presentation)}</p>
+          <p><strong>Preparo:</strong> ${escapeHtml(record.instruction)}; ${escapeHtml(record.diluent)}.</p>
+          <p><strong>Concentração final:</strong> ${escapeHtml(record.finalConcentration)}</p>
+        </article>`;
+    }
+
+    function draftPreparationCard(record) {
+      const input = (field, label, value) => `
+        <label class="config-field">${label}
+          <input type="text" maxlength="300" data-prep-id="${escapeHtml(record.id)}" data-prep-field="${field}" value="${escapeHtml(value)}" disabled>
+        </label>`;
+      return `
+        <article class="draft-card">
+          <h4>${escapeHtml(record.medication)} <span class="count">· ${escapeHtml(record.type)}</span></h4>
+          ${input("presentation", "Apresentação institucional", record.presentation)}
+          ${input("instruction", "Instrução de preparo", record.instruction)}
+          ${input("finalConcentration", "Concentração final", record.finalConcentration)}
+          ${input("diluent", "Diluente/compatibilidade", record.diluent)}
+        </article>`;
+    }
+
+    function renderPreparationSettings() {
+      activePrepList.innerHTML = activePreparationRecords().map(activePreparationCard).join("");
+      draftEditor.innerHTML = `<div class="prep-config-list">${preparationDraft.map(draftPreparationCard).join("")}</div>`;
+      setDraftEditorEnabled(reviewAck.checked);
+    }
+
+    function setDraftEditorEnabled(enabled) {
+      draftEditor.setAttribute("aria-disabled", String(!enabled));
+      draftEditor.querySelectorAll("input").forEach(input => { input.disabled = !enabled; });
+      [saveDraft, exportDraft, discardDraft].forEach(button => { button.disabled = !enabled; });
+    }
+
+    function collectDraftRecords() {
+      const records = activePreparationRecords();
+      draftEditor.querySelectorAll("input[data-prep-id]").forEach(input => {
+        const record = records.find(item => item.id === input.dataset.prepId);
+        if (record && ["presentation", "instruction", "finalConcentration", "diluent"].includes(input.dataset.prepField)) {
+          record[input.dataset.prepField] = input.value.trim().slice(0, 300) || record[input.dataset.prepField];
+        }
+      });
+      return sanitizeDraftRecords(records);
+    }
+
+    function draftPayload(records) {
+      return {
+        schemaVersion: 1,
+        status: "draft-not-active",
+        sourceProfile: PREPARATION_PROFILE,
+        exportedAt: new Date().toISOString(),
+        warning: "Este rascunho não altera os cálculos. Exige validação médica/farmacêutica e publicação de nova versão.",
+        records
+      };
+    }
+
+    function openPreparationSettings() {
+      preparationDraft = loadPreparationDraft();
+      reviewAck.checked = false;
+      configStatus.textContent = "";
+      renderPreparationSettings();
+      configDialog.showModal();
+    }
+
+    function savePreparationDraft() {
+      preparationDraft = collectDraftRecords();
+      try {
+        localStorage.setItem(PREPARATION_DRAFT_KEY, JSON.stringify(draftPayload(preparationDraft)));
+        configStatus.textContent = "Rascunho salvo neste aparelho. Os cálculos ativos não foram alterados.";
+      } catch {
+        configStatus.textContent = "Não foi possível salvar neste aparelho. Exporte o JSON para não perder a revisão.";
+      }
+    }
+
+    function exportPreparationDraft() {
+      preparationDraft = collectDraftRecords();
+      const blob = new Blob([JSON.stringify(draftPayload(preparationDraft), null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `sri-preparos-${PREPARATION_PROFILE.date}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      configStatus.textContent = "Rascunho exportado. Ele continua não ativo até validação e publicação.";
+    }
+
+    function discardPreparationDraft() {
+      try { localStorage.removeItem(PREPARATION_DRAFT_KEY); } catch {}
+      preparationDraft = activePreparationRecords();
+      renderPreparationSettings();
+      configStatus.textContent = "Rascunho local descartado; valores embutidos restaurados no editor.";
+    }
 
     function parseNumber(value) {
       const normalized = String(value).trim().replace(",", ".");
@@ -1249,14 +1631,14 @@
           <span class="metric-value">${formatRange(calculation.totalMin, calculation.totalMax, med.totalUnit)}</span>
         </div>
         <div class="metric primary">
-          <span class="metric-label">Aspirar da apresentação</span>
+          <span class="metric-label">${med.reconstitution ? "Aspirar da solução reconstituída" : "Aspirar da apresentação"}</span>
           <span class="metric-value">${formatRange(calculation.stockMin, calculation.stockMax, "mL")}</span>
         </div>`;
 
       if (med.dilution) {
         html += `
           <div class="metric primary">
-            <span class="metric-label">Após ${med.dilution.label.toLowerCase()}</span>
+            <span class="metric-label">Administrar volume final após ${med.dilution.label.toLowerCase()}</span>
             <span class="metric-value">${formatRange(calculation.preparedMin, calculation.preparedMax, "mL")}</span>
           </div>
           <div class="metric">
@@ -1271,6 +1653,9 @@
       const hasRange = med.doseMin !== med.doseMax;
       const dilution = med.dilution
         ? `<p><strong>Preparo:</strong> ${med.dilution.label}; concentração final ${med.dilution.finalConcentration}; usar ${med.dilution.diluent}.</p>`
+        : "";
+      const reconstitution = med.reconstitution
+        ? `<p><strong>Reconstituição:</strong> ${med.reconstitution.label}; concentração final ${med.reconstitution.finalConcentration}; usar ${med.reconstitution.diluent}. O volume calculado deve ser aspirado somente após este preparo.</p>`
         : "";
       const source = med.sourceUrl
         ? `<p><strong>Referência:</strong> <a href="${med.sourceUrl}" target="_blank" rel="noreferrer">${med.sourceLabel || "fonte clínica"}</a>.</p>`
@@ -1293,12 +1678,23 @@
         <p><strong>Via:</strong> ${med.route}.</p>
         ${limits ? `<p><strong>Limites aplicados:</strong> ${limits}.</p>` : ""}
         ${dilution}
+        ${reconstitution}
         ${source}
         ${exact}`;
     }
 
     function medicationCard(med) {
       const calculation = calculateMedication(med, state.weight);
+      const preparationFlag = med.dilution
+        ? '<span class="prep-flag">Diluir antes de administrar</span>'
+        : med.reconstitution
+          ? '<span class="prep-flag reconstitution">Reconstituir antes de aspirar</span>'
+          : "";
+      const preparationNotice = med.dilution
+        ? `<div class="dilution"><strong>${med.dilution.label}:</strong> administrar o volume final preparado, não o volume retirado da ampola.</div>`
+        : med.reconstitution
+          ? `<div class="dilution"><strong>${med.reconstitution.label}:</strong> usar ${med.reconstitution.diluent}; depois aspirar da solução ${med.reconstitution.finalConcentration}.</div>`
+          : "";
       return `
         <article class="med-card" data-med-card="${med.id}">
           <div class="med-main">
@@ -1309,8 +1705,9 @@
               </div>
               <span class="stage">${med.stage}</span>
             </header>
+            ${preparationFlag}
             <div class="result-box" data-result="${med.id}">${calculationMarkup(med, calculation)}</div>
-            ${med.dilution ? `<div class="dilution"><strong>${med.dilution.label}:</strong> o volume maior é o volume final preparado, não o volume retirado da ampola.</div>` : ""}
+            ${preparationNotice}
             ${contextualWarningsMarkup(med)}
             ${med.danger ? `<div class="warning danger"><strong>Atenção:</strong> ${med.danger}</div>` : ""}
             ${med.warning ? `<div class="warning"><strong>Atenção:</strong> ${med.warning}</div>` : ""}
@@ -1449,9 +1846,10 @@
       }
       const result = calculateMedication(med, state.weight, selected);
       const finalPart = med.dilution
-        ? `; após diluição: ${formatRange(result.preparedMin, result.preparedMax, "mL")}`
+        ? `; administrar volume final após diluição: ${formatRange(result.preparedMin, result.preparedMax, "mL")}`
         : "";
-      output.textContent = `Dose total: ${formatRange(result.totalMin, result.totalMax, med.totalUnit)}; aspirar: ${formatRange(result.stockMin, result.stockMax, "mL")}${finalPart}.`;
+      const aspiration = med.reconstitution ? "aspirar da solução reconstituída" : "aspirar";
+      output.textContent = `Dose total: ${formatRange(result.totalMin, result.totalMax, med.totalUnit)}; ${aspiration}: ${formatRange(result.stockMin, result.stockMax, "mL")}${finalPart}.`;
     }
 
     function updateConnectionStatus() {
@@ -1536,12 +1934,26 @@
     themeToggle.addEventListener("click", () => {
       applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
     });
+    configButton.addEventListener("click", openPreparationSettings);
+    configClose.addEventListener("click", () => configDialog.close());
+    configDialog.addEventListener("click", event => {
+      if (event.target === configDialog) configDialog.close();
+    });
+    reviewAck.addEventListener("change", () => {
+      setDraftEditorEnabled(reviewAck.checked);
+      configStatus.textContent = reviewAck.checked
+        ? "Modo de revisão habilitado. Alterações continuam sendo apenas um rascunho local."
+        : "";
+    });
+    saveDraft.addEventListener("click", savePreparationDraft);
+    exportDraft.addEventListener("click", exportPreparationDraft);
+    discardDraft.addEventListener("click", discardPreparationDraft);
 
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
       navigator.serviceWorker.register("./sw.js").catch(() => {});
     }
 
-    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber });
+    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, PREPARATION_PROFILE, calculateMedication, parseNumber });
     applyTheme(document.documentElement.dataset.theme, false);
     updateConnectionStatus();
     render();

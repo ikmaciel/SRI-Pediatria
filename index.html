@@ -1,887 +1,1528 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7fafc">
+  <meta name="description" content="Calculadora pediátrica de dose e volume a partir da apresentação disponível.">
+  <link rel="manifest" href="./manifest.webmanifest">
   <title>SRI Pediátrica - FRO (Ferramenta de Recomendação e Otimização)</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
+  <script>
+    try {
+      const savedTheme = localStorage.getItem("sri-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.dataset.theme = savedTheme || (prefersDark ? "dark" : "light");
+    } catch {
+      document.documentElement.dataset.theme = "light";
     }
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #eef3f6;
+      --surface: #ffffff;
+      --surface-soft: #f6f9fb;
+      --ink: #13232d;
+      --muted: #536771;
+      --line: #d5e0e5;
+      --brand: #006b70;
+      --brand-dark: #004f54;
+      --brand-soft: #e2f4f3;
+      --warning: #7a4a00;
+      --warning-bg: #fff4d8;
+      --danger: #a51c30;
+      --danger-bg: #fff0f2;
+      --focus: #0b76ce;
+      --on-brand: #ffffff;
+      --brand-ink: #164e52;
+      --warning-ink: #5f3b00;
+      --danger-ink: #761323;
+      --input-bg: #ffffff;
+      --input-line: #9eb0b8;
+      --badge-line: #e7bd61;
+      --warning-line: #e2a62b;
+      --notice-bg: #edf8f7;
+      --dashed-line: #aebdc4;
+      --radius: 16px;
+      --shadow: 0 8px 24px rgba(16, 42, 53, .08);
+      --card-shadow: 0 4px 14px rgba(16, 42, 53, .05);
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --page: #091419;
+      --surface: #111f25;
+      --surface-soft: #182a31;
+      --ink: #f1f6f7;
+      --muted: #b7c7cd;
+      --line: #344851;
+      --brand: #08777c;
+      --brand-dark: #0b666b;
+      --brand-soft: #173b3e;
+      --warning: #f4c76b;
+      --warning-bg: #34280f;
+      --danger: #ff8b9b;
+      --danger-bg: #3a181e;
+      --focus: #73bdff;
+      --on-brand: #ffffff;
+      --brand-ink: #c2eeec;
+      --warning-ink: #ffe1a3;
+      --danger-ink: #ffc2cb;
+      --input-bg: #0d1a20;
+      --input-line: #70838c;
+      --badge-line: #8b682b;
+      --warning-line: #c28a22;
+      --notice-bg: #143235;
+      --dashed-line: #5c7079;
+      --shadow: 0 8px 24px rgba(0, 0, 0, .28);
+      --card-shadow: 0 4px 14px rgba(0, 0, 0, .22);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-      background: linear-gradient(180deg, #020617, #0f172a);
-      color: #e5e7eb;
-      line-height: 1.4;
+      background: var(--page);
+      color: var(--ink);
+      font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     }
-    .wrap {
-      max-width: 1400px;
+
+    button, input, select { font: inherit; }
+
+    button, input, select, summary { -webkit-tap-highlight-color: transparent; }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--focus) 55%, transparent);
+      outline-offset: 2px;
+    }
+
+    .app {
+      width: min(100%, 980px);
       margin: 0 auto;
-      padding: 16px;
+      padding: 18px 14px 48px;
     }
-    h1 { font-size: 1.8rem; margin: 0 0 4px; line-height: 1.2; }
-    .subtitle {
-      font-size: 1rem;
-      color: #94a3b8;
-      margin-bottom: 12px;
-      border-left: 3px solid #38bdf8;
-      padding-left: 12px;
+
+    .masthead {
+      position: relative;
+      min-height: 48px;
+      margin-bottom: 16px;
+      padding-right: 58px;
     }
-    h2 { font-size: 1.4rem; margin: 0 0 12px; }
-    p { color: #94a3b8; font-size: 0.85rem; }
-    .card {
-      background: rgba(17, 24, 39, 0.96);
-      border: 1px solid #334155;
-      border-radius: 20px;
-      padding: 16px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      margin-top: 16px;
-    }
-    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
-    input, select {
-      width: 100%;
-      padding: 12px;
+
+    .theme-toggle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: grid;
+      place-items: center;
+      width: 48px;
+      min-height: 48px;
+      padding: 0;
+      border: 1px solid var(--line);
       border-radius: 12px;
-      border: 1px solid #334155;
-      background: #020617;
-      color: #e5e7eb;
-      font-size: 1rem;
-      font-family: inherit;
-    }
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .flex-row { display: flex; gap: 8px; align-items: flex-end; }
-    .flex-row > div { flex: 1; }
-    .flex-row select { width: auto; flex: 0.45; min-width: 85px; }
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 12px 0;
-    }
-    .checkbox-row input { width: 24px; height: 24px; margin: 0; flex-shrink: 0; }
-    .checkbox-row label { margin-bottom: 0; font-weight: normal; font-size: 0.85rem; }
-    .collapsible {
-      background-color: #1e293b;
-      border-radius: 16px;
-      margin: 12px 0;
-      overflow: hidden;
-    }
-    .collapsible-header {
-      background-color: #0f172a;
-      padding: 12px 16px;
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: var(--card-shadow);
       cursor: pointer;
-      font-weight: 600;
-      border-radius: 16px;
+    }
+
+    .theme-toggle:hover { background: var(--surface-soft); }
+    .theme-icon { font-size: 1.25rem; line-height: 1; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.55rem, 6vw, 2.2rem);
+      line-height: 1.12;
+      letter-spacing: -.025em;
+    }
+
+    .subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: .96rem;
+    }
+
+    .review-badge {
+      display: inline-flex;
+      margin-top: 10px;
+      padding: 5px 9px;
+      border: 1px solid var(--badge-line);
+      border-radius: 999px;
+      background: var(--warning-bg);
+      color: var(--warning);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .patient-panel { padding: 16px; }
+
+    .weight-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 750;
+    }
+
+    .weight-input-wrap { position: relative; }
+
+    #peso,
+    #idadeNumero,
+    #idadeUnidade {
+      width: 100%;
+      min-height: 56px;
+      border: 2px solid var(--input-line);
+      border-radius: 12px;
+      background: var(--input-bg);
+      color: var(--ink);
+    }
+
+    #peso {
+      padding: 11px 55px 11px 14px;
+      font-size: 1.35rem;
+      font-weight: 750;
+    }
+
+    .age-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 110px;
+      gap: 7px;
+    }
+
+    #idadeNumero,
+    #idadeUnidade { padding: 11px 12px; }
+
+    .unit-suffix {
+      position: absolute;
+      right: 14px;
+      bottom: 16px;
+      color: var(--muted);
+      font-weight: 750;
+      pointer-events: none;
+    }
+
+    .button {
+      min-height: 48px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--brand);
+      color: var(--on-brand);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .button:hover { background: var(--brand-dark); }
+
+    .button.secondary {
+      border: 1px solid var(--line);
+      background: var(--surface-soft);
+      color: var(--ink);
+    }
+
+    .field-help, .status-line {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .status-line[hidden] { display: none; }
+    .status-line.error { color: var(--danger); font-weight: 750; }
+    .status-line.warning { color: var(--warning); font-weight: 700; }
+
+    .clinical-panel,
+    .checklist-panel { margin-top: 12px; }
+
+    .clinical-panel > details,
+    .checklist-panel > details { border: 0; }
+
+    .clinical-panel > details > summary,
+    .checklist-panel > details > summary {
       display: flex;
       justify-content: space-between;
-    }
-    .collapsible-content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease-out;
-      padding: 0 16px;
-    }
-    .collapsible-content.open { max-height: 500px; padding: 12px 16px; }
-    .alert {
-      border-left: 5px solid #f59e0b;
-      background: #451a03;
-      padding: 10px 12px;
-      border-radius: 12px;
-      margin: 12px 0;
-      color: #fde68a;
-      font-size: 0.85rem;
-    }
-    .danger { border-left-color: #ef4444; background: #450a0a; color: #fecaca; }
-    .ok { border-left-color: #22c55e; background: #052e16; color: #bbf7d0; }
-    .recomendacao {
-      border-left: 5px solid #38bdf8;
-      background: #1e3a5f;
-      color: #e0f2fe;
-    }
-    .interacao-alerta {
-      border-left: 5px solid #f59e0b;
-      background: #452a03;
-      color: #fde68a;
-      font-weight: bold;
-    }
-    .table-wrapper { overflow-x: auto; margin: 10px 0; border-radius: 16px; }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.75rem;
-      min-width: 900px;
-    }
-    th, td {
-      border-bottom: 1px solid #334155;
-      padding: 10px 8px;
-      text-align: left;
-      vertical-align: top;
-    }
-    th { background: #020617; color: #bae6fd; font-size: 0.7rem; text-transform: uppercase; }
-    .small { font-size: 0.7rem; color: #94a3b8; }
-    .dose-cell {
-      font-size: 0.9rem;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
       align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
+      gap: 12px;
+      padding: 15px 16px;
+      color: var(--ink);
+      font-size: 1rem;
     }
-    .dose-value { border-bottom: 1px dashed #38bdf8; }
-    .info-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 20px;
-      height: 20px;
-      background: #38bdf8;
-      color: #001018;
-      border-radius: 50%;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
+
+    .summary-note {
+      color: var(--muted);
+      font-size: .75rem;
+      font-weight: 700;
     }
-    .btns { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0 8px; }
-    button {
+
+    .clinical-body,
+    .checklist-body { padding: 0 16px 16px; }
+
+    fieldset {
+      margin: 0;
+      padding: 0;
       border: 0;
-      border-radius: 40px;
-      padding: 10px 20px;
-      font-weight: 600;
-      cursor: pointer;
-      background: #38bdf8;
-      color: #001018;
-      font-size: 0.9rem;
-      flex: 1 1 auto;
     }
-    .secondary { background: #334155; color: #e5e7eb; }
-    .checklist { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 12px; }
-    .checklist-item { font-size: 0.8rem; padding: 6px 0; border-bottom: 1px solid #334155; }
-    .references { font-size: 0.7rem; margin-top: 16px; padding-top: 12px; border-top: 1px solid #334155; }
-    .references a { color: #38bdf8; text-decoration: none; word-break: break-all; }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.85);
+
+    fieldset + fieldset { margin-top: 16px; }
+
+    legend {
+      margin-bottom: 8px;
+      font-size: .86rem;
+      font-weight: 850;
+    }
+
+    .option-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 7px;
+    }
+
+    .check-option {
+      display: flex;
+      min-height: 46px;
       align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 16px;
+      gap: 10px;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface-soft);
+      cursor: pointer;
     }
-    .modal-content {
-      background: #111827;
-      border-radius: 24px;
-      padding: 20px;
-      max-width: 90%;
-      width: 340px;
+
+    .check-option input {
+      width: 22px;
+      height: 22px;
+      margin: 0;
+      flex: 0 0 auto;
+      accent-color: var(--brand);
+    }
+
+    .check-option span { font-size: .88rem; font-weight: 650; }
+
+    .clinical-alerts { display: grid; gap: 8px; margin-top: 15px; }
+
+    .clinical-alert {
+      padding: 11px 12px;
+      border-left: 4px solid var(--brand);
+      border-radius: 9px;
+      background: var(--brand-soft);
+      color: var(--brand-ink);
+      font-size: .87rem;
+    }
+
+    .clinical-alert.caution {
+      border-left-color: var(--warning-line);
+      background: var(--warning-bg);
+      color: var(--warning-ink);
+    }
+
+    .clinical-alert.critical {
+      border-left-color: var(--danger);
+      background: var(--danger-bg);
+      color: var(--danger-ink);
+    }
+
+    .clinical-alert strong { display: block; margin-bottom: 2px; }
+
+    .checklist-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist-list li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      font-size: .88rem;
+    }
+
+    .checklist-list li:last-child { padding-bottom: 0; border-bottom: 0; }
+
+    .safety-note {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      margin-top: 12px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: var(--brand-soft);
+      color: var(--brand-ink);
+      font-size: .88rem;
+    }
+
+    .safety-note strong { display: block; color: var(--brand-dark); }
+
+    .toolbar {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0 12px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+    }
+
+    .tab {
+      min-height: 48px;
+      padding: 8px 5px;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font-size: .86rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .tab[aria-selected="true"] {
+      background: var(--brand);
+      color: var(--on-brand);
+    }
+
+    .search-label { margin: 0; }
+
+    #busca {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 13px;
+      border: 1px solid var(--input-line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    .results-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin: 18px 2px 10px;
+    }
+
+    h2 { margin: 0; font-size: 1.2rem; }
+
+    .count { color: var(--muted); font-size: .82rem; }
+
+    .empty-state {
+      padding: 28px 18px;
       text-align: center;
-      border: 1px solid #38bdf8;
+      color: var(--muted);
     }
-    .modal-content p { margin: 0 0 16px; font-size: 0.9rem; white-space: pre-wrap; text-align: left; }
-    .modal-content button { margin-top: 0; padding: 8px 20px; }
 
-    .infusao-input {
-      width: 80px;
-      padding: 4px 6px;
-      font-size: 0.75rem;
-      border-radius: 8px;
-      border: 1px solid #334155;
-      background: #020617;
-      color: #e5e7eb;
+    .med-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .med-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--card-shadow);
+    }
+
+    .med-main { padding: 15px; }
+
+    .med-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .med-title { margin: 0; font-size: 1.12rem; line-height: 1.2; }
+
+    .stage {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--surface-soft);
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 800;
+    }
+
+    .formula {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .result-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .metric {
+      min-width: 0;
+      padding: 11px;
+      border-radius: 12px;
+      background: var(--surface-soft);
+    }
+
+    .metric.primary { background: var(--brand-soft); }
+
+    .metric-label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .025em;
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      display: block;
+      color: var(--ink);
+      font-size: 1.1rem;
+      font-weight: 850;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .metric.primary .metric-value { color: var(--brand-dark); font-size: 1.28rem; }
+
+    .awaiting {
+      grid-column: 1 / -1;
+      padding: 13px;
+      border: 1px dashed var(--dashed-line);
+      border-radius: 12px;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .dilution {
+      margin-top: 10px;
+      padding: 11px 12px;
+      border-left: 4px solid var(--brand);
+      border-radius: 9px;
+      background: var(--notice-bg);
+      color: var(--brand-ink);
+      font-size: .88rem;
+    }
+
+    .warning {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-left: 4px solid var(--warning-line);
+      border-radius: 9px;
+      background: var(--warning-bg);
+      color: var(--warning-ink);
+      font-size: .86rem;
+    }
+
+    .danger {
+      border-left-color: var(--danger);
+      background: var(--danger-bg);
+      color: var(--danger-ink);
+    }
+
+    details { border-top: 1px solid var(--line); }
+
+    summary {
+      min-height: 48px;
+      padding: 13px 15px;
+      color: var(--brand-dark);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .details-body {
+      padding: 0 15px 15px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .details-body p { margin: 6px 0; }
+    .details-body strong { color: var(--ink); }
+
+    .exact-calc {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .exact-calc label { margin: 0; font-size: .84rem; }
+
+    .dose-input {
+      width: 100%;
+      min-height: 48px;
+      margin-top: 5px;
+      padding: 9px 11px;
+      border: 1px solid var(--input-line);
+      border-radius: 10px;
+    }
+
+    .exact-result {
+      grid-column: 1 / -1;
+      min-height: 24px;
+      margin: 2px 0 0;
+      color: var(--brand-dark);
+      font-weight: 800;
+    }
+
+    .footer {
+      margin-top: 24px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    .footer h2 { color: var(--ink); font-size: 1rem; }
+    .footer p { margin: 8px 0; }
+    .footer a { color: var(--brand-dark); font-weight: 700; }
+
+    .footer-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+    .offline-indicator {
       display: inline-block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: .78rem;
     }
-    .infusao-input:focus { outline: 1px solid #38bdf8; }
-    .infusao-result { font-weight: bold; color: #38bdf8; }
-    .infusao-detalhe { font-size: 0.65rem; color: #94a3b8; display: block; line-height: 1.3; }
-    .ampola-detalhe { font-size: 0.6rem; color: #94a3b8; display: block; }
 
-    @media (min-width: 1024px) {
-      .wrap { padding: 24px; }
-      h1 { font-size: 2.2rem; }
-      .subtitle { font-size: 1.1rem; }
-      .card { padding: 24px; }
-      .grid-2 { gap: 24px; }
-      .checkbox-row label { font-size: 0.9rem; }
-      .cond-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; }
-      .table-wrapper { overflow-x: visible; }
-      table { font-size: 0.85rem; min-width: auto; }
-      th, td { padding: 12px 10px; }
-      .dose-cell { font-size: 1rem; }
-      .checklist { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-      .infusao-input { width: 100px; font-size: 0.85rem; }
+    @media (min-width: 720px) {
+      .app { padding: 28px 20px 60px; }
+      .patient-panel { padding: 20px; }
+      .toolbar { grid-template-columns: 1.3fr 1fr; align-items: end; }
+      .med-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .option-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
-    @media (max-width: 560px) {
-      .wrap { padding: 12px; }
-      h1 { font-size: 1.5rem; }
-      .subtitle { font-size: 0.85rem; }
-      .grid-2 { grid-template-columns: 1fr; gap: 12px; }
-      .flex-row { flex-direction: column; align-items: stretch; gap: 6px; }
-      .flex-row select { width: 100%; }
-      .dose-cell { font-size: 0.85rem; }
-      .infusao-input { width: 60px; font-size: 0.7rem; }
+
+    @media (max-width: 420px) {
+      .app { padding-inline: 10px; }
+      .patient-panel, .med-main { padding: 14px; }
+      .weight-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+      .age-row { grid-template-columns: minmax(0, 1fr) 82px; }
+      #novoPaciente { grid-column: 1 / -1; width: 100%; }
+      .result-box { grid-template-columns: 1fr; }
+      .tab { font-size: .78rem; }
+    }
+
+    @media print {
+      body { background: #fff; }
+      .app { width: 100%; padding: 0; }
+      .toolbar, .footer-actions, .review-badge, .exact-calc { display: none !important; }
+      .panel, .med-card, .footer { box-shadow: none; break-inside: avoid; }
+      details { display: none; }
+      .med-list { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Calculadora de SRI Pediátrica</h1>
-  <div class="subtitle"><strong>Ferramenta de Recomendação e Otimização - FRO</strong></div>
-  <p class="small">Baseada em evidências 2025/2026. Infusão calculada a partir da diluição padrão HRSM. Dados salvos automaticamente. Alertas de interações medicamentosas ativos.</p>
+  <main class="app">
+    <header class="masthead">
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Ativar modo escuro" aria-pressed="false" title="Alternar tema">
+        <span id="themeIcon" class="theme-icon" aria-hidden="true">☾</span>
+      </button>
+      <h1>SRI Pediátrica — FRO</h1>
+      <p class="subtitle"><strong>Ferramenta de Recomendação e Otimização</strong><br>Dose, apresentação e volume — sem tabela horizontal.</p>
+      <span class="review-badge">Versão em validação clínica</span>
+    </header>
 
-  <div class="card">
-    <div class="grid-2">
-      <div>
-        <label for="peso">Peso (kg)</label>
-        <input id="peso" type="number" min="0" step="0.1" placeholder="Ex.: 12.5" autofocus>
-      </div>
-      <div>
-        <label>Idade (opcional)</label>
-        <div class="flex-row">
-          <input type="number" id="idadeNumero" min="0" step="1" placeholder="Número">
-          <select id="idadeUnidade">
-            <option value="dias">Dias</option>
-            <option value="meses">Meses</option>
-            <option value="anos" selected>Anos</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid-2" style="margin-top: 12px;">
-      <div>
-        <label for="unidadeFentanil">Exibir Fentanil em</label>
-        <select id="unidadeFentanil">
-          <option value="mcg">mcg</option>
-          <option value="mg">mg</option>
-        </select>
-      </div>
-      <div></div>
-    </div>
-
-    <div class="checkbox-row">
-      <input type="checkbox" id="incluirAtropina">
-      <label for="incluirAtropina">Incluir Atropina (não rotineira – apenas bradicardia sintomática)</label>
-    </div>
-
-    <div class="collapsible">
-      <div class="collapsible-header" id="btnCondicoes">➕ Condições clínicas (opcional – melhora a recomendação) ▼</div>
-      <div class="collapsible-content" id="condicoesContent">
-        <div class="cond-grid">
-          <div class="checkbox-row"><input type="checkbox" id="choque"><label for="choque">Choque / instabilidade hemodinâmica</label></div>
-          <div class="checkbox-row"><input type="checkbox" id="hic"><label for="hic">Suspeita de hipertensão intracraniana (HIC)</label></div>
-          <div class="checkbox-row"><input type="checkbox" id="hipercalemia"><label for="hipercalemia">Hipercalemia conhecida (K+ >5,5)</label></div>
-          <div class="checkbox-row"><input type="checkbox" id="hm"><label for="hm">História familiar de hipertermia maligna</label></div>
-          <div class="checkbox-row"><input type="checkbox" id="sepse"><label for="sepse">Sepse</label></div>
-          <div class="checkbox-row"><input type="checkbox" id="asma"><label for="asma">Asma / broncoespasmo ativo</label></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="btns no-print">
-      <button onclick="window.print()">Imprimir</button>
-      <button class="secondary" onclick="limpar()">Limpar tudo</button>
-    </div>
-    <div id="recomendacaoBox"></div>
-    <div id="avisos"></div>
-  </div>
-
-  <div class="card">
-    <h2>Resultado – Doses, Infusão e Ampolas</h2>
-    <div class="table-wrapper">
-      <table id="tabela">
-        <thead>
-          <tr>
-            <th>Etapa</th>
-            <th>Medicação</th>
-            <th>Dose usada</th>
-            <th>Dose calculada</th>
-            <th>Volume (mL)</th>
-            <th>Ampolas (unid.)</th>
-            <th>Infusão (mL/h)</th>
-            <th>Notas</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-    <p class="small" style="margin-top: 12px;">Ampolas calculadas com base nas apresentações comerciais informadas. Infusão calculada a partir da dose alvo (média da faixa). Diluição padrão HRSM.</p>
-  </div>
-
-  <div class="card">
-    <h2>Checklist de segurança</h2>
-    <div class="checklist">
-      <div class="checklist-item">✓ Capnografia + monitor multiparamétrico</div>
-      <div class="checklist-item">✓ Fonte de O₂ e bolsa-válvula-máscara testada</div>
-      <div class="checklist-item">✓ Tubo com cuff (tamanho adequado pelo peso/comprimento)</div>
-      <div class="checklist-item">✓ Laringoscópio (videolaringoscópio preferível)</div>
-      <div class="checklist-item">✓ Aspirador + sonda + fio-guia</div>
-      <div class="checklist-item">✓ Material de fixação e coxim</div>
-      <div class="checklist-item">✓ Acesso venoso periférico + medicações SRI</div>
-      <div class="checklist-item">✓ Maleta de via aérea difícil</div>
-      <div class="checklist-item">✓ Monitor neuromuscular quantitativo (recomendado ESAIC 2026)</div>
-      <div class="checklist-item">✓ Sugammadex disponível se rocurônio utilizado</div>
-    </div>
-  </div>
-
-  <div class="card references">
-    <h2>Referências Bibliográficas</h2>
-    <p class="small">
-      <sup>[1]</sup> Mendez D, et al. Succinylcholine vs Rocuronium for Pediatric RSI. <em>Pediatr Emerg Care</em>. 2026;42(3):203-208.<br>
-      <sup>[2]</sup> ESAIC/ESPA Guidelines on neuromuscular block in children. <em>Eur J Anaesthesiol</em>. 2026;43(4):295-323.<br>
-      <sup>[3]</sup> Carvalho VEL, et al. Atropine in pediatric intubation. <em>Rev Paul Pediatr</em>. 2023;42:e2022220.<br>
-      <sup>[4]</sup> Mathews KS, et al. Ketamine vs Etomidate for RSI. <em>N Engl J Med</em>. 2025;393(14):1327-1338.<br>
-      <sup>[5]</sup> HRSM. <em>Soluções de Infusão Contínua – Diluição Padrão Box Pediatria</em>.<br>
-      <sup>[6]</sup> AHA. <em>Pediatric Advanced Life Support</em>. 2020.
-    </p>
-  </div>
-</div>
-
-<div id="modal" class="modal" onclick="fecharModal(event)">
-  <div class="modal-content">
-    <p id="modal-text"></p>
-    <button onclick="fecharModal()">Fechar</button>
-  </div>
-</div>
-
-<script>
-  // ---------- UTILIDADES ----------
-  function getIdadeEmMeses() {
-    const num = parseFloat(document.getElementById('idadeNumero').value);
-    if (isNaN(num) || num <= 0) return null;
-    const unidade = document.getElementById('idadeUnidade').value;
-    if (unidade === 'dias') return num / 30.4375;
-    if (unidade === 'meses') return num;
-    return num * 12;
-  }
-
-  function formatarIdade(meses) {
-    if (meses === null) return null;
-    if (meses < 1) return `${Math.round(meses * 30.4375)} dia(s)`;
-    if (meses < 12) return `${Math.floor(meses)} mes(es)`;
-    const anos = Math.floor(meses / 12);
-    const mesesRest = Math.round(meses % 12);
-    return mesesRest === 0 ? `${anos} ano(s)` : `${anos} ano(s) e ${mesesRest} mes(es)`;
-  }
-
-  function fmt2(x) {
-    if (x === null || isNaN(x)) return '—';
-    return x.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  // ---------- DOSES ----------
-  function getSuccinylcholineDose() { return 1.5; }
-  function isSuccinylcholineContraindicated() {
-    return document.getElementById('hipercalemia').checked || document.getElementById('hm').checked;
-  }
-
-  // ---------- RECOMENDAÇÃO ----------
-  function recomendarIndutor(choque, hic, sepse, asma) {
-    if (asma) return { nome: "Cetamina", dose: 1.0, razao: "Agente broncodilatador, ideal na asma." };
-    if (choque) return { nome: "Cetamina", dose: 1.0, razao: "Primeira linha no choque – estabilidade hemodinâmica." };
-    if (hic) return { nome: "Etomidato", dose: 0.3, razao: "Neuroproteção, reduz PIC, mantém PA." };
-    if (sepse) return { nome: "Cetamina", dose: 1.0, razao: "Evitar etomidato na sepse (supressão adrenal)." };
-    return { nome: "Cetamina", dose: 1.0, razao: "Agente versátil, seguro e eficaz na maioria dos cenários." };
-  }
-
-  function recomendarBloqueador(contraindicado) {
-    if (contraindicado) return { nome: "Rocurônio", dose: 0.6, razao: "Succinilcolina contraindicada. Rocurônio 0,6 mg/kg." };
-    return { nome: "Succinilcolina", dose: 1.5, razao: "Padrão-ouro (Mendez 2026). Dose fixa 1,5 mg/kg." };
-  }
-
-  // ---------- INFUSÃO ----------
-  const infusaoData = {
-    "Adrenalina": { diluicao: "2 mL + 98 mL SF → 100 mL", fluxoBase: 0.33, unidadeFluxo: "mcg/min", unidadeDose: "mcg/kg/min", doseMin: 0.05, doseMax: 2, tipo: "mcg/kg/min", sugestao: 0.5 },
-    "Noradrenalina": { diluicao: "2 mL + 98 mL SF → 100 mL", fluxoBase: 0.33, unidadeFluxo: "mcg/min", unidadeDose: "mcg/kg/min", doseMin: 0.05, doseMax: 2, tipo: "mcg/kg/min", sugestao: 0.5 },
-    "Dobutamina": { diluicao: "20 mL + 80 mL SF → 100 mL", fluxoBase: 41.6, unidadeFluxo: "mcg/min", unidadeDose: "mcg/kg/min", doseMin: 5, doseMax: 20, tipo: "mcg/kg/min", sugestao: 10 },
-    "Milrinona": { diluicao: "10 mL + 40 mL SF → 50 mL", fluxoBase: 3.33, unidadeFluxo: "mcg/min", unidadeDose: "mcg/kg/min", doseMin: 0.25, doseMax: 0.75, tipo: "mcg/kg/min", sugestao: 0.5 },
-    "Morfina": { diluicao: "1 mL + 50 mL SG → 51 mL", fluxoBase: 196, unidadeFluxo: "mcg/h", unidadeDose: "mcg/kg/h", doseMin: 20, doseMax: 40, tipo: "mcg/kg/h", sugestao: 30 },
-    "Fentanil": { diluicao: "10 mL + 40 mL SF → 50 mL", fluxoBase: 10, unidadeFluxo: "mcg/h", unidadeDose: "mcg/kg/h", doseMin: 1, doseMax: 4, tipo: "mcg/kg/h", sugestao: 2 },
-    "Precedex": { diluicao: "2 mL + 48 mL SF → 50 mL", fluxoBase: 4, unidadeFluxo: "mcg/h", unidadeDose: "mcg/kg/h", doseMin: 0.3, doseMax: 1.5, tipo: "mcg/kg/h", sugestao: 0.8 },
-    "Midazolam": { diluicao: "10 mL + 40 mL SF → 50 mL", fluxoBase: 1, unidadeFluxo: "mg/h", unidadeDose: "mg/kg/h", doseMin: 0.1, doseMax: 0.4, tipo: "mg/kg/h", sugestao: 0.2 },
-    "Cetamina": { diluicao: "6 mL + 54 mL SF → 60 mL", fluxoBase: 83.3, unidadeFluxo: "mcg/min", unidadeDose: "mcg/kg/min", doseMin: 5, doseMax: 20, tipo: "mcg/kg/min", sugestao: 10 },
-    "Rocurônio": { diluicao: "10 mL + 40 mL SF → 50 mL", fluxoBase: 33.3, unidadeFluxo: "mcg/min", unidadeDose: "mcg/kg/min", doseMin: 10, doseMax: 12, tipo: "mcg/kg/min", sugestao: 11 },
-    "Salbutamol": { diluicao: "20 mL + 80 mL SF → 100 mL", fluxoBase: 1.6, unidadeFluxo: "mcg/min", unidadeDose: "mcg/kg/min", doseMin: 0.1, doseMax: 0.6, tipo: "mcg/kg/min", sugestao: 0.3 }
-  };
-
-  // ---------- APRESENTAÇÕES COMERCIAIS (AMPOLAS) ----------
-  const ampolaInfo = {
-    "Fentanil": { mgPorAmpola: 0.5, nome: "Fentanil 0,05 mg/mL amp 10 mL" },
-    "Lidocaína": { mgPorAmpola: 400, nome: "Lidocaína 2% 20 mL" },
-    "Cetamina": { mgPorAmpola: 100, nome: "Cetamina 50 mg/mL amp 2 mL" },
-    "Etomidato": { mgPorAmpola: 20, nome: "Etomidato 2 mg/mL amp 10 mL" },
-    "Propofol": { mgPorAmpola: 200, nome: "Propofol 10 mg/mL amp 20 mL" },
-    "Succinilcolina": { mgPorAmpola: 200, nome: "Succinilcolina 20 mg/mL amp 10 mL" },
-    "Rocurônio": { mgPorAmpola: 50, nome: "Rocurônio 10 mg/mL frasco-amp 5 mL" },
-    "Midazolam": { mgPorAmpola: 50, nome: "Midazolam 5 mg/mL amp 10 mL" },
-    "Atropina": { mgPorAmpola: 0.25, nome: "Atropina 0,25 mg/mL amp 1 mL" },
-    "Epinefrina": { mgPorAmpola: 1, nome: "Epinefrina 1 mg/mL amp 1 mL" }
-  };
-
-  // ---------- MEDICAMENTOS BASE (com notas enriquecidas) ----------
-  const medsBase = [
-    { etapa: "Pré‑medicação", nome: "Fentanil", doseBase: 1.0, unidade: "mcg/kg", minMax: "1 mcg/kg (padrão)", doseMaxKg: null, concentracaoMgMl: 0.05, notasBase: "Opioide rápido. Infundir lentamente. ⚠️ Interage com midazolam/propofol (potencializa depressão respiratória). Metabolismo hepático (CYP3A4)." },
-    { etapa: "Pré‑medicação", nome: "Lidocaína", doseBase: 1.0, unidade: "mg/kg", minMax: "1 mg/kg", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Neuroproteção se HIC suspeita. Dose máxima 1-2 mg/kg. Risco de toxicidade se >5 mg/kg." },
-    { etapa: "Indução", nome: "Cetamina", doseBase: 1.0, unidade: "mg/kg", minMax: "1 mg/kg", doseMaxKg: null, concentracaoMgMl: 50, notasBase: "Primeira linha. Estável hemodinamicamente. Útil no choque e asma. ⚠️ Pode causar alucinações (midazolam pode prevenir). Não aumentar PIC em dose única." },
-    { etapa: "Indução", nome: "Etomidato", doseBase: 0.3, unidade: "mg/kg", minMax: "0,3 mg/kg", doseMaxKg: null, concentracaoMgMl: 2, notasBase: "Hemodinâmica estável, neuroproteção. ⚠️ Evitar na sepse (supressão adrenal). Dose única geralmente segura." },
-    { etapa: "Indução", nome: "Propofol", doseBase: 1.5, unidade: "mg/kg", minMax: "1,5 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notasBase: "Cautela na instabilidade hemodinâmica. Útil em HIC. ⚠️ Potencializa sedação/hipotensão com midazolam e fentanil." },
-    { etapa: "Paralisia", nome: "Succinilcolina", doseBase: null, unidade: "mg/kg", minMax: "1,5 mg/kg fixo", doseMaxKg: null, concentracaoMgMl: 20, notasBase: "Contraindicações: hipercalemia, HM, queimaduras. ⚠️ Risco de hipercalemia se K+ >5,5." },
-    { etapa: "Paralisia", nome: "Rocurônio", doseBase: 0.6, unidade: "mg/kg", minMax: "0,6 mg/kg", doseMaxKg: null, concentracaoMgMl: 10, notasBase: "Alternativa à succinilcolina. Antídoto: sugammadex. ⚠️ Dose ≥0,9 mg/kg se RSI com rocurônio." },
-    { etapa: "Sedação pós‑intubação", nome: "Midazolam", doseBase: 0.1, unidade: "mg/kg", minMax: "0,1 mg/kg", doseMaxKg: null, concentracaoMgMl: 5, notasBase: "Benzodiazepínico para sedação contínua. ⚠️ Potencializa depressão respiratória com fentanil e propofol." },
-    { etapa: "Emergência", nome: "Epinefrina", doseBase: 0.01, unidade: "mg/kg", minMax: "0,01 mg/kg (10 mcg/kg)", doseMaxKg: null, concentracaoMgMl: 0.1, notasBase: "Dose padrão IV/IO para parada ou anafilaxia. Apresentação: 1:10.000 (0,1 mg/mL). ⚠️ Atenção à concentração." }
-  ];
-
-  const atropina = { etapa: "Pré‑medicação", nome: "Atropina", doseBase: 0.02, unidade: "mg/kg", minMax: "0,02 mg/kg", doseMaxKg: null, concentracaoMgMl: 0.25, notasBase: "Não rotineira. Apenas bradicardia sintomática. ⚠️ Pode atenuar taquicardia induzida por cetamina (benéfico)." };
-
-  // ---------- ESTADO GLOBAL ----------
-  let userToggledAtropina = false;
-  let modal = document.getElementById('modal');
-  let estadoSalvo = {};
-
-  // ---------- FUNÇÕES DE SALVAMENTO ----------
-  function salvarEstado() {
-    const estado = {
-      peso: document.getElementById('peso').value,
-      idadeNumero: document.getElementById('idadeNumero').value,
-      idadeUnidade: document.getElementById('idadeUnidade').value,
-      unidadeFentanil: document.getElementById('unidadeFentanil').value,
-      incluirAtropina: document.getElementById('incluirAtropina').checked,
-      choque: document.getElementById('choque').checked,
-      hic: document.getElementById('hic').checked,
-      hipercalemia: document.getElementById('hipercalemia').checked,
-      hm: document.getElementById('hm').checked,
-      sepse: document.getElementById('sepse').checked,
-      asma: document.getElementById('asma').checked,
-      infusoes: {}
-    };
-    document.querySelectorAll('.infusao-input').forEach(input => {
-      const key = input.id.replace('infusao_', '');
-      estado.infusoes[key] = input.value;
-    });
-    try {
-      localStorage.setItem('fro_estado', JSON.stringify(estado));
-    } catch (e) {}
-  }
-
-  function carregarEstado() {
-    try {
-      const raw = localStorage.getItem('fro_estado');
-      if (!raw) return null;
-      return JSON.parse(raw);
-    } catch (e) { return null; }
-  }
-
-  function restaurarEstado(estado) {
-    if (!estado) return;
-    if (estado.peso) document.getElementById('peso').value = estado.peso;
-    if (estado.idadeNumero) document.getElementById('idadeNumero').value = estado.idadeNumero;
-    if (estado.idadeUnidade) document.getElementById('idadeUnidade').value = estado.idadeUnidade;
-    if (estado.unidadeFentanil) document.getElementById('unidadeFentanil').value = estado.unidadeFentanil;
-    document.getElementById('incluirAtropina').checked = !!estado.incluirAtropina;
-    document.getElementById('choque').checked = !!estado.choque;
-    document.getElementById('hic').checked = !!estado.hic;
-    document.getElementById('hipercalemia').checked = !!estado.hipercalemia;
-    document.getElementById('hm').checked = !!estado.hm;
-    document.getElementById('sepse').checked = !!estado.sepse;
-    document.getElementById('asma').checked = !!estado.asma;
-    if (estado.infusoes) window._infusoesSalvas = estado.infusoes;
-  }
-
-  // ---------- INFUSÃO ----------
-  function calcularInfusao(medNome, peso, doseAlvo) {
-    const dados = infusaoData[medNome];
-    if (!dados || !peso || peso <= 0 || !doseAlvo || isNaN(doseAlvo) || doseAlvo <= 0) return null;
-    if (doseAlvo < dados.doseMin || doseAlvo > dados.doseMax) {
-      return { erro: `Dose fora da faixa (${dados.doseMin}–${dados.doseMax} ${dados.unidadeDose})` };
-    }
-    let doseTotal;
-    if (dados.tipo === 'mcg/kg/min' || dados.tipo === 'mcg/kg/h' || dados.tipo === 'mg/kg/h') {
-      doseTotal = doseAlvo * peso;
-    } else return null;
-    const fluxo = doseTotal / dados.fluxoBase;
-    return { fluxo, doseTotal, unidade: dados.unidadeFluxo };
-  }
-
-  function atualizarInfusao(medNome, peso) {
-    const inputId = `infusao_${medNome.replace(/\s/g, '')}`;
-    const input = document.getElementById(inputId);
-    const resultSpan = document.getElementById(`result_${medNome.replace(/\s/g, '')}`);
-    if (!input || !resultSpan) return;
-    const doseAlvo = parseFloat(input.value);
-    const resultado = calcularInfusao(medNome, peso, doseAlvo);
-    if (resultado === null) { resultSpan.textContent = '—'; return; }
-    if (resultado.erro) { resultSpan.textContent = '⚠️ ' + resultado.erro; return; }
-    resultSpan.textContent = fmt2(resultado.fluxo) + ' mL/h';
-    resultSpan.title = `Dose: ${doseAlvo} ${infusaoData[medNome].unidadeDose} → ${fmt2(resultado.doseTotal)} ${infusaoData[medNome].unidadeFluxo} → ${fmt2(resultado.fluxo)} mL/h`;
-    salvarEstado();
-  }
-
-  // ---------- INTERAÇÕES ----------
-  function detectarInteracoes(medicamentosSelecionados) {
-    const nomes = medicamentosSelecionados.map(m => m.nome);
-    const alertas = [];
-    if (nomes.includes('Fentanil') && nomes.includes('Midazolam')) {
-      alertas.push('⚠️ Fentanil + Midazolam: potencialização da depressão respiratória e sedação. Monitorizar ventilação e SpO₂.');
-    }
-    if (nomes.includes('Fentanil') && nomes.includes('Propofol')) {
-      alertas.push('⚠️ Fentanil + Propofol: potencialização da depressão respiratória e hipotensão. Ajustar doses e monitorizar.');
-    }
-    if (nomes.includes('Midazolam') && nomes.includes('Propofol')) {
-      alertas.push('⚠️ Midazolam + Propofol: potencialização da sedação e hipotensão. Usar com cautela em instabilidade.');
-    }
-    if (nomes.includes('Cetamina') && nomes.includes('Midazolam')) {
-      alertas.push('ℹ️ Cetamina + Midazolam: midazolam pode reduzir o risco de agitação pós‑cetamina (benéfico).');
-    }
-    if (nomes.includes('Atropina') && nomes.includes('Cetamina')) {
-      alertas.push('ℹ️ Atropina + Cetamina: atropina pode atenuar a taquicardia induzida por cetamina (benéfico).');
-    }
-    if (nomes.includes('Rocurônio') && nomes.includes('Succinilcolina')) {
-      alertas.push('⚠️ Rocurônio + Succinilcolina: não administrar em sequência (bloqueio despolarizante e não‑despolarizante). Escolher um deles.');
-    }
-    return alertas;
-  }
-
-  // ---------- NOTAS ADICIONAIS ----------
-  function getNotaAdicional(medNome) {
-    const choque = document.getElementById('choque').checked;
-    const hic = document.getElementById('hic').checked;
-    const sepse = document.getElementById('sepse').checked;
-    const asma = document.getElementById('asma').checked;
-    if (medNome === 'Cetamina' && choque) return " ⭐ Indicada em choque.";
-    if (medNome === 'Cetamina' && asma) return " ⭐ Broncodilatadora, preferida na asma.";
-    if (medNome === 'Propofol' && (choque || sepse)) return " ⚠️ Evitar em choque/sepse (hipotensão).";
-    if (medNome === 'Etomidato' && sepse) return " ⚠️ Evitar na sepse (supressão adrenal).";
-    if (medNome === 'Lidocaína' && hic) return " ⭐ Indicada na HIC.";
-    if (medNome === 'Propofol' && hic) return " ⭐ Útil na HIC (reduz PIC).";
-    return "";
-  }
-
-  // ---------- FUNÇÕES UI ----------
-  function mostrarDetalhes(texto) {
-    document.getElementById('modal-text').innerText = texto;
-    modal.style.display = 'flex';
-  }
-  function fecharModal(event) {
-    if (event && event.target !== modal && event.target !== modal.querySelector('button')) return;
-    modal.style.display = 'none';
-  }
-  function atualizarAtropinaAuto() {
-    const checkbox = document.getElementById('incluirAtropina');
-    if (!userToggledAtropina) checkbox.checked = false;
-  }
-
-  // ---------- CÁLCULO PRINCIPAL ----------
-  function calcular() {
-    const peso = parseFloat(document.getElementById('peso').value.replace(',', '.'));
-    const idadeMeses = getIdadeEmMeses();
-    const incluirAtropina = document.getElementById('incluirAtropina').checked;
-    const unidadeFenta = document.getElementById('unidadeFentanil')?.value || 'mcg';
-    const choque = document.getElementById('choque').checked;
-    const hic = document.getElementById('hic').checked;
-    const hipercalemia = document.getElementById('hipercalemia').checked;
-    const hm = document.getElementById('hm').checked;
-    const sepse = document.getElementById('sepse').checked;
-    const asma = document.getElementById('asma').checked;
-
-    const tbody = document.querySelector('#tabela tbody');
-    const avisosDiv = document.getElementById('avisos');
-    const recomendacaoDiv = document.getElementById('recomendacaoBox');
-    tbody.innerHTML = '';
-    avisosDiv.innerHTML = '';
-    recomendacaoDiv.innerHTML = '';
-
-    if (!peso || peso <= 0) {
-      tbody.innerHTML = '<tr><td colspan="8" class="small">Informe o peso.</td></tr>';
-      salvarEstado();
-      return;
-    }
-
-    let medicamentos = [...medsBase];
-    if (incluirAtropina) medicamentos.push(atropina);
-
-    // Interações
-    const interacoes = detectarInteracoes(medicamentos);
-    let avisoHtml = '';
-    if (interacoes.length > 0) {
-      avisoHtml += `<div class="alert interacao-alerta"><strong>⚠️ Interações medicamentosas detectadas:</strong><br>`;
-      interacoes.forEach(inter => { avisoHtml += `• ${inter}<br>`; });
-      avisoHtml += `</div>`;
-    }
-
-    if (peso < 3) avisoHtml += '<div class="alert danger">⚠️ Peso < 3 kg: protocolo neonatal específico.</div>';
-    if (peso > 50) avisoHtml += '<div class="alert">⚠️ Peso > 50 kg: considerar peso ideal/ajustado.</div>';
-    avisoHtml += `<div class="alert ok">✅ Peso: <strong>${peso.toFixed(2)} kg</strong>.</div>`;
-
-    let idadeStr = null;
-    if (idadeMeses !== null) {
-      idadeStr = formatarIdade(idadeMeses);
-      avisoHtml += `<div class="alert ok">📅 Idade: ${idadeStr} (${idadeMeses.toFixed(1)} meses).</div>`;
-    } else {
-      avisoHtml += '<div class="alert">ℹ️ Idade não informada – não interfere nas doses.</div>';
-    }
-
-    const succContra = hipercalemia || hm;
-    const succDose = getSuccinylcholineDose();
-    if (succContra) {
-      avisoHtml += '<div class="alert danger">🚫 SUCCINILCOLINA CONTRAINDICADA: ' + (hipercalemia ? 'Hipercalemia. ' : '') + (hm ? 'Hipertermia maligna. ' : '') + 'Use rocurônio 0,6 mg/kg.</div>';
-    } else {
-      avisoHtml += `<div class="alert ok">💉 Succinilcolina dose: <strong>${succDose} mg/kg</strong> (fixa).</div>`;
-    }
-    if (choque) avisoHtml += '<div class="alert">⚠️ Choque: prefira cetamina. Evite propofol/etomidato.</div>';
-    if (sepse) avisoHtml += '<div class="alert">⚠️ Sepse: evitar etomidato (supressão adrenal).</div>';
-    if (hic) avisoHtml += '<div class="alert">⚠️ HIC: lidocaína e propofol são benéficos.</div>';
-    if (asma) avisoHtml += '<div class="alert">💨 Asma: cetamina é broncodilatadora, preferida.</div>';
-    if (incluirAtropina) avisoHtml += '<div class="alert">⚙️ Atropina incluída MANUALMENTE. Não é rotina (Carvalho 2023).</div>';
-    else avisoHtml += '<div class="alert">⚙️ Atropina NÃO incluída (padrão atual).</div>';
-    avisosDiv.innerHTML = avisoHtml;
-
-    // Recomendação
-    const melhorIndutor = recomendarIndutor(choque, hic, sepse, asma);
-    const melhorBloq = recomendarBloqueador(succContra);
-    let recomendacaoHtml = `<div class="alert recomendacao"><strong>💡 Recomendação baseada nas condições informadas:</strong><br>`;
-    recomendacaoHtml += `🔹 <strong>Indutor:</strong> ${melhorIndutor.nome} (${melhorIndutor.dose} mg/kg) – ${melhorIndutor.razao}<br>`;
-    recomendacaoHtml += `🔹 <strong>Bloqueador neuromuscular:</strong> ${melhorBloq.nome} (${melhorBloq.dose} mg/kg) – ${melhorBloq.razao}<br>`;
-    recomendacaoHtml += `🔹 <strong>Atropina:</strong> ${incluirAtropina ? 'Incluída manualmente' : 'Não incluída (padrão atual)'}<br>`;
-    recomendacaoHtml += `⚠️ A decisão final deve ser individualizada.</div>`;
-    recomendacaoDiv.innerHTML = recomendacaoHtml;
-
-    const infusoesSalvas = window._infusoesSalvas || {};
-
-    medicamentos.forEach(med => {
-      let dosePorKg = med.doseBase;
-      let formulaDose = '';
-      let notasAdicionais = getNotaAdicional(med.nome);
-      
-      if (med.nome === 'Succinilcolina') {
-        if (succContra) {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<tr><td colspan="8" class="danger">🚫 Contraindicada. Use rocurônio.</td></tr>`;
-          tbody.appendChild(tr);
-          return;
-        }
-        dosePorKg = succDose;
-        formulaDose = `Dose = ${dosePorKg} mg/kg (fixa) × ${peso} kg = ${(peso * dosePorKg).toFixed(2)} mg`;
-      } else if (med.nome === 'Fentanil') {
-        const doseCalculadaEmMcg = peso * med.doseBase;
-        if (unidadeFenta === 'mg') {
-          const valorEmMg = doseCalculadaEmMcg / 1000;
-          formulaDose = `${med.doseBase} mcg/kg × ${peso} kg = ${doseCalculadaEmMcg.toFixed(0)} mcg → ${valorEmMg.toFixed(3)} mg`;
-        } else {
-          formulaDose = `${med.doseBase} mcg/kg × ${peso} kg = ${doseCalculadaEmMcg.toFixed(0)} mcg`;
-        }
-      } else {
-        formulaDose = `Dose = ${med.doseBase} ${med.unidade} × ${peso} kg = ${(peso * med.doseBase).toFixed(2)} ${med.unidade === 'mcg/kg' ? 'mcg' : 'mg'}`;
-      }
-      
-      let doseCalculada = (med.nome === 'Fentanil') ? peso * med.doseBase : peso * dosePorKg;
-      if (med.nome !== 'Fentanil' && med.doseMaxKg && (med.doseMaxKg * peso) < doseCalculada) {
-        doseCalculada = med.doseMaxKg * peso;
-        formulaDose += ` → limitado a máx ${med.doseMaxKg} ${med.unidade} = ${(med.doseMaxKg * peso).toFixed(2)} ${med.unidade === 'mcg/kg' ? 'mcg' : 'mg'}`;
-      }
-
-      let unidadeExib = med.unidade;
-      let valorExib = doseCalculada;
-      if (med.nome === 'Fentanil') {
-        if (unidadeFenta === 'mg') {
-          valorExib = doseCalculada / 1000;
-          unidadeExib = 'mg';
-        } else {
-          valorExib = doseCalculada;
-          unidadeExib = 'mcg';
-        }
-      }
-
-      // Volume
-      let volumeHtml = '—';
-      let formulaVolume = '';
-      if (med.nome === 'Fentanil') {
-        const doseEmMgFenta = doseCalculada / 1000;
-        if (med.concentracaoMgMl && doseEmMgFenta) {
-          const vol = doseEmMgFenta / med.concentracaoMgMl;
-          volumeHtml = fmt2(vol) + ' mL';
-          formulaVolume = `Volume = ${doseEmMgFenta.toFixed(3)} mg ÷ ${med.concentracaoMgMl} mg/mL = ${vol.toFixed(2)} mL`;
-        }
-      } else {
-        if (med.concentracaoMgMl && doseCalculada) {
-          const vol = doseCalculada / med.concentracaoMgMl;
-          volumeHtml = fmt2(vol) + ' mL';
-          formulaVolume = `Volume = ${doseCalculada.toFixed(2)} mg ÷ ${med.concentracaoMgMl} mg/mL = ${vol.toFixed(2)} mL`;
-        }
-      }
-
-      // Ampolas
-      let ampolasHtml = '—';
-      let formulaAmpolas = '';
-      const ampola = ampolaInfo[med.nome];
-      if (ampola) {
-        let doseEmMgParaAmpola;
-        if (med.nome === 'Fentanil') {
-          doseEmMgParaAmpola = doseCalculada / 1000;
-        } else {
-          doseEmMgParaAmpola = doseCalculada;
-        }
-        const numAmpolas = doseEmMgParaAmpola / ampola.mgPorAmpola;
-        if (!isNaN(numAmpolas) && isFinite(numAmpolas)) {
-          const ampExato = fmt2(numAmpolas);
-          let ampPratica = '';
-          if (numAmpolas > 0 && numAmpolas < 1) {
-            ampPratica = ' → 1 ampola';
-          } else if (numAmpolas > 0 && Number.isInteger(numAmpolas)) {
-            ampPratica = ` → ${Math.round(numAmpolas)} ampolas`;
-          } else {
-            ampPratica = ` → ${Math.ceil(numAmpolas)} ampolas (arredondado)`;
-          }
-          ampolasHtml = `${ampExato}${ampPratica}`;
-          formulaAmpolas = `Ampolas = ${doseEmMgParaAmpola.toFixed(2)} mg ÷ ${ampola.mgPorAmpola} mg/ampola = ${numAmpolas.toFixed(2)} ampola(s)`;
-        }
-      }
-
-      // Infusão
-      let infusaoHtml = '—';
-      const dadosInfusao = infusaoData[med.nome];
-      if (dadosInfusao) {
-        const inputId = `infusao_${med.nome.replace(/\s/g, '')}`;
-        const resultId = `result_${med.nome.replace(/\s/g, '')}`;
-        const valorSalvo = infusoesSalvas[med.nome.replace(/\s/g, '')];
-        const valorInicial = (valorSalvo !== undefined && valorSalvo !== '') ? parseFloat(valorSalvo) : dadosInfusao.sugestao;
-        const valorInicialStr = isNaN(valorInicial) ? dadosInfusao.sugestao.toFixed(1) : valorInicial.toFixed(1);
-        infusaoHtml = `
-          <div style="display:flex; flex-direction:column; gap:4px; align-items:center;">
-            <span class="infusao-detalhe">${dadosInfusao.diluicao}</span>
-            <input type="number" id="${inputId}" class="infusao-input" placeholder="Dose" step="0.01" 
-              min="${dadosInfusao.doseMin}" max="${dadosInfusao.doseMax}" 
-              value="${valorInicialStr}"
-              oninput="atualizarInfusao('${med.nome}', ${peso})" />
-            <span id="${resultId}" class="infusao-result">—</span>
-            <span class="infusao-detalhe">1 mL/h = ${dadosInfusao.fluxoBase} ${dadosInfusao.unidadeFluxo}</span>
+    <section class="panel patient-panel" aria-labelledby="dados-paciente">
+      <h2 id="dados-paciente">Peso do paciente</h2>
+      <div class="weight-row">
+        <div>
+          <label for="peso">Peso em quilogramas</label>
+          <div class="weight-input-wrap">
+            <input id="peso" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 10" aria-describedby="peso-ajuda peso-status">
+            <span class="unit-suffix">kg</span>
           </div>
-        `;
-        setTimeout(() => {
-          const input = document.getElementById(inputId);
-          if (input) input.dispatchEvent(new Event('input'));
-        }, 50);
+        </div>
+        <div>
+          <label for="idadeNumero">Idade <span class="summary-note">(segurança)</span></label>
+          <div class="age-row">
+            <input id="idadeNumero" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 11" aria-describedby="idade-status">
+            <select id="idadeUnidade" aria-label="Unidade da idade">
+              <option value="dias">dias</option>
+              <option value="meses" selected>meses</option>
+              <option value="anos">anos</option>
+            </select>
+          </div>
+        </div>
+        <button id="novoPaciente" class="button secondary" type="button">Novo paciente</button>
+      </div>
+      <p id="peso-ajuda" class="field-help">Não armazena dados. Peso aceita vírgula.</p>
+      <p id="peso-status" class="status-line" role="status" aria-live="polite" hidden></p>
+      <p id="idade-status" class="status-line warning" role="status" aria-live="polite">Informe a idade para alertas neonatal e de succinilcolina.</p>
+      <div class="safety-note">
+        <span aria-hidden="true">✓</span>
+        <div><strong>Antes de administrar</strong>Confira no rótulo a concentração, a via e o protocolo institucional.</div>
+      </div>
+    </section>
+
+    <section class="panel clinical-panel" aria-label="Checagem de segurança clínica">
+      <details id="clinical-check">
+        <summary>
+          <span>Checagem de segurança</span>
+          <span id="clinical-summary-count" class="summary-note">opcional</span>
+        </summary>
+        <div class="clinical-body">
+          <fieldset>
+            <legend>Condições relevantes</legend>
+            <div class="option-grid">
+              <label class="check-option"><input type="checkbox" data-condition="shock"><span>Choque ou hipotensão</span></label>
+              <label class="check-option"><input type="checkbox" data-condition="hyperkalemia"><span>Hipercalemia conhecida</span></label>
+              <label class="check-option"><input type="checkbox" data-condition="malignant-hyperthermia"><span>Risco pessoal/familiar de hipertermia maligna</span></label>
+              <label class="check-option"><input type="checkbox" data-condition="neuromuscular"><span>Miopatia ou doença neuromuscular</span></label>
+              <label class="check-option"><input type="checkbox" data-condition="tissue-injury"><span>Queimadura importante, trauma muscular ou denervação após fase aguda</span></label>
+              <label class="check-option"><input type="checkbox" data-condition="cholinesterase"><span>Deficiência de pseudocolinesterase ou bloqueio prolongado prévio</span></label>
+              <label class="check-option"><input type="checkbox" data-condition="renal-anuria"><span>Anúria ou insuficiência renal grave</span></label>
+              <label class="check-option"><input type="checkbox" data-condition="volume-pulmonary"><span>Hipovolemia grave ou edema pulmonar</span></label>
+              <label class="check-option"><input type="checkbox" data-condition="flumazenil-risk"><span>Epilepsia, uso crônico de benzodiazepínico ou intoxicação mista</span></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Medicamentos planejados — somente para checar combinações</legend>
+            <div class="option-grid">
+              <label class="check-option"><input type="checkbox" data-planned="fentanil"><span>Fentanil</span></label>
+              <label class="check-option"><input type="checkbox" data-planned="midazolam"><span>Midazolam</span></label>
+              <label class="check-option"><input type="checkbox" data-planned="propofol"><span>Propofol</span></label>
+              <label class="check-option"><input type="checkbox" data-planned="cetamina"><span>Cetamina</span></label>
+              <label class="check-option"><input type="checkbox" data-planned="tiopental"><span>Tiopental</span></label>
+              <label class="check-option"><input type="checkbox" data-planned="rocuronio"><span>Rocurônio</span></label>
+              <label class="check-option"><input type="checkbox" data-planned="succinilcolina"><span>Succinilcolina</span></label>
+              <label class="check-option"><input type="checkbox" data-planned="pancuronio"><span>Pancurônio</span></label>
+              <label class="check-option"><input type="checkbox" data-planned="lidocaina"><span>Lidocaína</span></label>
+              <label class="check-option"><input type="checkbox" data-planned="morfina"><span>Morfina</span></label>
+              <label class="check-option"><input type="checkbox" data-planned="amiodarona"><span>Amiodarona</span></label>
+            </div>
+          </fieldset>
+          <div id="clinical-alerts" class="clinical-alerts" role="status" aria-live="polite">
+            <div class="clinical-alert">Marque apenas condições presentes e medicamentos realmente planejados.</div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel checklist-panel" aria-label="Checklist essencial de SRI">
+      <details>
+        <summary><span>Checklist essencial de SRI</span><span class="summary-note">9 itens</span></summary>
+        <div class="checklist-body">
+          <ul class="checklist-list">
+            <li><span aria-hidden="true">✓</span><span>Paciente, peso, idade, alergias e reação anestésica prévia conferidos.</span></li>
+            <li><span aria-hidden="true">✓</span><span>Líder, intubador e responsáveis por medicamentos/monitorização definidos; ajuda chamada quando necessária.</span></li>
+            <li><span aria-hidden="true">✓</span><span>Monitorização, pressão arterial e capnografia disponíveis.</span></li>
+            <li><span aria-hidden="true">✓</span><span>Oxigênio, pré-oxigenação e bolsa-válvula-máscara testados.</span></li>
+            <li><span aria-hidden="true">✓</span><span>Aspirador funcionando e material de via aérea difícil acessível.</span></li>
+            <li><span aria-hidden="true">✓</span><span>Tubo, dispositivo de resgate e plano alternativo definidos.</span></li>
+            <li><span aria-hidden="true">✓</span><span>Acesso EV/IO; seringas rotuladas; concentração conferida por duas pessoas quando possível.</span></li>
+            <li><span aria-hidden="true">✓</span><span>Indução/sedação antes do bloqueador e analgesia/sedação pós-intubação preparadas.</span></li>
+            <li><span aria-hidden="true">✓</span><span>Confirmar tubo com capnografia com onda; após falha, reoxigenar e mudar o plano antes de nova tentativa.</span></li>
+          </ul>
+        </div>
+      </details>
+    </section>
+
+    <section class="toolbar" aria-label="Filtros de medicamentos">
+      <div class="tabs" role="tablist" aria-label="Categoria">
+        <button class="tab" type="button" role="tab" aria-selected="true" data-category="sri">SRI</button>
+        <button class="tab" type="button" role="tab" aria-selected="false" data-category="reanimação">Reanimação</button>
+        <button class="tab" type="button" role="tab" aria-selected="false" data-category="outros">Outros</button>
+      </div>
+      <div>
+        <label class="search-label" for="busca">Buscar medicamento</label>
+        <input id="busca" type="search" autocomplete="off" placeholder="Ex.: cetamina">
+      </div>
+    </section>
+
+    <section aria-labelledby="resultados-titulo">
+      <div class="results-heading">
+        <h2 id="resultados-titulo">SRI</h2>
+        <span id="result-count" class="count"></span>
+      </div>
+      <div id="med-list" class="med-list" aria-live="polite"></div>
+    </section>
+
+    <footer class="footer">
+      <h2>Escopo e fontes</h2>
+      <p>Apresentações foram transcritas da planilha institucional enviada em 07/08/2026. Regras atualizadas por diretrizes podem divergir da planilha e estão sinalizadas para aprovação do serviço.</p>
+      <p>Adrenalina foi separada por via e indicação: PCR/bradicardia usa solução final 0,1 mg/mL EV/IO; anafilaxia usa 1 mg/mL IM sem diluição.</p>
+      <p><a href="https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support" target="_blank" rel="noreferrer">AHA/AAP PALS 2025</a> · <a href="https://www.erc.edu/media/03xnpjmj/gl2025-09-pls-e.pdf" target="_blank" rel="noreferrer">ERC pediátrico 2025</a> · <a href="REVISAO_CLINICA.md">Revisão bibliográfica completa</a></p>
+      <p><strong>Versão clínica:</strong> rascunho 2026-08-07. Exige aprovação do serviço antes do uso assistencial.</p>
+      <span id="connection-status" class="offline-indicator" role="status"></span>
+      <div class="footer-actions">
+        <button class="button secondary" type="button" onclick="window.print()">Imprimir</button>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    "use strict";
+
+    const MEDICATIONS = [
+      {
+        id: "fentanil", categories: ["sri"], stage: "Pré-medicação", name: "Fentanil", route: "EV",
+        doseMin: 1, doseMax: 2, doseUnit: "mcg/kg", totalUnit: "mcg",
+        concentration: 50, concentrationUnit: "mcg/mL", presentation: "50 mcg/mL",
+        warning: "Administrar lentamente. Pode causar depressão respiratória e rigidez muscular; opioides com benzodiazepínicos ou outros depressores podem produzir sedação profunda, coma e morte.",
+        sourceLabel: "Planilha institucional + bula regulatória", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c5d40297-b769-48cc-9f84-f98b7a333507"
+      },
+      {
+        id: "lidocaina-sri", categories: ["sri"], stage: "Adjuvante", name: "Lidocaína", route: "EV/IO",
+        doseMin: 1, doseMax: 1, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 20, concentrationUnit: "mg/mL", presentation: "Lidocaína 2% — 20 mg/mL",
+        warning: "Não é pré-medicação rotineira para toda intubação. Confirmar a indicação clínica; anestésicos locais podem potencializar bloqueio neuromuscular.",
+        sourceLabel: "Planilha institucional + bula da succinilcolina", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f55dd1c0-c259-219a-5bca-f139e9515d07"
+      },
+      {
+        id: "atropina-intubacao", categories: ["sri"], stage: "Pré-medicação", name: "Atropina — pré-intubação", route: "EV/IO",
+        doseMin: 0.02, doseMax: 0.02, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 0.25, concentrationUnit: "mg/mL", presentation: "0,25 mg/mL",
+        warning: "Não é rotina. AHA/AAP 2025: pode ser considerada em pacientes selecionados para prevenir bradicardia; nesta indicação, não aplicar dose mínima de 0,1 mg.",
+        sourceLabel: "AHA/AAP PALS 2025", sourceUrl: "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support"
+      },
+      {
+        id: "cetamina", categories: ["sri"], stage: "Indução", name: "Cetamina", route: "EV",
+        doseMin: 1, doseMax: 2, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 50, concentrationUnit: "mg/mL", presentation: "50 mg/mL",
+        warning: "A dose deve ser individualizada. Pode ocorrer hipertensão, hipotensão, arritmia ou descompensação; monitorizar em choque ou depleção de catecolaminas.",
+        sourceLabel: "Planilha institucional + bula regulatória", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=902c3785-a3cb-472b-ac15-394ac646271d"
+      },
+      {
+        id: "midazolam", categories: ["sri"], stage: "Sedação", name: "Midazolam", route: "EV/IO",
+        doseMin: 0.05, doseMax: 0.1, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 5, concentrationUnit: "mg/mL", presentation: "5 mg/mL",
+        warning: "Pode causar hipotensão, obstrução de via aérea e depressão/parada respiratória, especialmente com opioides. Não presumir que esta faixa seja indução adequada isolada.",
+        sourceLabel: "Planilha institucional + bula regulatória", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=affecd4d-1f78-4bbe-5a8d-86849bbdc520"
+      },
+      {
+        id: "propofol", categories: ["sri"], stage: "Indução", name: "Propofol", route: "EV",
+        doseMin: 1, doseMax: 2, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 10, concentrationUnit: "mg/mL", presentation: "200 mg/20 mL — 10 mg/mL",
+        warning: "Pode causar apneia, hipotensão e redução do débito cardíaco. Evitar dose plena não individualizada em choque; não usar para sedação prolongada em UTI pediátrica.",
+        sourceLabel: "Planilha institucional + bula regulatória", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/getFile.cfm?setid=6833edd6-ba8a-4b97-a872-ab253c64a903&type=pdf"
+      },
+      {
+        id: "tiopental", categories: ["sri"], stage: "Indução", name: "Tiopental", route: "EV",
+        doseMin: 3, doseMax: 5, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 20, concentrationUnit: "mg/mL", presentation: "1.000 mg/50 mL — 20 mg/mL",
+        warning: "Confirmar disponibilidade, preparo e estabilidade da solução no serviço."
+      },
+      {
+        id: "rocuronio", categories: ["sri"], stage: "Bloqueio", name: "Rocurônio", route: "EV",
+        doseMin: 0.6, doseMax: 1, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 10, concentrationUnit: "mg/mL", presentation: "10 mg/mL",
+        danger: "A faixa é da planilha institucional e pode ter início mais lento que doses usadas em protocolos de emergência. A bula regulatória não recomenda SRI pediátrica por evidência insuficiente; validar obrigatoriamente a dose-alvo local.",
+        sourceLabel: "Planilha institucional + RCH + bula regulatória", sourceUrl: "https://www.rch.org.au/clinicalguide/guideline_index/Emergency_airway_management/"
+      },
+      {
+        id: "succinilcolina", categories: ["sri"], stage: "Bloqueio", name: "Succinilcolina", route: "EV",
+        doseMin: 1, doseMax: 2, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 50, concentrationUnit: "mg/mL", presentation: "500 mg/10 mL — 50 mg/mL",
+        danger: "Em pediatria, reservar para intubação emergencial/necessidade imediata de via aérea. Há alerta em caixa para rabdomiólise hipercalêmica, disritmia, parada e morte em miopatia não diagnosticada.",
+        sourceLabel: "Planilha institucional + bula regulatória", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f55dd1c0-c259-219a-5bca-f139e9515d07"
+      },
+      {
+        id: "pancuronio", categories: ["outros"], stage: "Bloqueio prolongado", name: "Pancurônio", route: "EV",
+        doseMin: 0.1, doseMax: 0.1, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 2, concentrationUnit: "mg/mL", presentation: "2 mg/mL",
+        warning: "Bloqueador de duração prolongada; não equivale a uma recomendação automática para SRI."
+      },
+      {
+        id: "morfina", categories: ["outros"], stage: "Analgesia", name: "Morfina", route: "EV",
+        doseMin: 0.05, doseMax: 0.1, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 10, concentrationUnit: "mg/mL", presentation: "10 mg/mL",
+        warning: "Não é agente de indução rápida. Titular e monitorizar depressão respiratória e hemodinâmica."
+      },
+      {
+        id: "adrenalina-pcr", categories: ["reanimação"], stage: "PCR/bradicardia", name: "Adrenalina — PCR/bradicardia", route: "EV/IO",
+        doseMin: 0.01, doseMax: 0.01, doseUnit: "mg/kg", totalUnit: "mg", maxTotal: 1,
+        concentration: 1, concentrationUnit: "mg/mL", presentation: "Ampola 1 mg/mL (1:1.000)",
+        dilution: { factor: 10, label: "Diluir 1:9", finalConcentration: "0,1 mg/mL", diluent: "diluente compatível conforme protocolo" },
+        danger: "Administrar o volume final da solução 0,1 mg/mL. Na PCR, repetir a cada 3–5 min conforme algoritmo; na bradicardia, usar se persistir após correção de causas. Não usar esta preparação IV/IO para anafilaxia.",
+        sourceLabel: "AHA/AAP PALS 2025", sourceUrl: "https://cpr.heart.org/-/media/CPR-Files/CPR-Guidelines-Files/2025-Algorithms/Algorithm-PALS-CA-250123.pdf"
+      },
+      {
+        id: "adrenalina-anafilaxia", categories: ["reanimação"], stage: "Anafilaxia", name: "Adrenalina — anafilaxia", route: "IM",
+        doseMin: 0.01, doseMax: 0.01, doseUnit: "mg/kg", totalUnit: "mg", maxTotal: 0.5,
+        concentration: 1, concentrationUnit: "mg/mL", presentation: "Ampola 1 mg/mL (1:1.000) — sem diluir",
+        danger: "Aplicar IM na face anterolateral da coxa. Não administrar em bolus IV como tratamento inicial. WAO usa máximo 0,5 mg; outras referências usam 0,3 mg no pré-púbere. Repetir em 5–15 min se necessário conforme protocolo.",
+        sourceLabel: "WAO 2020 + AAAAI/ACAAI 2023", sourceUrl: "https://www.worldallergyorganizationjournal.org/article/S1939-4551%2820%2930375-6/fulltext"
+      },
+      {
+        id: "atropina", categories: ["reanimação"], stage: "Bradicardia", name: "Atropina — bradicardia", route: "EV/IO",
+        doseMin: 0.02, doseMax: 0.02, doseUnit: "mg/kg", totalUnit: "mg", minTotal: 0.1, maxTotal: 0.5,
+        concentration: 0.25, concentrationUnit: "mg/mL", presentation: "0,25 mg/mL",
+        warning: "AHA/AAP 2025: usar para aumento de tônus vagal ou bloqueio AV primário; pode repetir uma vez. Não usar como tratamento primário da bradicardia por hipóxia.",
+        sourceLabel: "AHA/AAP PALS 2025", sourceUrl: "https://cpr.heart.org/-/media/CPR-Files/CPR-Guidelines-Files/2025-Algorithms/Algorithm-PALS-Bradycardia-250121.pdf"
+      },
+      {
+        id: "lidocaina-arritmia", categories: ["reanimação"], stage: "Arritmia", name: "Lidocaína — arritmia", route: "EV/IO",
+        doseMin: 1, doseMax: 1, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 20, concentrationUnit: "mg/mL", presentation: "Lidocaína 2% — 20 mg/mL",
+        warning: "Alternativa à amiodarona na FV/TV sem pulso refratária. Não corresponde ao uso como adjuvante da intubação; não combinar rotineiramente com amiodarona.",
+        sourceLabel: "AHA/AAP PALS 2025", sourceUrl: "https://cpr.heart.org/-/media/CPR-Files/CPR-Guidelines-Files/2025-Algorithms/Algorithm-PALS-CA-250123.pdf"
+      },
+      {
+        id: "adenosina", categories: ["reanimação"], stage: "Arritmia", name: "Adenosina — 1ª dose", route: "EV/IO",
+        doseMin: 0.1, doseMax: 0.1, doseUnit: "mg/kg", totalUnit: "mg", maxTotal: 6,
+        concentration: 3, concentrationUnit: "mg/mL", presentation: "6 mg/2 mL — 3 mg/mL",
+        warning: "Primeira dose: administrar em push rápido imediatamente seguido de flush, com ECG contínuo.",
+        sourceLabel: "AHA/AAP PALS 2025", sourceUrl: "https://cpr.heart.org/-/media/CPR-Files/CPR-Guidelines-Files/2025-Algorithms/Algorithm-PALS-Tachyarrhythmia-250117.pdf"
+      },
+      {
+        id: "adenosina-2", categories: ["reanimação"], stage: "Arritmia", name: "Adenosina — repetição", route: "EV/IO",
+        doseMin: 0.2, doseMax: 0.2, doseUnit: "mg/kg", totalUnit: "mg", maxTotal: 12,
+        concentration: 3, concentrationUnit: "mg/mL", presentation: "6 mg/2 mL — 3 mg/mL",
+        warning: "Usar somente se a primeira dose de 0,1 mg/kg não foi efetiva. Administrar em push rápido seguido de flush, com ECG contínuo.",
+        sourceLabel: "AHA/AAP PALS 2025", sourceUrl: "https://cpr.heart.org/-/media/CPR-Files/CPR-Guidelines-Files/2025-Algorithms/Algorithm-PALS-Tachyarrhythmia-250117.pdf"
+      },
+      {
+        id: "amiodarona", categories: ["reanimação"], stage: "PCR — FV/TVSP", name: "Amiodarona — 1ª dose", route: "EV/IO",
+        doseMin: 5, doseMax: 5, doseUnit: "mg/kg", totalUnit: "mg", maxTotal: 300,
+        concentration: 50, concentrationUnit: "mg/mL", presentation: "50 mg/mL",
+        warning: "Para FV/TV sem pulso refratária. Pode repetir até 3 doses; cada dose subsequente tem máximo de 150 mg. Lidocaína é alternativa, não associação rotineira.",
+        sourceLabel: "AHA/AAP PALS 2025", sourceUrl: "https://cpr.heart.org/-/media/CPR-Files/CPR-Guidelines-Files/2025-Algorithms/Algorithm-PALS-CA-250123.pdf"
+      },
+      {
+        id: "bicarbonato", categories: ["reanimação"], stage: "Distúrbio metabólico", name: "Bicarbonato de sódio 8,4%", route: "EV/IO",
+        doseMin: 1, doseMax: 1, doseUnit: "mEq/kg", totalUnit: "mEq",
+        concentration: 1, concentrationUnit: "mEq/mL", presentation: "8,4% — 1 mEq/mL",
+        dilution: { factor: 2, label: "Diluição 1:1", finalConcentration: "0,5 mEq/mL", diluent: "SF conforme planilha" },
+        danger: "AHA/AAP 2025: não usar rotineiramente na PCR. Reservar para circunstâncias específicas, como toxicidade por bloqueador de canal de sódio ou hipercalemia, com indicação e compatibilidade confirmadas.",
+        sourceLabel: "AHA/AAP PALS 2025 + planilha institucional", sourceUrl: "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support"
+      },
+      {
+        id: "glicose", categories: ["reanimação"], stage: "Hipoglicemia", name: "Glicose — preparar D10%", route: "EV/IO",
+        doseMin: 0.2, doseMax: 0.2, doseUnit: "g/kg", totalUnit: "g",
+        concentration: 0.5, concentrationUnit: "g/mL", presentation: "50% — 0,5 g/mL",
+        dilution: { factor: 5, label: "Diluição 1:4 para D10%", finalConcentration: "0,1 g/mL", diluent: "diluente compatível conforme protocolo" },
+        danger: "ERC 2025: administrar 0,2 g/kg como D10% (2 mL/kg), reavaliar glicemia em 5–10 min e repetir se necessário. Esta regra substitui a D25%/0,5–1 g/kg da planilha e exige aprovação institucional.",
+        sourceLabel: "ERC Paediatric Life Support 2025", sourceUrl: "https://www.erc.edu/media/03xnpjmj/gl2025-09-pls-e.pdf"
+      },
+      {
+        id: "calcio", categories: ["reanimação"], stage: "Eletrólito", name: "Gluconato de cálcio 10%", route: "EV",
+        doseMin: 0.6, doseMax: 1, doseUnit: "mL/kg", totalUnit: "mL", directVolume: true,
+        concentration: 100, concentrationUnit: "mg de gluconato/mL", presentation: "10% — 100 mg/mL de gluconato (≈9 mg Ca++/mL)",
+        maxVolumeFromMass: 20,
+        danger: "AHA/AAP 2025: não usar rotineiramente na PCR. Reservar para hipocalcemia, intoxicação por bloqueador de canal de cálcio ou hipercalemia. Administrar lentamente e monitorizar; máximo institucional 20 mL.",
+        sourceLabel: "AHA/AAP PALS 2025 + planilha institucional", sourceUrl: "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support"
+      },
+      {
+        id: "manitol", categories: ["outros"], stage: "Osmoterapia", name: "Manitol 20%", route: "EV",
+        doseMin: 0.25, doseMax: 1, doseUnit: "g/kg", totalUnit: "g",
+        concentration: 0.2, concentrationUnit: "g/mL", presentation: "20 g/100 mL — 0,2 g/mL",
+        danger: "Usar apenas em protocolo de hipertensão intracraniana/osmoterapia. Avaliar função renal, volemia, pulmões, eletrólitos e osmolaridade. No TCE pediátrico, a BTF não encontrou evidência elegível para recomendar manitol e apoia salina hipertônica em cenários específicos.",
+        sourceLabel: "Planilha institucional + BTF + bula regulatória", sourceUrl: "https://braintrauma.org/coma/guidelines/pediatric"
+      },
+      {
+        id: "flumazenil", categories: ["outros"], stage: "Antídoto", name: "Flumazenil", route: "EV",
+        doseMin: 0.01, doseMax: 0.01, doseUnit: "mg/kg", totalUnit: "mg", maxTotal: 0.2,
+        concentration: 0.1, concentrationUnit: "mg/mL", presentation: "0,1 mg/mL",
+        danger: "Dose inicial para maiores de 1 ano: máximo 0,2 mg, EV em 15 s. Pode precipitar convulsões em intoxicação mista, epilepsia ou dependência de benzodiazepínico. Repetições e limite cumulativo (0,05 mg/kg ou 1 mg) exigem protocolo.",
+        sourceLabel: "Bula regulatória", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c5da455f-3213-ab11-e053-2995a90a54ee"
+      },
+      {
+        id: "naloxona", categories: ["outros"], stage: "Antídoto", name: "Naloxona — dose inicial", route: "EV",
+        doseMin: 0.01, doseMax: 0.01, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 0.4, concentrationUnit: "mg/mL", presentation: "0,4 mg/mL",
+        warning: "Dose inicial rotulada para intoxicação opioide conhecida/suspeita. Priorizar ventilação e titular para resposta; monitorizar abstinência e recorrência da depressão respiratória.",
+        sourceLabel: "Bula regulatória", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=21d20dff-6efe-481e-a5a0-9c80ded73ca9"
+      },
+      {
+        id: "naloxona-2", categories: ["outros"], stage: "Antídoto", name: "Naloxona — escalada", route: "EV",
+        doseMin: 0.1, doseMax: 0.1, doseUnit: "mg/kg", totalUnit: "mg",
+        concentration: 0.4, concentrationUnit: "mg/mL", presentation: "0,4 mg/mL",
+        warning: "Usar se 0,01 mg/kg não produziu a melhora clínica desejada. Ventilação não deve ser atrasada; outras vias e repetições dependem do protocolo e da exposição.",
+        sourceLabel: "Bula regulatória", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=21d20dff-6efe-481e-a5a0-9c80ded73ca9"
+      }
+    ];
+
+    const CATEGORY_NAMES = {
+      sri: "SRI",
+      "reanimação": "Reanimação",
+      outros: "Outros"
+    };
+
+    const state = {
+      category: "sri",
+      search: "",
+      weight: null,
+      ageDays: null,
+      ageMonths: null,
+      conditions: new Set(),
+      planned: new Set()
+    };
+
+    const pesoInput = document.getElementById("peso");
+    const pesoStatus = document.getElementById("peso-status");
+    const idadeInput = document.getElementById("idadeNumero");
+    const idadeUnidade = document.getElementById("idadeUnidade");
+    const idadeStatus = document.getElementById("idade-status");
+    const buscaInput = document.getElementById("busca");
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const list = document.getElementById("med-list");
+    const resultCount = document.getElementById("result-count");
+    const resultsTitle = document.getElementById("resultados-titulo");
+    const clinicalAlertsBox = document.getElementById("clinical-alerts");
+    const clinicalSummaryCount = document.getElementById("clinical-summary-count");
+
+    function parseNumber(value) {
+      const normalized = String(value).trim().replace(",", ".");
+      if (!normalized) return null;
+      const number = Number(normalized);
+      return Number.isFinite(number) ? number : NaN;
+    }
+
+    function readAge() {
+      const value = parseNumber(idadeInput.value);
+      if (value === null) return null;
+      if (!Number.isFinite(value) || value < 0) return { error: true };
+
+      const unit = idadeUnidade.value;
+      const days = unit === "dias" ? value : unit === "meses" ? value * 30.4375 : value * 365.25;
+      const months = days / 30.4375;
+      if (days > 18 * 365.25) return { error: true };
+      return { days, months };
+    }
+
+    function roundClinical(value) {
+      if (!Number.isFinite(value)) return null;
+      if (Math.abs(value) < 0.01) return Number(value.toFixed(4));
+      if (Math.abs(value) < 1) return Number(value.toFixed(3));
+      return Number(value.toFixed(2));
+    }
+
+    function formatNumber(value) {
+      if (!Number.isFinite(value)) return "—";
+      const rounded = roundClinical(value);
+      const decimals = Math.abs(rounded) < 0.01 ? 4 : Math.abs(rounded) < 1 ? 3 : 2;
+      return rounded.toLocaleString("pt-BR", { maximumFractionDigits: decimals });
+    }
+
+    function formatRange(min, max, unit) {
+      const a = formatNumber(min);
+      const b = formatNumber(max);
+      return Math.abs(min - max) < 1e-12 ? `${a} ${unit}` : `${a}–${b} ${unit}`;
+    }
+
+    function clampTotal(value, med) {
+      let result = value;
+      if (Number.isFinite(med.minTotal)) result = Math.max(result, med.minTotal);
+      if (Number.isFinite(med.maxTotal)) result = Math.min(result, med.maxTotal);
+      return result;
+    }
+
+    function calculateMedication(med, weight, selectedDose = null) {
+      if (!Number.isFinite(weight) || weight <= 0) return null;
+      const minPerKg = selectedDose ?? med.doseMin;
+      const maxPerKg = selectedDose ?? med.doseMax;
+      let totalMin = clampTotal(weight * minPerKg, med);
+      let totalMax = clampTotal(weight * maxPerKg, med);
+
+      if (med.directVolume) {
+        if (Number.isFinite(med.maxVolumeFromMass)) {
+          totalMin = Math.min(totalMin, med.maxVolumeFromMass);
+          totalMax = Math.min(totalMax, med.maxVolumeFromMass);
+        }
+        return { totalMin, totalMax, stockMin: totalMin, stockMax: totalMax, preparedMin: null, preparedMax: null };
       }
 
-      // Tooltip
-      let contexto = `🧪 ${med.nome}\n${formulaDose}\n`;
-      if (formulaVolume) contexto += formulaVolume + '\n';
-      if (formulaAmpolas) contexto += formulaAmpolas + '\n';
-      if (idadeStr) contexto += `📅 Idade considerada: ${idadeStr}\n`;
-      if (choque && med.nome === 'Cetamina') contexto += '⭐ Choque: cetamina preferencial.\n';
-      if (choque && (med.nome === 'Propofol' || med.nome === 'Etomidato')) contexto += '⚠️ Choque: evitar este agente.\n';
-      if (sepse && med.nome === 'Etomidato') contexto += '⚠️ Sepse: evitar etomidato.\n';
-      if (hic && med.nome === 'Lidocaína') contexto += '⭐ HIC: lidocaína indicada.\n';
-      if (hic && med.nome === 'Propofol') contexto += '⭐ HIC: propofol reduz PIC.\n';
-      if (asma && med.nome === 'Cetamina') contexto += '⭐ Asma: cetamina broncodilatadora.\n';
-      contexto += med.notasBase + notasAdicionais;
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${med.etapa}</td>
-        <td><strong>${med.nome}</strong></td>
-        <td>${dosePorKg ? dosePorKg.toFixed(2) : '—'} ${med.unidade}<br><span class="small">${med.minMax || ''}</span></td>
-        <td class="dose-cell">
-          <span class="dose-value">${fmt2(valorExib)} ${unidadeExib}</span>
-          <span class="info-icon" data-detalhe="${contexto.replace(/"/g, '&quot;')}">ⓘ</span>
-        </td>
-        <td>${volumeHtml}</td>
-        <td>${ampolasHtml}</td>
-        <td>${infusaoHtml}</td>
-        <td class="small">${med.notasBase}${notasAdicionais}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    document.querySelectorAll('.info-icon').forEach(icon => {
-      icon.addEventListener('click', (e) => {
-        e.stopPropagation();
-        mostrarDetalhes(icon.getAttribute('data-detalhe'));
-      });
-    });
-    document.querySelectorAll('.dose-value').forEach(elem => {
-      elem.addEventListener('click', (e) => {
-        const icon = elem.closest('.dose-cell')?.querySelector('.info-icon');
-        if (icon) mostrarDetalhes(icon.getAttribute('data-detalhe'));
-      });
-    });
-    salvarEstado();
-  }
-
-  function limpar() {
-    document.getElementById('peso').value = '';
-    document.getElementById('idadeNumero').value = '';
-    document.getElementById('idadeUnidade').value = 'anos';
-    document.getElementById('incluirAtropina').checked = false;
-    document.getElementById('choque').checked = false;
-    document.getElementById('hic').checked = false;
-    document.getElementById('hipercalemia').checked = false;
-    document.getElementById('hm').checked = false;
-    document.getElementById('sepse').checked = false;
-    document.getElementById('asma').checked = false;
-    userToggledAtropina = false;
-    localStorage.removeItem('fro_estado');
-    window._infusoesSalvas = {};
-    const condContent = document.getElementById('condicoesContent');
-    if (condContent.classList.contains('open')) condContent.classList.remove('open');
-    document.getElementById('btnCondicoes').innerHTML = '➕ Condições clínicas (opcional) ▼';
-    calcular();
-  }
-
-  window.atualizarInfusao = atualizarInfusao;
-  window.limpar = limpar;
-
-  // Event listeners
-  const btnCond = document.getElementById('btnCondicoes');
-  const condContent = document.getElementById('condicoesContent');
-  btnCond.addEventListener('click', () => {
-    condContent.classList.toggle('open');
-    btnCond.innerHTML = condContent.classList.contains('open') ? '➖ Condições clínicas (opcional) ▲' : '➕ Condições clínicas (opcional) ▼';
-  });
-
-  const idadeNumero = document.getElementById('idadeNumero');
-  const idadeUnidade = document.getElementById('idadeUnidade');
-  const atropinaCheck = document.getElementById('incluirAtropina');
-
-  function handleIdadeChange() {
-    atualizarAtropinaAuto();
-    calcular();
-  }
-
-  const camposParaSalvar = ['peso', 'idadeNumero', 'idadeUnidade', 'unidadeFentanil', 'incluirAtropina', 'choque', 'hic', 'hipercalemia', 'hm', 'sepse', 'asma'];
-  camposParaSalvar.forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (el.tagName === 'INPUT' && el.type === 'checkbox') {
-      el.addEventListener('change', () => {
-        if (id === 'incluirAtropina') userToggledAtropina = true;
-        calcular();
-      });
-    } else if (el.tagName === 'SELECT') {
-      el.addEventListener('change', calcular);
-    } else {
-      el.addEventListener('input', calcular);
+      const stockMin = totalMin / med.concentration;
+      const stockMax = totalMax / med.concentration;
+      const factor = med.dilution?.factor ?? null;
+      return {
+        totalMin,
+        totalMax,
+        stockMin,
+        stockMax,
+        preparedMin: factor ? stockMin * factor : null,
+        preparedMax: factor ? stockMax * factor : null,
+        diluentMin: factor ? stockMin * (factor - 1) : null,
+        diluentMax: factor ? stockMax * (factor - 1) : null
+      };
     }
-  });
 
-  idadeNumero.addEventListener('input', () => { userToggledAtropina = false; handleIdadeChange(); });
-  idadeUnidade.addEventListener('change', () => { userToggledAtropina = false; handleIdadeChange(); });
-  atropinaCheck.addEventListener('change', () => { userToggledAtropina = true; calcular(); });
+    function doseDescription(med) {
+      return formatRange(med.doseMin, med.doseMax, med.doseUnit);
+    }
 
-  // Inicialização
-  const estadoRestaurado = carregarEstado();
-  if (estadoRestaurado) {
-    restaurarEstado(estadoRestaurado);
-    setTimeout(calcular, 100);
-  } else {
-    atualizarAtropinaAuto();
-    calcular();
-  }
-</script>
+    function contextualWarningsMarkup(med) {
+      const alerts = [];
+      const conditions = state.conditions;
+
+      if (med.id === "succinilcolina") {
+        const reasons = [];
+        if (conditions.has("hyperkalemia")) reasons.push("hipercalemia");
+        if (conditions.has("malignant-hyperthermia")) reasons.push("risco de hipertermia maligna");
+        if (conditions.has("neuromuscular")) reasons.push("miopatia/doença neuromuscular");
+        if (conditions.has("tissue-injury")) reasons.push("queimadura, trauma muscular ou denervação após fase aguda");
+        if (reasons.length) {
+          alerts.push({ severity: "danger", text: `Contraindicação/alto risco identificado: ${reasons.join(", ")}. Não administrar sem revisão médica imediata do protocolo.` });
+        }
+        if (state.ageMonths === null) {
+          alerts.push({ severity: "warning", text: "Idade não informada. A dose de succinilcolina para intubação emergencial varia com a faixa etária." });
+        } else if (state.ageMonths < 12) {
+          alerts.push({ severity: "warning", text: "Lactente: a bula de referência usa 2 mg/kg na intubação emergencial; a planilha institucional mostra 1–2 mg/kg. Confirme a dose-alvo do serviço." });
+        } else {
+          alerts.push({ severity: "warning", text: "A bula distingue crianças pequenas das maiores, mas não fornece um corte etário universal. Idade isolada não define a dose: confirme peso, porte e protocolo institucional." });
+        }
+        if (conditions.has("cholinesterase")) {
+          alerts.push({ severity: "danger", text: "Deficiência de pseudocolinesterase/bloqueio prolongado prévio: risco de apneia e bloqueio neuromuscular prolongados." });
+        }
+      }
+
+      if (conditions.has("shock") && med.id === "propofol") {
+        alerts.push({ severity: "warning", text: "Choque/hipotensão marcado: propofol pode intensificar depressão cardiovascular e hipotensão." });
+      }
+      if (conditions.has("shock") && med.id === "cetamina") {
+        alerts.push({ severity: "warning", text: "Choque marcado: cetamina não deve ser considerada automaticamente hemodinamicamente neutra; monitorizar de perto, sobretudo se houver depleção de catecolaminas." });
+      }
+      if (med.id === "flumazenil") {
+        if (state.ageMonths !== null && state.ageMonths < 12) {
+          alerts.push({ severity: "danger", text: "Menor de 1 ano: segurança e eficácia não estão estabelecidas na indicação pediátrica rotulada." });
+        }
+        if (conditions.has("flumazenil-risk")) {
+          alerts.push({ severity: "danger", text: "Epilepsia, dependência de benzodiazepínico ou intoxicação mista marcada: risco aumentado de convulsões e abstinência." });
+        }
+      }
+      if (med.id === "manitol") {
+        const risks = [];
+        if (conditions.has("renal-anuria")) risks.push("anúria/insuficiência renal grave");
+        if (conditions.has("volume-pulmonary")) risks.push("hipovolemia grave/edema pulmonar");
+        if (risks.length) alerts.push({ severity: "danger", text: `Alto risco/possível contraindicação: ${risks.join("; ")}. Rever a osmoterapia imediatamente.` });
+        if (state.ageMonths !== null && state.ageMonths < 24) {
+          alerts.push({ severity: "warning", text: "Menores de 2 anos têm maior risco de alterações hidroeletrolíticas; monitorização renal, cardíaca, pulmonar e osmolar é obrigatória." });
+        }
+      }
+      if (med.id === "midazolam" && state.ageDays !== null && state.ageDays < 28) {
+        alerts.push({ severity: "danger", text: "Recém-nascido: verificar se a apresentação contém álcool benzílico e usar protocolo neonatal específico." });
+      }
+
+      return alerts.map(alert => `<div class="warning ${alert.severity === "danger" ? "danger" : ""}"><strong>Contexto do paciente:</strong> ${alert.text}</div>`).join("");
+    }
+
+    function clinicalAlerts() {
+      const alerts = [];
+      const planned = state.planned;
+      const conditions = state.conditions;
+      const paralytics = ["rocuronio", "succinilcolina", "pancuronio"].filter(id => planned.has(id));
+      const induction = ["cetamina", "propofol", "tiopental"].filter(id => planned.has(id));
+      const depressants = ["fentanil", "morfina", "midazolam", "propofol"].filter(id => planned.has(id));
+
+      if (state.ageDays !== null && state.ageDays < 28) {
+        alerts.push({ severity: "critical", title: "Faixa neonatal", text: "Recém-nascido identificado. Confirme se o protocolo neonatal ou o PALS é o aplicável; não use esta calculadora isoladamente para decidir doses." });
+      }
+
+      if (planned.has("succinilcolina")) {
+        const contraindications = [];
+        if (conditions.has("hyperkalemia")) contraindications.push("hipercalemia");
+        if (conditions.has("malignant-hyperthermia")) contraindications.push("risco de hipertermia maligna");
+        if (conditions.has("neuromuscular")) contraindications.push("miopatia/doença neuromuscular");
+        if (conditions.has("tissue-injury")) contraindications.push("lesão muscular/denervação após fase aguda");
+        if (contraindications.length) {
+          alerts.push({ severity: "critical", title: "Succinilcolina — alto risco", text: `Condição incompatível ou de alto risco: ${contraindications.join(", ")}. Rever imediatamente a escolha do bloqueador.` });
+        }
+        if (state.ageMonths === null) {
+          alerts.push({ severity: "caution", title: "Idade necessária", text: "A faixa etária altera a referência de dose da succinilcolina para intubação emergencial." });
+        }
+        if (conditions.has("cholinesterase")) {
+          alerts.push({ severity: "critical", title: "Succinilcolina — bloqueio prolongado", text: "Deficiência de pseudocolinesterase ou bloqueio prolongado prévio: risco de apneia prolongada." });
+        }
+      }
+
+      if (paralytics.length > 1) {
+        alerts.push({ severity: "critical", title: "Mais de um bloqueador selecionado", text: "Rocurônio, succinilcolina e pancurônio não devem aparecer como um esquema combinado rotineiro de SRI. Confirme qual agente será usado." });
+      }
+
+      if (paralytics.length && !induction.length) {
+        alerts.push({ severity: "critical", title: "Bloqueador sem indutor selecionado", text: "Garanta indução adequada antes do bloqueio e analgesia/sedação pós-intubação preparada." });
+      }
+
+      if (depressants.length >= 2) {
+        alerts.push({ severity: "caution", title: "Depressores do sistema nervoso central", text: `${depressants.map(id => MEDICATIONS.find(med => med.id === id)?.name || id).join(" + ")}: efeitos sedativos, respiratórios e hemodinâmicos podem se somar. Ajustar e monitorizar.` });
+      }
+
+      if (planned.has("succinilcolina") && planned.has("lidocaina")) {
+        alerts.push({ severity: "caution", title: "Lidocaína + succinilcolina", text: "A bula informa que anestésicos locais podem intensificar o bloqueio neuromuscular. Monitorizar e confirmar a necessidade da lidocaína." });
+      }
+      if (planned.has("amiodarona") && planned.has("lidocaina")) {
+        alerts.push({ severity: "critical", title: "Amiodarona + lidocaína", text: "No algoritmo de PCR por FV/TV sem pulso, são alternativas. Não administrar como combinação rotineira sem indicação especializada." });
+      }
+
+      if (conditions.has("shock") && planned.has("propofol")) {
+        alerts.push({ severity: "caution", title: "Choque + propofol", text: "Maior risco de hipotensão/depressão cardiovascular. Rever dose e estratégia hemodinâmica." });
+      }
+      if (conditions.has("shock") && planned.has("cetamina")) {
+        alerts.push({ severity: "caution", title: "Choque + cetamina", text: "Monitorizar resposta hemodinâmica; hipotensão e descompensação também podem ocorrer em pacientes com depleção de catecolaminas." });
+      }
+
+      if (paralytics.length === 1 && induction.length) {
+        alerts.push({ severity: "info", title: "Bloqueio neuromuscular", text: "Confirmar ventilação possível, monitorização e plano de analgesia/sedação pós-intubação." });
+      }
+
+      return alerts;
+    }
+
+    function renderClinicalAlerts() {
+      const alerts = clinicalAlerts();
+      const selections = state.conditions.size + state.planned.size;
+      clinicalSummaryCount.textContent = selections ? `${selections} marcado${selections === 1 ? "" : "s"}` : "opcional";
+      clinicalAlertsBox.innerHTML = alerts.length
+        ? alerts.map(alert => `<div class="clinical-alert ${alert.severity}"><strong>${alert.title}</strong>${alert.text}</div>`).join("")
+        : '<div class="clinical-alert">Nenhum alerta combinado com as opções marcadas. Isso não exclui outras contraindicações.</div>';
+    }
+
+    function calculationMarkup(med, calculation) {
+      if (!calculation) {
+        return '<div class="awaiting">Informe o peso para calcular.</div>';
+      }
+
+      if (med.directVolume) {
+        return `
+          <div class="metric primary" style="grid-column: 1 / -1">
+            <span class="metric-label">Volume pela faixa prescrita</span>
+            <span class="metric-value">${formatRange(calculation.stockMin, calculation.stockMax, "mL")}</span>
+          </div>`;
+      }
+
+      let html = `
+        <div class="metric">
+          <span class="metric-label">Dose total</span>
+          <span class="metric-value">${formatRange(calculation.totalMin, calculation.totalMax, med.totalUnit)}</span>
+        </div>
+        <div class="metric primary">
+          <span class="metric-label">Aspirar da apresentação</span>
+          <span class="metric-value">${formatRange(calculation.stockMin, calculation.stockMax, "mL")}</span>
+        </div>`;
+
+      if (med.dilution) {
+        html += `
+          <div class="metric primary">
+            <span class="metric-label">Após ${med.dilution.label.toLowerCase()}</span>
+            <span class="metric-value">${formatRange(calculation.preparedMin, calculation.preparedMax, "mL")}</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Adicionar diluente</span>
+            <span class="metric-value">${formatRange(calculation.diluentMin, calculation.diluentMax, "mL")}</span>
+          </div>`;
+      }
+      return html;
+    }
+
+    function detailsMarkup(med) {
+      const hasRange = med.doseMin !== med.doseMax;
+      const dilution = med.dilution
+        ? `<p><strong>Preparo:</strong> ${med.dilution.label}; concentração final ${med.dilution.finalConcentration}; usar ${med.dilution.diluent}.</p>`
+        : "";
+      const source = med.sourceUrl
+        ? `<p><strong>Referência:</strong> <a href="${med.sourceUrl}" target="_blank" rel="noreferrer">${med.sourceLabel || "fonte clínica"}</a>.</p>`
+        : `<p><strong>Referência:</strong> planilha institucional; validação local pendente.</p>`;
+      const limits = [
+        Number.isFinite(med.minTotal) ? `mínimo ${formatNumber(med.minTotal)} ${med.totalUnit}` : "",
+        Number.isFinite(med.maxTotal) ? `máximo ${formatNumber(med.maxTotal)} ${med.totalUnit}` : ""
+      ].filter(Boolean).join("; ");
+      const exact = hasRange ? `
+        <div class="exact-calc">
+          <label for="dose-${med.id}">Dose exata prescrita (${med.doseUnit})
+            <input class="dose-input" id="dose-${med.id}" data-med-id="${med.id}" type="text" inputmode="decimal" placeholder="${formatNumber(med.doseMin)} a ${formatNumber(med.doseMax)}">
+          </label>
+          <button type="button" class="button secondary exact-clear" data-med-id="${med.id}">Limpar</button>
+          <p class="exact-result" id="exact-${med.id}" role="status" aria-live="polite">Preencha apenas se já houver uma dose prescrita.</p>
+        </div>` : "";
+
+      return `
+        <p><strong>Apresentação:</strong> ${med.presentation}.</p>
+        <p><strong>Via:</strong> ${med.route}.</p>
+        ${limits ? `<p><strong>Limites aplicados:</strong> ${limits}.</p>` : ""}
+        ${dilution}
+        ${source}
+        ${exact}`;
+    }
+
+    function medicationCard(med) {
+      const calculation = calculateMedication(med, state.weight);
+      return `
+        <article class="med-card" data-med-card="${med.id}">
+          <div class="med-main">
+            <header class="med-header">
+              <div>
+                <h3 class="med-title">${med.name}</h3>
+                <p class="formula">${doseDescription(med)} · ${med.route}<br>${med.presentation}</p>
+              </div>
+              <span class="stage">${med.stage}</span>
+            </header>
+            <div class="result-box" data-result="${med.id}">${calculationMarkup(med, calculation)}</div>
+            ${med.dilution ? `<div class="dilution"><strong>${med.dilution.label}:</strong> o volume maior é o volume final preparado, não o volume retirado da ampola.</div>` : ""}
+            ${contextualWarningsMarkup(med)}
+            ${med.danger ? `<div class="warning danger"><strong>Atenção:</strong> ${med.danger}</div>` : ""}
+            ${med.warning ? `<div class="warning"><strong>Atenção:</strong> ${med.warning}</div>` : ""}
+          </div>
+          <details>
+            <summary>Conferir preparo e calcular dose exata</summary>
+            <div class="details-body">${detailsMarkup(med)}</div>
+          </details>
+        </article>`;
+    }
+
+    function normalizeText(text) {
+      return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    }
+
+    function filteredMedications() {
+      const query = normalizeText(state.search);
+      return MEDICATIONS.filter(med => {
+        const categoryMatch = med.categories.includes(state.category);
+        const searchMatch = !query || normalizeText(`${med.name} ${med.stage}`).includes(query);
+        return categoryMatch && searchMatch;
+      });
+    }
+
+    function render() {
+      const meds = filteredMedications();
+      document.querySelectorAll(".tab").forEach(tab => {
+        tab.setAttribute("aria-selected", String(tab.dataset.category === state.category));
+      });
+      resultsTitle.textContent = CATEGORY_NAMES[state.category];
+      resultCount.textContent = `${meds.length} medicamento${meds.length === 1 ? "" : "s"}`;
+      list.innerHTML = meds.length
+        ? meds.map(medicationCard).join("")
+        : '<div class="panel empty-state">Nenhum medicamento encontrado.</div>';
+      bindExactCalculators();
+      renderClinicalAlerts();
+    }
+
+    function validateWeight() {
+      const parsed = parseNumber(pesoInput.value);
+      pesoStatus.hidden = true;
+      pesoStatus.className = "status-line";
+
+      if (parsed === null) {
+        state.weight = null;
+        render();
+        return;
+      }
+      if (!Number.isFinite(parsed) || parsed < 0.5 || parsed > 200) {
+        state.weight = null;
+        pesoStatus.textContent = "Confira o peso: informe um valor entre 0,5 e 200 kg.";
+        pesoStatus.classList.add("error");
+        pesoStatus.hidden = false;
+        render();
+        return;
+      }
+
+      state.weight = parsed;
+      if (parsed > 50) {
+        pesoStatus.textContent = "Peso acima de 50 kg: confirme se o fármaco exige peso total, ideal ou ajustado.";
+        pesoStatus.classList.add("warning");
+        pesoStatus.hidden = false;
+      }
+      render();
+    }
+
+    function validateAge() {
+      const age = readAge();
+      idadeStatus.className = "status-line";
+
+      if (age === null) {
+        state.ageDays = null;
+        state.ageMonths = null;
+        idadeStatus.textContent = "Informe a idade para alertas neonatal e de succinilcolina.";
+        idadeStatus.classList.add("warning");
+        idadeStatus.hidden = false;
+        render();
+        return;
+      }
+
+      if (age.error) {
+        state.ageDays = null;
+        state.ageMonths = null;
+        idadeStatus.textContent = "Confira a idade: use um valor entre o nascimento e 18 anos.";
+        idadeStatus.classList.add("error");
+        idadeStatus.hidden = false;
+        render();
+        return;
+      }
+
+      state.ageDays = age.days;
+      state.ageMonths = age.months;
+      if (age.days < 28) {
+        idadeStatus.textContent = "Faixa neonatal: confirme qual protocolo é aplicável antes de usar os cálculos.";
+        idadeStatus.classList.add("error");
+        idadeStatus.hidden = false;
+      } else if (age.months < 12) {
+        idadeStatus.textContent = "Lactente: a succinilcolina possui referência de dose específica por faixa etária.";
+        idadeStatus.classList.add("warning");
+        idadeStatus.hidden = false;
+      } else {
+        idadeStatus.hidden = true;
+      }
+      render();
+    }
+
+    function bindExactCalculators() {
+      document.querySelectorAll(".dose-input").forEach(input => {
+        input.addEventListener("input", () => updateExact(input.dataset.medId, input.value));
+      });
+      document.querySelectorAll(".exact-clear").forEach(button => {
+        button.addEventListener("click", () => {
+          const input = document.getElementById(`dose-${button.dataset.medId}`);
+          if (input) input.value = "";
+          updateExact(button.dataset.medId, "");
+        });
+      });
+    }
+
+    function updateExact(id, rawValue) {
+      const med = MEDICATIONS.find(item => item.id === id);
+      const output = document.getElementById(`exact-${id}`);
+      if (!med || !output) return;
+      if (!state.weight) {
+        output.textContent = "Informe primeiro o peso do paciente.";
+        return;
+      }
+      const selected = parseNumber(rawValue);
+      if (selected === null) {
+        output.textContent = "Preencha apenas se já houver uma dose prescrita.";
+        return;
+      }
+      if (!Number.isFinite(selected) || selected < med.doseMin || selected > med.doseMax) {
+        output.textContent = `Dose fora da faixa exibida (${doseDescription(med)}).`;
+        return;
+      }
+      const result = calculateMedication(med, state.weight, selected);
+      const finalPart = med.dilution
+        ? `; após diluição: ${formatRange(result.preparedMin, result.preparedMax, "mL")}`
+        : "";
+      output.textContent = `Dose total: ${formatRange(result.totalMin, result.totalMax, med.totalUnit)}; aspirar: ${formatRange(result.stockMin, result.stockMax, "mL")}${finalPart}.`;
+    }
+
+    function updateConnectionStatus() {
+      const el = document.getElementById("connection-status");
+      el.textContent = navigator.onLine ? "Online" : "Offline — usando a versão armazenada neste aparelho";
+    }
+
+    function applyTheme(theme, persist = true) {
+      const isDark = theme === "dark";
+      document.documentElement.dataset.theme = isDark ? "dark" : "light";
+      themeToggle.setAttribute("aria-pressed", String(isDark));
+      themeToggle.setAttribute("aria-label", isDark ? "Ativar modo claro" : "Ativar modo escuro");
+      themeIcon.textContent = isDark ? "☀" : "☾";
+      document.querySelector('meta[name="theme-color"]').setAttribute("content", isDark ? "#091419" : "#eef3f6");
+      if (persist) {
+        try { localStorage.setItem("sri-theme", isDark ? "dark" : "light"); } catch {}
+      }
+    }
+
+    let weightTimer;
+    let ageTimer;
+    pesoInput.addEventListener("input", () => {
+      window.clearTimeout(weightTimer);
+      weightTimer = window.setTimeout(validateWeight, 120);
+    });
+
+    idadeInput.addEventListener("input", () => {
+      window.clearTimeout(ageTimer);
+      ageTimer = window.setTimeout(validateAge, 120);
+    });
+    idadeUnidade.addEventListener("change", validateAge);
+
+    buscaInput.addEventListener("input", () => {
+      state.search = buscaInput.value;
+      render();
+    });
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(item => item.setAttribute("aria-selected", "false"));
+        tab.setAttribute("aria-selected", "true");
+        state.category = tab.dataset.category;
+        render();
+      });
+    });
+
+    document.querySelectorAll("[data-condition], [data-planned]").forEach(input => {
+      input.addEventListener("change", () => {
+        if (input.dataset.condition) {
+          input.checked ? state.conditions.add(input.dataset.condition) : state.conditions.delete(input.dataset.condition);
+        }
+        if (input.dataset.planned) {
+          input.checked ? state.planned.add(input.dataset.planned) : state.planned.delete(input.dataset.planned);
+        }
+        render();
+      });
+    });
+
+    document.getElementById("novoPaciente").addEventListener("click", () => {
+      pesoInput.value = "";
+      idadeInput.value = "";
+      idadeUnidade.value = "meses";
+      buscaInput.value = "";
+      state.weight = null;
+      state.ageDays = null;
+      state.ageMonths = null;
+      state.category = "sri";
+      state.search = "";
+      state.conditions.clear();
+      state.planned.clear();
+      document.querySelectorAll("[data-condition], [data-planned]").forEach(input => { input.checked = false; });
+      pesoStatus.hidden = true;
+      idadeStatus.className = "status-line warning";
+      idadeStatus.textContent = "Informe a idade para alertas neonatal e de succinilcolina.";
+      idadeStatus.hidden = false;
+      render();
+      pesoInput.focus();
+    });
+
+    window.addEventListener("online", updateConnectionStatus);
+    window.addEventListener("offline", updateConnectionStatus);
+    themeToggle.addEventListener("click", () => {
+      applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
+    });
+
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    }
+
+    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber });
+    applyTheme(document.documentElement.dataset.theme, false);
+    updateConnectionStatus();
+    render();
+  </script>
 </body>
 </html>

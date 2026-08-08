@@ -1,35 +1,49 @@
-# Calculadora de SRI Pediátrica – para a pediatra mais dedicada
+# SRI Pediátrica - FRO (Ferramenta de Recomendação e Otimização)
 
-Esta calculadora foi desenvolvida **exclusivamente para a minha namorada**, pediatra de plantão, com o objetivo de auxiliá-la nos cálculos de **Sequência Rápida de Intubação (SRI)** em crianças.
+Calculadora móvel de dose e volume baseada na apresentação disponível no serviço.
 
-Ela reúne as doses mais atualizadas (diretrizes 2025/2026) de fármacos como fentanil, cetamina, succinilcolina, rocurônio, entre outros, além de oferecer:
+## Princípios de segurança
 
-- **Cálculo automático** baseado no peso e, opcionalmente, na idade.
-- **Doses ajustadas** (ex.: succinilcolina varia conforme a faixa etária).
-- **Apresentação do volume** em mL (concentrações padrão).
-- **Detalhamento do cálculo** – toque no valor da dose ou no ícone ⓘ para ver a fórmula completa.
-- **Checklist de materiais** para o procedimento.
-- **Layout limpo, escuro e responsivo** (funciona muito bem no celular).
+- Mostra separadamente dose total, volume retirado da ampola e volume após diluição.
+- Exibe a faixa completa quando a prescrição admite mais de uma dose.
+- Não recomenda automaticamente um indutor ou bloqueador.
+- Usa a idade somente para alertas que realmente mudam segurança, como contexto neonatal e succinilcolina.
+- Analisa combinações apenas entre medicamentos explicitamente marcados como planejados.
+- Sinaliza contraindicações importantes da succinilcolina e cautela hemodinâmica.
+- Não armazena peso ou condições do paciente.
+- Separa adrenalina para parada cardíaca de outros usos.
+- Separa adrenalina EV/IO para PCR/bradicardia da adrenalina IM para anafilaxia.
+- Separa doses sequenciais de adenosina e naloxona, evitando interpretar etapas como uma faixa livre.
+- Exibe a fonte clínica de cada regra revisada dentro do cartão do medicamento.
+- Oferece modo claro e escuro, inicia pela preferência do aparelho e memoriza somente a escolha visual.
+- Funciona offline após o primeiro acesso bem-sucedido.
 
-## Como usar
+## Fonte institucional
 
-1. Acesse o site: [https://ikmaciel.github.io/SRI-Pediatria/](https://ikmaciel.github.io/SRI-Pediatria/)
-2. Informe o **peso** (obrigatório) e, se desejar, a **idade** (ex.: `2 anos` ou `18 meses`).
-3. Marque a opção **Atropina** se estiver dentro da faixa etária recomendada (28 dias a 8 anos) – o sistema sugere, mas a decisão é clínica.
-4. Escolha o arredondamento e a unidade de exibição do fentanil (mcg ou mg).
-5. Toque em qualquer dose calculada (ou no ícone ⓘ) para ver o passo a passo do cálculo.
+As apresentações foram transcritas da planilha institucional enviada em 07/08/2026. Regras atualizadas podem divergir da planilha — principalmente glicose D10%, rocurônio em SRI e limites sequenciais — e ficam explicitamente marcadas. A interface permanece **em validação clínica** até aprovação formal do serviço.
 
-> ⚠️ **Atenção**: Esta ferramenta é um **auxílio à decisão clínica**. A médica responsável deve validar todas as doses antes da administração.
+A matriz completa de evidências, decisões e limitações está em [`REVISAO_CLINICA.md`](REVISAO_CLINICA.md).
 
-## Tecnologias utilizadas
+## Uso
 
-- HTML5, CSS3 e JavaScript puro – nenhuma dependência externa.
-- Hospedado via GitHub Pages.
+1. Abra <https://ikmaciel.github.io/SRI-Pediatria/>.
+2. Informe o peso e a idade.
+3. Abra `Checagem de segurança` quando houver comorbidades relevantes ou mais de um medicamento planejado.
+4. Selecione `SRI`, `Reanimação` ou `Outros`.
+5. Confira dose total e volume calculado.
+6. Quando houver diluição, confira separadamente o volume da ampola, o diluente e o volume final.
+7. Confirme no rótulo a concentração e siga o protocolo institucional antes da administração.
 
-## Sobre o projeto
+## Fontes clínicas complementares
 
-Feito com 🫀 para compensar as noites ébrias que passei enquanto tu varavas em planões eternos insone salvando vidas de crianças
+- [AHA/AAP Pediatric Advanced Life Support 2025](https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support)
+- [AHA/AAP Neonatal Resuscitation 2025](https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/neonatal-resuscitation)
+- [European Resuscitation Council — Paediatric Life Support 2025](https://www.erc.edu/media/03xnpjmj/gl2025-09-pls-e.pdf)
+- [NEAR4KIDS — Airway Safety Bundle](https://www.research.chop.edu/near4kids/resources)
+- [Brain Trauma Foundation — Pediatric Severe TBI](https://braintrauma.org/coma/guidelines/pediatric)
+- [DailyMed — succinilcolina](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f55dd1c0-c259-219a-5bca-f139e9515d07)
+- [World Allergy Organization Anaphylaxis Guidance 2020](https://www.worldallergyorganizationjournal.org/article/S1939-4551%2820%2930375-6/fulltext)
 
----
+## Tecnologia
 
-*Para qualquer dúvida ou sugestão, o código está aberto neste repositório.*
+HTML, CSS e JavaScript sem dependências externas. O `service worker` usa estratégia de rede primeiro e mantém uma cópia local para indisponibilidade de conexão.

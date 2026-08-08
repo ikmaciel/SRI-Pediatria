@@ -717,57 +717,12 @@
       font-size: .86rem;
     }
 
-    .config-meta {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin: 14px 0;
-    }
-
-    .config-meta div,
-    .prep-config-card {
-      padding: 11px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--surface-soft);
-    }
-
-    .config-meta span {
-      display: block;
-      color: var(--muted);
-      font-size: .7rem;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .config-meta strong { display: block; margin-top: 3px; font-size: .86rem; }
-
     .config-section { margin-top: 18px; }
     .config-section h3 { margin: 0 0 9px; font-size: 1rem; }
     .config-section > p { margin: 6px 0 10px; color: var(--muted); font-size: .84rem; }
     .prep-config-list { display: grid; gap: 9px; }
-    .prep-config-card h4 { margin: 0 0 6px; font-size: .94rem; }
-    .prep-config-card p { margin: 4px 0; color: var(--muted); font-size: .82rem; }
-    .prep-config-card strong { color: var(--ink); }
 
-    .review-ack {
-      display: grid;
-      grid-template-columns: 24px 1fr;
-      gap: 9px;
-      align-items: start;
-      margin: 12px 0;
-      padding: 11px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--surface-soft);
-      font-size: .84rem;
-    }
-
-    .review-ack input { width: 22px; height: 22px; margin: 0; accent-color: var(--brand); }
-
-    .draft-editor[aria-disabled="true"] { opacity: .58; }
-
-    .draft-card {
+    .preparation-card {
       display: grid;
       gap: 9px;
       padding: 12px;
@@ -776,7 +731,7 @@
       background: var(--surface-soft);
     }
 
-    .draft-card h4 { margin: 0; font-size: .94rem; }
+    .preparation-card h4 { margin: 0; font-size: .94rem; }
 
     .config-field { margin: 0; font-size: .8rem; }
 
@@ -817,7 +772,6 @@
       #novoPaciente { grid-column: 1 / -1; width: 100%; }
       .result-box { grid-template-columns: 1fr; }
       .tab { font-size: .78rem; }
-      .config-meta { grid-template-columns: 1fr; }
       .config-actions .button { width: 100%; }
     }
 
@@ -968,11 +922,11 @@
       <p>Adrenalina foi separada por via e indicação: PCR/bradicardia usa solução final 0,1 mg/mL EV/IO; anafilaxia usa 1 mg/mL IM sem diluição.</p>
       <p><a href="https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support" target="_blank" rel="noreferrer">AHA/AAP PALS 2025</a> · <a href="https://www.erc.edu/media/03xnpjmj/gl2025-09-pls-e.pdf" target="_blank" rel="noreferrer">ERC pediátrico 2025</a> · <a href="REVISAO_CLINICA.md">Revisão bibliográfica completa</a></p>
       <p><strong>Versão clínica:</strong> rascunho 2026-08-07. Exige aprovação do serviço antes do uso assistencial.</p>
-      <p class="profile-summary"><strong>Perfil de preparo embutido:</strong> HRSM Pediatria · versão 0.1 · em validação clínica. Rascunhos locais não alteram os cálculos.</p>
+      <p id="preparationModeSummary" class="profile-summary"><strong>Diluições neste aparelho:</strong> usando os valores padrão da planilha.</p>
       <span id="connection-status" class="offline-indicator" role="status"></span>
       <div class="footer-actions">
         <button class="button secondary" type="button" onclick="window.print()">Imprimir</button>
-        <button id="configButton" class="button secondary" type="button">Configurações institucionais</button>
+        <button id="configButton" class="button secondary" type="button">Diluições</button>
       </div>
     </footer>
   </main>
@@ -981,37 +935,21 @@
     <div class="config-shell">
       <header class="config-header">
         <div>
-          <h2 id="config-title">Configurações institucionais</h2>
-          <span class="count">Diluições e reconstituições</span>
+          <h2 id="config-title">Diluições</h2>
+          <span class="count">Valores usados neste aparelho</span>
         </div>
         <button id="configClose" class="icon-button" type="button" aria-label="Fechar configurações">×</button>
       </header>
       <div class="config-scroll">
-        <div class="config-banner"><strong>Área de revisão — não é autenticação.</strong> Somente um perfil aprovado e publicado pode alterar os cálculos da tela de emergência. O rascunho salvo aqui fica apenas neste aparelho.</div>
-        <div class="config-meta">
-          <div><span>Perfil embutido</span><strong>HRSM Pediatria</strong></div>
-          <div><span>Versão</span><strong>0.1 · 07/08/2026</strong></div>
-          <div><span>Status</span><strong>Em validação clínica</strong></div>
-        </div>
+        <div class="config-banner"><strong>Atenção:</strong> salvar aqui muda imediatamente os volumes calculados neste aparelho. Confira a apresentação e o diluente antes de usar.</div>
 
-        <section class="config-section" aria-labelledby="active-preps-title">
-          <h3 id="active-preps-title">Valores usados atualmente</h3>
-          <p>Estes são os preparos efetivamente usados nos cálculos publicados.</p>
-          <div id="activePrepList" class="prep-config-list"></div>
-        </section>
-
-        <section class="config-section" aria-labelledby="draft-title">
-          <h3 id="draft-title">Rascunho para revisão médica/farmacêutica</h3>
-          <p>Edite a descrição institucional e exporte o arquivo para aprovação. Salvar não muda nenhuma dose.</p>
-          <label class="review-ack">
-            <input id="reviewAck" type="checkbox">
-            <span>Estou revisando estes dados em nome da equipe médica/farmácia e entendo que este rascunho não será aplicado automaticamente.</span>
-          </label>
-          <div id="draftEditor" class="draft-editor" aria-disabled="true"></div>
+        <section class="config-section" aria-labelledby="preparos-title">
+          <h3 id="preparos-title">Preparo das soluções</h3>
+          <p>Para diluição, informe quantos mL de diluente são adicionados a cada 1 mL do medicamento. Para reconstituição, informe o volume final.</p>
+          <div id="preparationEditor" class="prep-config-list"></div>
           <div class="config-actions">
-            <button id="saveDraft" class="button" type="button" disabled>Salvar rascunho</button>
-            <button id="exportDraft" class="button secondary" type="button" disabled>Exportar JSON</button>
-            <button id="discardDraft" class="button secondary" type="button" disabled>Descartar rascunho</button>
+            <button id="savePreparationSettings" class="button" type="button">Salvar e aplicar</button>
+            <button id="resetPreparationSettings" class="button secondary" type="button">Restaurar padrão</button>
           </div>
           <p id="configStatus" class="config-status" role="status" aria-live="polite"></p>
         </section>
@@ -1069,7 +1007,7 @@
         id: "tiopental", categories: ["sri"], stage: "Indução", name: "Tiopental", route: "EV",
         doseMin: 3, doseMax: 5, doseUnit: "mg/kg", totalUnit: "mg",
         concentration: 20, concentrationUnit: "mg/mL", presentation: "1.000 mg/50 mL — 20 mg/mL",
-        reconstitution: { label: "Reconstituir 1.000 mg até volume final de 50 mL", finalConcentration: "20 mg/mL", diluent: "SF conforme planilha institucional" },
+        reconstitution: { amount: 1000, amountUnit: "mg", finalVolume: 50, label: "Reconstituir 1.000 mg até volume final de 50 mL", finalConcentration: "20 mg/mL", diluent: "SF conforme planilha institucional" },
         warning: "Confirmar disponibilidade, preparo e estabilidade da solução no serviço."
       },
       {
@@ -1083,7 +1021,7 @@
         id: "succinilcolina", categories: ["sri"], stage: "Bloqueio", name: "Succinilcolina", route: "EV",
         doseMin: 1, doseMax: 2, doseUnit: "mg/kg", totalUnit: "mg",
         concentration: 50, concentrationUnit: "mg/mL", presentation: "500 mg/10 mL — 50 mg/mL",
-        reconstitution: { label: "Reconstituir 500 mg até volume final de 10 mL", finalConcentration: "50 mg/mL", diluent: "AD conforme planilha institucional" },
+        reconstitution: { amount: 500, amountUnit: "mg", finalVolume: 10, label: "Reconstituir 500 mg até volume final de 10 mL", finalConcentration: "50 mg/mL", diluent: "AD conforme planilha institucional" },
         danger: "Em pediatria, reservar para intubação emergencial/necessidade imediata de via aérea. Há alerta em caixa para rabdomiólise hipercalêmica, disritmia, parada e morte em miopatia não diagnosticada.",
         sourceLabel: "Planilha institucional + bula regulatória", sourceUrl: "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f55dd1c0-c259-219a-5bca-f139e9515d07"
       },
@@ -1104,7 +1042,7 @@
         doseMin: 0.01, doseMax: 0.01, doseUnit: "mg/kg", totalUnit: "mg", maxTotal: 1,
         concentration: 1, concentrationUnit: "mg/mL", presentation: "Ampola 1 mg/mL (1:1.000)",
         dilution: { factor: 10, label: "Diluir 1:9", finalConcentration: "0,1 mg/mL", diluent: "diluente compatível conforme protocolo" },
-        danger: "Administrar o volume final da solução 0,1 mg/mL. Na PCR, repetir a cada 3–5 min conforme algoritmo; na bradicardia, usar se persistir após correção de causas. Não usar esta preparação IV/IO para anafilaxia.",
+        danger: "Administrar o volume final preparado e conferir a concentração indicada acima. Na PCR, repetir a cada 3–5 min conforme algoritmo; na bradicardia, usar se persistir após correção de causas. Não usar esta preparação IV/IO para anafilaxia.",
         sourceLabel: "AHA/AAP PALS 2025", sourceUrl: "https://cpr.heart.org/-/media/CPR-Files/CPR-Guidelines-Files/2025-Algorithms/Algorithm-PALS-CA-250123.pdf"
       },
       {
@@ -1158,7 +1096,7 @@
         sourceLabel: "AHA/AAP PALS 2025 + planilha institucional", sourceUrl: "https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support"
       },
       {
-        id: "glicose", categories: ["reanimação"], stage: "Hipoglicemia", name: "Glicose — preparar D10%", route: "EV/IO",
+        id: "glicose", categories: ["reanimação"], stage: "Hipoglicemia", name: "Glicose — preparar solução", route: "EV/IO",
         doseMin: 0.2, doseMax: 0.2, doseUnit: "g/kg", totalUnit: "g",
         concentration: 0.5, concentrationUnit: "g/mL", presentation: "50% — 0,5 g/mL",
         dilution: { factor: 5, label: "Diluição 1:4 para D10%", finalConcentration: "0,1 g/mL", diluent: "diluente compatível conforme protocolo" },
@@ -1203,15 +1141,20 @@
       }
     ];
 
-    const PREPARATION_PROFILE = Object.freeze({
-      id: "hrsm-pediatria-2026-08-draft",
-      name: "HRSM Pediatria",
-      version: "0.1",
-      date: "2026-08-07",
-      status: "Em validação clínica"
-    });
-
-    const PREPARATION_DRAFT_KEY = "sri-preparation-draft-v1";
+    const PREPARATION_SETTINGS_KEY = "sri-preparation-settings-v2";
+    const DEFAULT_PREPARATION_SETTINGS = MEDICATIONS
+      .filter(med => med.dilution || med.reconstitution)
+      .map(med => ({
+        id: med.id,
+        type: med.dilution ? "dilution" : "reconstitution",
+        stockConcentration: med.concentration,
+        presentation: med.presentation,
+        diluentParts: med.dilution ? med.dilution.factor - 1 : null,
+        amount: med.reconstitution?.amount ?? null,
+        amountUnit: med.reconstitution?.amountUnit ?? null,
+        finalVolume: med.reconstitution?.finalVolume ?? null,
+        diluent: (med.dilution || med.reconstitution).diluent
+      }));
 
     const CATEGORY_NAMES = {
       sri: "SRI",
@@ -1245,12 +1188,10 @@
     const configButton = document.getElementById("configButton");
     const configDialog = document.getElementById("configDialog");
     const configClose = document.getElementById("configClose");
-    const activePrepList = document.getElementById("activePrepList");
-    const draftEditor = document.getElementById("draftEditor");
-    const reviewAck = document.getElementById("reviewAck");
-    const saveDraft = document.getElementById("saveDraft");
-    const exportDraft = document.getElementById("exportDraft");
-    const discardDraft = document.getElementById("discardDraft");
+    const preparationEditor = document.getElementById("preparationEditor");
+    const savePreparationSettingsButton = document.getElementById("savePreparationSettings");
+    const resetPreparationSettingsButton = document.getElementById("resetPreparationSettings");
+    const preparationModeSummary = document.getElementById("preparationModeSummary");
     const configStatus = document.getElementById("configStatus");
 
     function escapeHtml(value) {
@@ -1259,152 +1200,215 @@
       })[character]);
     }
 
-    function activePreparationRecords() {
-      return MEDICATIONS
-        .filter(med => med.dilution || med.reconstitution)
-        .map(med => {
-          const preparation = med.dilution || med.reconstitution;
-          return {
-            id: med.id,
-            medication: med.name,
-            type: med.dilution ? "Diluição antes de administrar" : "Reconstituição antes de aspirar",
-            route: med.route,
-            presentation: med.presentation,
-            instruction: preparation.label,
-            finalConcentration: preparation.finalConcentration,
-            diluent: preparation.diluent
-          };
-        });
+    function cloneDefaultPreparationSettings() {
+      return DEFAULT_PREPARATION_SETTINGS.map(item => ({ ...item }));
     }
 
-    function sanitizeDraftRecords(records) {
-      const active = activePreparationRecords();
-      if (!Array.isArray(records)) return active;
-      return active.map(base => {
-        const incoming = records.find(record => record && record.id === base.id) || {};
-        const safeString = (field, fallback) => {
-          const value = typeof incoming[field] === "string" ? incoming[field].trim().slice(0, 300) : "";
-          return value || fallback;
-        };
+    function sanitizePreparationSettings(items) {
+      const incomingItems = Array.isArray(items) ? items : [];
+      return cloneDefaultPreparationSettings().map(base => {
+        const incoming = incomingItems.find(item => item && item.id === base.id) || {};
+        const diluent = typeof incoming.diluent === "string" && incoming.diluent.trim()
+          ? incoming.diluent.trim().slice(0, 120)
+          : base.diluent;
+
+        if (base.type === "dilution") {
+          const parts = Number(incoming.diluentParts);
+          return {
+            ...base,
+            diluent,
+            diluentParts: Number.isFinite(parts) && parts >= 0.1 && parts <= 99 ? parts : base.diluentParts
+          };
+        }
+
+        const volume = Number(incoming.finalVolume);
         return {
           ...base,
-          presentation: safeString("presentation", base.presentation),
-          instruction: safeString("instruction", base.instruction),
-          finalConcentration: safeString("finalConcentration", base.finalConcentration),
-          diluent: safeString("diluent", base.diluent)
+          diluent,
+          finalVolume: Number.isFinite(volume) && volume >= 0.1 && volume <= 1000 ? volume : base.finalVolume
         };
       });
     }
 
-    function loadPreparationDraft() {
+    function loadPreparationSettings() {
       try {
-        const saved = JSON.parse(localStorage.getItem(PREPARATION_DRAFT_KEY));
-        return saved?.records ? sanitizeDraftRecords(saved.records) : activePreparationRecords();
+        const saved = JSON.parse(localStorage.getItem(PREPARATION_SETTINGS_KEY));
+        return {
+          custom: Array.isArray(saved?.items),
+          items: sanitizePreparationSettings(saved?.items)
+        };
       } catch {
-        return activePreparationRecords();
+        return { custom: false, items: cloneDefaultPreparationSettings() };
       }
     }
 
-    let preparationDraft = loadPreparationDraft();
+    let preparationSettingsState = loadPreparationSettings();
 
-    function activePreparationCard(record) {
-      return `
-        <article class="prep-config-card">
-          <h4>${escapeHtml(record.medication)}</h4>
-          <p><strong>${escapeHtml(record.type)}</strong> · ${escapeHtml(record.route)}</p>
-          <p><strong>Apresentação:</strong> ${escapeHtml(record.presentation)}</p>
-          <p><strong>Preparo:</strong> ${escapeHtml(record.instruction)}; ${escapeHtml(record.diluent)}.</p>
-          <p><strong>Concentração final:</strong> ${escapeHtml(record.finalConcentration)}</p>
-        </article>`;
+    function applyPreparationSettings(items, custom = preparationSettingsState.custom) {
+      const settings = sanitizePreparationSettings(items);
+      settings.forEach(setting => {
+        const med = MEDICATIONS.find(item => item.id === setting.id);
+        if (!med) return;
+
+        if (setting.type === "dilution") {
+          const factor = 1 + setting.diluentParts;
+          const finalConcentration = setting.stockConcentration / factor;
+          med.concentration = setting.stockConcentration;
+          med.presentation = setting.presentation;
+          med.dilution.factor = factor;
+          med.dilution.label = `Diluir 1:${formatNumber(setting.diluentParts)}`;
+          med.dilution.finalConcentration = `${formatNumber(finalConcentration)} ${med.concentrationUnit}`;
+          med.dilution.diluent = setting.diluent;
+        } else {
+          const finalConcentration = setting.amount / setting.finalVolume;
+          med.concentration = finalConcentration;
+          med.presentation = `${formatNumber(setting.amount)} ${setting.amountUnit}/${formatNumber(setting.finalVolume)} mL — ${formatNumber(finalConcentration)} ${med.concentrationUnit}`;
+          med.reconstitution.finalVolume = setting.finalVolume;
+          med.reconstitution.label = `Reconstituir ${formatNumber(setting.amount)} ${setting.amountUnit} até volume final de ${formatNumber(setting.finalVolume)} mL`;
+          med.reconstitution.finalConcentration = `${formatNumber(finalConcentration)} ${med.concentrationUnit}`;
+          med.reconstitution.diluent = setting.diluent;
+        }
+      });
+      preparationSettingsState = { custom, items: settings };
+      preparationModeSummary.innerHTML = custom
+        ? "<strong>Diluições neste aparelho:</strong> usando valores personalizados. Confira antes de administrar."
+        : "<strong>Diluições neste aparelho:</strong> usando os valores padrão da planilha.";
     }
 
-    function draftPreparationCard(record) {
-      const input = (field, label, value) => `
-        <label class="config-field">${label}
-          <input type="text" maxlength="300" data-prep-id="${escapeHtml(record.id)}" data-prep-field="${field}" value="${escapeHtml(value)}" disabled>
-        </label>`;
+    function preparationEditorCard(setting) {
+      const med = MEDICATIONS.find(item => item.id === setting.id);
+      const numericField = setting.type === "dilution"
+        ? `
+          <label class="config-field">mL de diluente para cada 1 mL do medicamento
+            <input type="text" inputmode="decimal" data-prep-id="${escapeHtml(setting.id)}" data-prep-field="diluentParts" value="${escapeHtml(formatNumber(setting.diluentParts))}">
+          </label>`
+        : `
+          <label class="config-field">Volume final após reconstituição (mL)
+            <input type="text" inputmode="decimal" data-prep-id="${escapeHtml(setting.id)}" data-prep-field="finalVolume" value="${escapeHtml(formatNumber(setting.finalVolume))}">
+          </label>`;
       return `
-        <article class="draft-card">
-          <h4>${escapeHtml(record.medication)} <span class="count">· ${escapeHtml(record.type)}</span></h4>
-          ${input("presentation", "Apresentação institucional", record.presentation)}
-          ${input("instruction", "Instrução de preparo", record.instruction)}
-          ${input("finalConcentration", "Concentração final", record.finalConcentration)}
-          ${input("diluent", "Diluente/compatibilidade", record.diluent)}
+        <article class="preparation-card" data-config-card="${escapeHtml(setting.id)}">
+          <h4>${escapeHtml(med.name)}</h4>
+          <p><strong>${setting.type === "dilution" ? "Diluir antes de administrar" : "Reconstituir antes de aspirar"}</strong></p>
+          <p>${setting.type === "dilution" ? `Apresentação: ${escapeHtml(setting.presentation)}` : `Frasco: ${escapeHtml(formatNumber(setting.amount))} ${escapeHtml(setting.amountUnit)}`}</p>
+          ${numericField}
+          <label class="config-field">Diluente
+            <input type="text" maxlength="120" data-prep-id="${escapeHtml(setting.id)}" data-prep-field="diluent" value="${escapeHtml(setting.diluent)}">
+          </label>
+          <p class="config-preview" data-prep-preview="${escapeHtml(setting.id)}"></p>
         </article>`;
     }
 
     function renderPreparationSettings() {
-      activePrepList.innerHTML = activePreparationRecords().map(activePreparationCard).join("");
-      draftEditor.innerHTML = `<div class="prep-config-list">${preparationDraft.map(draftPreparationCard).join("")}</div>`;
-      setDraftEditorEnabled(reviewAck.checked);
+      preparationEditor.innerHTML = preparationSettingsState.items.map(preparationEditorCard).join("");
+      updatePreparationPreviews();
     }
 
-    function setDraftEditorEnabled(enabled) {
-      draftEditor.setAttribute("aria-disabled", String(!enabled));
-      draftEditor.querySelectorAll("input").forEach(input => { input.disabled = !enabled; });
-      [saveDraft, exportDraft, discardDraft].forEach(button => { button.disabled = !enabled; });
-    }
-
-    function collectDraftRecords() {
-      const records = activePreparationRecords();
-      draftEditor.querySelectorAll("input[data-prep-id]").forEach(input => {
-        const record = records.find(item => item.id === input.dataset.prepId);
-        if (record && ["presentation", "instruction", "finalConcentration", "diluent"].includes(input.dataset.prepField)) {
-          record[input.dataset.prepField] = input.value.trim().slice(0, 300) || record[input.dataset.prepField];
+    function readPreparationEditor() {
+      const items = cloneDefaultPreparationSettings();
+      const errors = [];
+      items.forEach(item => {
+        const numericField = item.type === "dilution" ? "diluentParts" : "finalVolume";
+        const numericInput = preparationEditor.querySelector(`[data-prep-id="${item.id}"][data-prep-field="${numericField}"]`);
+        const diluentInput = preparationEditor.querySelector(`[data-prep-id="${item.id}"][data-prep-field="diluent"]`);
+        const numericValue = parseNumber(numericInput?.value);
+        const validNumber = item.type === "dilution"
+          ? Number.isFinite(numericValue) && numericValue >= 0.1 && numericValue <= 99
+          : Number.isFinite(numericValue) && numericValue >= 0.1 && numericValue <= 1000;
+        if (!validNumber) {
+          errors.push({ input: numericInput, medication: MEDICATIONS.find(med => med.id === item.id)?.name || item.id });
+        } else {
+          item[numericField] = numericValue;
+        }
+        const diluent = diluentInput?.value.trim();
+        if (!diluent) {
+          errors.push({ input: diluentInput, medication: MEDICATIONS.find(med => med.id === item.id)?.name || item.id });
+        } else {
+          item.diluent = diluent.slice(0, 120);
         }
       });
-      return sanitizeDraftRecords(records);
+      return { items: sanitizePreparationSettings(items), errors };
     }
 
-    function draftPayload(records) {
-      return {
-        schemaVersion: 1,
-        status: "draft-not-active",
-        sourceProfile: PREPARATION_PROFILE,
-        exportedAt: new Date().toISOString(),
-        warning: "Este rascunho não altera os cálculos. Exige validação médica/farmacêutica e publicação de nova versão.",
-        records
-      };
+    function updatePreparationPreviews() {
+      const { items } = readPreparationEditor();
+      items.forEach(setting => {
+        const preview = preparationEditor.querySelector(`[data-prep-preview="${setting.id}"]`);
+        const med = MEDICATIONS.find(item => item.id === setting.id);
+        if (!preview || !med) return;
+        const concentration = setting.type === "dilution"
+          ? setting.stockConcentration / (1 + setting.diluentParts)
+          : setting.amount / setting.finalVolume;
+        preview.innerHTML = `<strong>Concentração final:</strong> ${escapeHtml(formatNumber(concentration))} ${escapeHtml(med.concentrationUnit)}`;
+      });
+    }
+
+    let pendingPreparationAction = null;
+
+    function clearPreparationConfirmation() {
+      pendingPreparationAction = null;
+      savePreparationSettingsButton.textContent = "Salvar e aplicar";
+      resetPreparationSettingsButton.textContent = "Restaurar padrão";
     }
 
     function openPreparationSettings() {
-      preparationDraft = loadPreparationDraft();
-      reviewAck.checked = false;
-      configStatus.textContent = "";
+      clearPreparationConfirmation();
+      configStatus.textContent = preparationSettingsState.custom
+        ? "Valores personalizados estão ativos neste aparelho."
+        : "Valores padrão da planilha estão ativos.";
       renderPreparationSettings();
       configDialog.showModal();
     }
 
-    function savePreparationDraft() {
-      preparationDraft = collectDraftRecords();
-      try {
-        localStorage.setItem(PREPARATION_DRAFT_KEY, JSON.stringify(draftPayload(preparationDraft)));
-        configStatus.textContent = "Rascunho salvo neste aparelho. Os cálculos ativos não foram alterados.";
-      } catch {
-        configStatus.textContent = "Não foi possível salvar neste aparelho. Exporte o JSON para não perder a revisão.";
+    function saveAndApplyPreparationSettings() {
+      const { items, errors } = readPreparationEditor();
+      if (errors.length) {
+        configStatus.textContent = `Revise os campos de ${errors.map(error => error.medication).join(", ")}.`;
+        errors[0].input?.focus();
+        return;
       }
-    }
-
-    function exportPreparationDraft() {
-      preparationDraft = collectDraftRecords();
-      const blob = new Blob([JSON.stringify(draftPayload(preparationDraft), null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `sri-preparos-${PREPARATION_PROFILE.date}.json`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
-      configStatus.textContent = "Rascunho exportado. Ele continua não ativo até validação e publicação.";
-    }
-
-    function discardPreparationDraft() {
-      try { localStorage.removeItem(PREPARATION_DRAFT_KEY); } catch {}
-      preparationDraft = activePreparationRecords();
+      if (pendingPreparationAction !== "save") {
+        clearPreparationConfirmation();
+        pendingPreparationAction = "save";
+        savePreparationSettingsButton.textContent = "Confirmar e aplicar";
+        configStatus.textContent = "Confira os valores e toque em Confirmar e aplicar.";
+        savePreparationSettingsButton.focus();
+        return;
+      }
+      clearPreparationConfirmation();
+      try {
+        localStorage.setItem(PREPARATION_SETTINGS_KEY, JSON.stringify({ schemaVersion: 2, savedAt: new Date().toISOString(), items }));
+      } catch {
+        configStatus.textContent = "Não foi possível salvar no aparelho.";
+        return;
+      }
+      applyPreparationSettings(items, true);
+      render();
       renderPreparationSettings();
-      configStatus.textContent = "Rascunho local descartado; valores embutidos restaurados no editor.";
+      configStatus.textContent = "Diluições salvas e aplicadas aos cálculos deste aparelho.";
     }
+
+    function restoreDefaultPreparationSettings() {
+      if (pendingPreparationAction !== "reset") {
+        clearPreparationConfirmation();
+        pendingPreparationAction = "reset";
+        resetPreparationSettingsButton.textContent = "Confirmar restauração";
+        configStatus.textContent = "Toque em Confirmar restauração para voltar aos valores padrão.";
+        resetPreparationSettingsButton.focus();
+        return;
+      }
+      clearPreparationConfirmation();
+      try {
+        localStorage.removeItem(PREPARATION_SETTINGS_KEY);
+        localStorage.removeItem("sri-preparation-draft-v1");
+      } catch {}
+      applyPreparationSettings(cloneDefaultPreparationSettings(), false);
+      render();
+      renderPreparationSettings();
+      configStatus.textContent = "Valores padrão restaurados e aplicados.";
+    }
+
+    applyPreparationSettings(preparationSettingsState.items, preparationSettingsState.custom);
 
     function parseNumber(value) {
       const normalized = String(value).trim().replace(",", ".");
@@ -1939,21 +1943,18 @@
     configDialog.addEventListener("click", event => {
       if (event.target === configDialog) configDialog.close();
     });
-    reviewAck.addEventListener("change", () => {
-      setDraftEditorEnabled(reviewAck.checked);
-      configStatus.textContent = reviewAck.checked
-        ? "Modo de revisão habilitado. Alterações continuam sendo apenas um rascunho local."
-        : "";
+    preparationEditor.addEventListener("input", () => {
+      clearPreparationConfirmation();
+      updatePreparationPreviews();
     });
-    saveDraft.addEventListener("click", savePreparationDraft);
-    exportDraft.addEventListener("click", exportPreparationDraft);
-    discardDraft.addEventListener("click", discardPreparationDraft);
+    savePreparationSettingsButton.addEventListener("click", saveAndApplyPreparationSettings);
+    resetPreparationSettingsButton.addEventListener("click", restoreDefaultPreparationSettings);
 
     if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
       navigator.serviceWorker.register("./sw.js").catch(() => {});
     }
 
-    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, PREPARATION_PROFILE, calculateMedication, parseNumber });
+    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber });
     applyTheme(document.documentElement.dataset.theme, false);
     updateConnectionStatus();
     render();

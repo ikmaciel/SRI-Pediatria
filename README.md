@@ -16,8 +16,8 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Separa doses sequenciais de adenosina e naloxona, evitando interpretar etapas como uma faixa livre.
 - Exibe a fonte clínica de cada regra revisada dentro do cartão do medicamento.
 - Oferece modo claro e escuro, inicia pela preferência do aparelho e memoriza somente a escolha visual.
-- Inclui uma área de configurações institucionais para revisar, salvar e exportar rascunhos de diluições e reconstituições.
-- Rascunhos locais nunca alteram silenciosamente os cálculos ativos; uma mudança exige validação médica/farmacêutica e nova publicação.
+- Inclui uma área simples de diluições para ajustar proporções e volumes finais de reconstituição no aparelho em uso.
+- Uma alteração só passa a valer depois da confirmação da médica e pode ser restaurada aos valores padrão a qualquer momento.
 - Funciona offline após o primeiro acesso bem-sucedido.
 
 ## Fonte institucional
@@ -36,9 +36,9 @@ A matriz completa de evidências, decisões e limitações está em [`REVISAO_CL
 6. Quando houver diluição, confira separadamente o volume da ampola, o diluente e o volume final.
 7. Confirme no rótulo a concentração e siga o protocolo institucional antes da administração.
 
-## Configurações institucionais
+## Diluições
 
-O botão `Configurações institucionais`, no rodapé, exibe o perfil de preparo embutido e permite criar um rascunho local estruturado. Esse rascunho pode ser salvo no aparelho e exportado como JSON para revisão, mas não altera doses, volumes ou diluições da tela de emergência. Somente uma nova versão validada e publicada pode modificar o perfil ativo.
+O botão `Diluições`, no rodapé, permite editar diretamente a proporção de diluente ou o volume final da reconstituição. Ao tocar em `Salvar e aplicar`, os volumes calculados passam a usar esses valores naquele navegador e aparelho. A opção `Restaurar padrão` retorna às definições publicadas no programa. Essas preferências ficam apenas no dispositivo; dados do paciente não são gravados.
 
 ## Fontes clínicas complementares
 

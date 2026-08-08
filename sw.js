@@ -1,5 +1,13 @@
-const CACHE_NAME = "sri-pediatrica-fro-2026-08-07-v4";
-const APP_SHELL = ["./", "./index.html", "./manifest.webmanifest", "./REVISAO_CLINICA.md"];
+const CACHE_NAME = "sri-pediatrica-fro-2026-08-07-v5";
+const APP_SHELL = [
+  "./",
+  "./index.html",
+  "./manifest.webmanifest",
+  "./REVISAO_CLINICA.md",
+  "./assets/icon-192.png",
+  "./assets/icon-512.png",
+  "./assets/apple-touch-icon.png"
+];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));

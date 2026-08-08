@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#f7fafc">
   <meta name="description" content="Calculadora pediátrica de dose e volume a partir da apresentação disponível.">
   <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
   <title>SRI Pediátrica - FRO (Ferramenta de Recomendação e Otimização)</title>
   <script>
     try {
@@ -113,6 +115,21 @@
       margin-bottom: 16px;
       padding-right: 58px;
     }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 64px;
+      height: 64px;
+      flex: 0 0 64px;
+      object-fit: contain;
+    }
+
+    .brand-copy { min-width: 0; }
 
     .theme-toggle {
       position: absolute;
@@ -657,9 +674,14 @@
       <button id="themeToggle" class="theme-toggle" type="button" aria-label="Ativar modo escuro" aria-pressed="false" title="Alternar tema">
         <span id="themeIcon" class="theme-icon" aria-hidden="true">☾</span>
       </button>
-      <h1>SRI Pediátrica — FRO</h1>
-      <p class="subtitle"><strong>Ferramenta de Recomendação e Otimização</strong><br>Dose, apresentação e volume — sem tabela horizontal.</p>
-      <span class="review-badge">Versão em validação clínica</span>
+      <div class="brand-lockup">
+        <img class="brand-logo" src="./assets/icon-192.png" width="64" height="64" alt="">
+        <div class="brand-copy">
+          <h1>SRI Pediátrica — FRO</h1>
+          <p class="subtitle"><strong>Ferramenta de Recomendação e Otimização</strong><br>Dose, apresentação e volume — sem tabela horizontal.</p>
+          <span class="review-badge">Versão em validação clínica</span>
+        </div>
+      </div>
     </header>
 
     <section class="panel patient-panel" aria-labelledby="dados-paciente">

@@ -1,7 +1,7 @@
 # Revisão clínica e bibliográfica
 
-**Data da revisão:** 7 de agosto de 2026
-**Escopo:** cálculo de dose/volume, sequência rápida de intubação (SRI), reanimação pediátrica, antídotos e osmoterapia presentes na planilha institucional.
+**Data da revisão:** 11 de agosto de 2026
+**Escopo:** cálculo de dose/volume, sequência rápida de intubação (SRI), reanimação pediátrica, antídotos, osmoterapia e módulo experimental de frequência respiratória.
 **Situação:** material de apoio em validação; não substitui prescrição, protocolo institucional, farmacêutico clínico ou treinamento PALS/NRP.
 
 ## Método
@@ -34,6 +34,16 @@ Foram priorizadas diretrizes publicadas por sociedades médicas, algoritmos ofic
 | Flumazenil | Bula: >1 ano, 0,01 mg/kg até 0,2 mg por dose; repetir até total 0,05 mg/kg ou 1 mg; risco de convulsões/ressedação | Limite inicial de 0,2 mg, alerta etário e alerta de alto risco em epilepsia, uso crônico de benzodiazepínico ou intoxicação mista |
 | Manitol | Bula exige avaliação renal, cardíaca, pulmonar, osmolaridade e eletrólitos. BTF pediátrica não encontrou evidência elegível para manitol no TCE grave e favorece solução hipertônica em cenários específicos | Mantida faixa institucional apenas como osmoterapia conforme protocolo; alerta para anúria, hipovolemia grave, edema pulmonar e incerteza em TCE pediátrico |
 
+## Frequência respiratória e sensores do celular
+
+A contagem manual por 60 segundos é a referência do módulo. O botão registra um ciclo respiratório por toque, permite desfazer o último toque e identifica como incompleta qualquer medição encerrada antes de 60 segundos. Contagens menores que 15 segundos são rejeitadas. A recomendação de observar tórax/abdome e contar por um minuto completo foi baseada em material clínico da OMS.
+
+A leitura pelo celular é um protótipo comparativo, não um monitor. Após 5 segundos para posicionamento, o navegador coleta aceleração nos três eixos e no vetor de magnitude. O processamento remove tendência lenta, limita artefatos extremos e procura autocorrelação periódica entre 8 e 100 irpm. A frequência só é mostrada após pelo menos 20 segundos e quando a qualidade matemática mínima é atingida; ausência de eventos, saída da tela, coleta curta e sinal insuficiente encerram ou rejeitam a leitura.
+
+O algoritmo foi verificado apenas com sinais sintéticos regulares de 18–72 irpm e ruído aleatório. Isso testa a implementação, mas **não constitui validação clínica**. Ainda faltam comparação prospectiva simultânea com contagem manual e monitor respiratório validado, diferentes modelos de celular, posições, roupas, faixas etárias, movimentos, choro e doenças respiratórias. Nenhum alerta ou conduta do programa depende do sensor.
+
+Acesso a acelerômetro/giroscópio depende de HTTPS, permissão e implementação do navegador. A Anvisa informa que software que calcula sinais vitais a partir de sensores para finalidade médica pode exigir regularização e estudos clínicos robustos. Por isso, esta função permanece identificada como experimental e separada dos cálculos de medicamentos.
+
 ## Fontes principais
 
 1. [AHA/AAP — Pediatric Advanced Life Support 2025](https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support)
@@ -56,6 +66,11 @@ Foram priorizadas diretrizes publicadas por sociedades médicas, algoritmos ofic
 18. [DailyMed — fentanil](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c5d40297-b769-48cc-9f84-f98b7a333507)
 19. [DailyMed — midazolam](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=affecd4d-1f78-4bbe-5a8d-86849bbdc520)
 20. [DailyMed — manitol](https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=d12cc802-b538-4065-a264-f474ff3b3043)
+21. [OMS — avaliação de tosse ou dificuldade respiratória em crianças](https://www.ncbi.nlm.nih.gov/books/NBK143752/)
+22. [Respiratory signal derived from the smartphone built-in accelerometer](https://pubmed.ncbi.nlm.nih.gov/26737847/)
+23. [W3C — Device Orientation and Motion](https://www.w3.org/TR/orientation-event/)
+24. [FDA — riscos de monitores infantis não autorizados](https://www.fda.gov/medical-devices/safety-communications/do-not-use-unauthorized-infant-devices-monitoring-vital-signs-fda-safety-communication)
+25. [Anvisa — perguntas e respostas sobre a RDC 657/2022](https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/software-como-dispositivo-medico-perguntas-e-respostas/perguntas-respostas-rdc-657-de-2022-v1-01-09-2022.pdf)
 
 ## Limites que permanecem
 
@@ -63,3 +78,4 @@ Foram priorizadas diretrizes publicadas por sociedades médicas, algoritmos ofic
 - A faixa de rocurônio varia entre bula, estudos, anestesia eletiva e protocolos de emergência; o serviço precisa aprovar a dose-alvo.
 - Apresentações brasileiras podem diferir das bulas usadas como referência. O rótulo físico e a farmácia do serviço prevalecem.
 - O programa não realiza diagnóstico, não recomenda automaticamente um agente e não substitui checagem independente do preparo.
+- A frequência respiratória calculada pelo sensor não foi validada em crianças e não pode ser usada como monitor, alarme ou base isolada para decisão clínica.

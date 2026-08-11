@@ -265,15 +265,19 @@
     .status-line[hidden] { display: none; }
     .status-line.error { color: var(--danger); font-weight: 750; }
     .status-line.warning { color: var(--warning); font-weight: 700; }
+    input[aria-invalid="true"] { border-color: var(--danger) !important; }
 
     .clinical-panel,
-    .checklist-panel { margin-top: 12px; }
+    .checklist-panel,
+    .vitals-panel { margin-top: 12px; }
 
     .clinical-panel > details,
-    .checklist-panel > details { border: 0; }
+    .checklist-panel > details,
+    .vitals-panel > details { border: 0; }
 
     .clinical-panel > details > summary,
-    .checklist-panel > details > summary {
+    .checklist-panel > details > summary,
+    .vitals-panel > details > summary {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -290,7 +294,8 @@
     }
 
     .clinical-body,
-    .checklist-body { padding: 0 16px 16px; }
+    .checklist-body,
+    .vitals-body { padding: 0 16px 16px; }
 
     fieldset {
       margin: 0;
@@ -358,6 +363,182 @@
     }
 
     .clinical-alert strong { display: block; margin-bottom: 2px; }
+
+    .sensor-warning {
+      margin-bottom: 12px;
+      padding: 11px 12px;
+      border-left: 4px solid var(--warning-line);
+      border-radius: 10px;
+      background: var(--warning-bg);
+      color: var(--warning-ink);
+      font-size: .86rem;
+    }
+
+    .sensor-warning strong { display: block; margin-bottom: 2px; }
+
+    .respiration-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .measurement-card {
+      min-width: 0;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface-soft);
+    }
+
+    .measurement-card h3,
+    .vitals-entry h3 { margin: 0; font-size: 1rem; }
+
+    .measurement-help {
+      margin: 5px 0 12px;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .measurement-readout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .measurement-value {
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+    }
+
+    .measurement-value span {
+      display: block;
+      color: var(--muted);
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+    }
+
+    .measurement-value strong {
+      display: block;
+      margin-top: 2px;
+      color: var(--ink);
+      font-size: 1.35rem;
+      line-height: 1.15;
+    }
+
+    .breath-button {
+      display: grid;
+      width: 100%;
+      min-height: 118px;
+      place-items: center;
+      align-content: center;
+      gap: 5px;
+      padding: 14px;
+      border: 2px solid var(--brand);
+      border-radius: 18px;
+      background: var(--brand);
+      color: var(--on-brand);
+      font-weight: 850;
+      cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .breath-button:active:not(:disabled) { transform: scale(.985); }
+    .breath-button:disabled { border-color: var(--line); background: var(--line); color: var(--muted); cursor: not-allowed; }
+    .breath-button svg { width: 42px; height: 42px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+    .breath-button small { font-size: .78rem; font-weight: 700; opacity: .9; }
+
+    .measurement-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .measurement-actions .button { min-width: 0; padding-inline: 10px; font-size: .84rem; }
+    .measurement-actions .button.primary-action { grid-column: 1 / -1; }
+
+    .measurement-status {
+      min-height: 2.7em;
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .measurement-status.warning { color: var(--warning); font-weight: 700; }
+    .measurement-status.error { color: var(--danger); font-weight: 750; }
+    .measurement-status.success { color: var(--brand-ink); font-weight: 750; }
+
+    .quality-meter {
+      height: 8px;
+      margin-top: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--line);
+    }
+
+    .quality-meter span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--warning-line);
+      transition: width .2s ease;
+    }
+
+    .comparison-box {
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--notice-bg);
+      color: var(--brand-ink);
+      font-size: .86rem;
+    }
+
+    .comparison-box strong { display: block; margin-bottom: 3px; }
+
+    .vitals-entry {
+      margin-top: 12px;
+      padding-top: 13px;
+      border-top: 1px solid var(--line);
+    }
+
+    .vitals-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    .vital-field { min-width: 0; }
+    .vital-field label { margin-bottom: 4px; font-size: .78rem; }
+    .vital-field input,
+    .vital-field select {
+      width: 100%;
+      min-height: 48px;
+      padding: 9px 10px;
+      border: 1px solid var(--input-line);
+      border-radius: 10px;
+      background: var(--input-bg);
+      color: var(--ink);
+    }
+
+    .vital-field.wide { grid-column: 1 / -1; }
+    .vitals-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+    .vitals-footer .measurement-status { flex: 1 1 180px; margin: 0; min-height: 0; }
+
+    @media (min-width: 760px) {
+      .respiration-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .vitals-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .vital-field.wide { grid-column: span 2; }
+    }
 
     .checklist-list {
       display: grid;
@@ -833,6 +1014,83 @@
       </div>
     </section>
 
+    <section class="panel vitals-panel" aria-label="Respiração e sinais vitais">
+      <details id="vitals-check">
+        <summary>
+          <span>Respiração e sinais vitais</span>
+          <span id="vitals-summary" class="summary-note">manual + experimental</span>
+        </summary>
+        <div class="vitals-body">
+          <div class="sensor-warning">
+            <strong>Leitura por movimento é experimental.</strong>
+            Compare sempre com a contagem manual. Não use o resultado do celular para indicar, adiar ou modificar uma conduta e não interrompa a avaliação clínica para completar a medição.
+          </div>
+
+          <div class="respiration-grid">
+            <section class="measurement-card" aria-labelledby="manual-resp-title">
+              <h3 id="manual-resp-title">Contagem manual — referência</h3>
+              <p class="measurement-help">Inicie e toque uma vez a cada ciclo respiratório completo durante 60 segundos.</p>
+              <div class="measurement-readout">
+                <div class="measurement-value"><span>Contagem</span><strong id="manualBreathCount">0</strong></div>
+                <div class="measurement-value"><span id="manualBreathTimeLabel">Tempo restante</span><strong id="manualBreathTime">60 s</strong></div>
+              </div>
+              <button id="manualBreathTap" class="breath-button" type="button" disabled aria-describedby="manualBreathStatus">
+                <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M23 13v22M21 19c-3-6-7-8-10-5-4 4-6 12-6 20 0 4 3 6 7 5 6-1 9-6 9-12M27 19c3-6 7-8 10-5 4 4 6 12 6 20 0 4-3 6-7 5-6-1-9-6-9-12"/></svg>
+                <span>Registrar respiração</span>
+                <small>um toque por ciclo</small>
+              </button>
+              <div class="measurement-actions">
+                <button id="manualBreathStart" class="button primary-action" type="button">Iniciar 60 segundos</button>
+                <button id="manualBreathUndo" class="button secondary" type="button" disabled>Desfazer toque</button>
+                <button id="manualBreathFinish" class="button secondary" type="button" disabled>Finalizar agora</button>
+              </div>
+              <p id="manualBreathStatus" class="measurement-status" role="status" aria-live="polite">Pronta para iniciar.</p>
+            </section>
+
+            <section class="measurement-card" aria-labelledby="sensor-resp-title">
+              <h3 id="sensor-resp-title">Movimento do tórax — experimental</h3>
+              <p class="measurement-help">Com supervisão contínua, coloque o celular estável sobre a região toracoabdominal. Nunca cubra face ou pescoço.</p>
+              <div class="measurement-readout">
+                <div class="measurement-value"><span>Resultado</span><strong id="sensorBreathRate">—</strong></div>
+                <div class="measurement-value"><span id="sensorBreathTimeLabel">Tempo restante</span><strong id="sensorBreathTime">60 s</strong></div>
+              </div>
+              <div class="quality-meter" aria-hidden="true"><span id="sensorQualityBar"></span></div>
+              <div class="measurement-actions">
+                <button id="sensorBreathStart" class="button primary-action" type="button">Iniciar sensor</button>
+                <button id="sensorBreathStop" class="button secondary" type="button" disabled>Interromper</button>
+                <button id="sensorBreathReset" class="button secondary" type="button">Limpar leitura</button>
+              </div>
+              <p id="sensorBreathStatus" class="measurement-status" role="status" aria-live="polite">O aparelho pedirá acesso ao movimento. Haverá 5 segundos para posicioná-lo.</p>
+            </section>
+          </div>
+
+          <div id="respirationComparison" class="comparison-box" role="status" aria-live="polite">
+            <strong>Comparação</strong>
+            Faça as duas medições para ver a diferença. A contagem manual continua sendo a referência.
+          </div>
+
+          <section class="vitals-entry" aria-labelledby="manual-vitals-title">
+            <h3 id="manual-vitals-title">Sinais vitais informados pela médica</h3>
+            <p class="measurement-help">Digite somente valores obtidos por avaliação clínica ou equipamento apropriado. Nada é armazenado.</p>
+            <div class="vitals-grid">
+              <div class="vital-field"><label for="vitalHeartRate">FC (bpm)</label><input id="vitalHeartRate" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 120"></div>
+              <div class="vital-field"><label for="vitalSpo2">SpO₂ (%)</label><input id="vitalSpo2" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 97"></div>
+              <div class="vital-field"><label for="vitalTemperature">Temperatura (°C)</label><input id="vitalTemperature" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 37,2"></div>
+              <div class="vital-field"><label for="vitalCapillary">Enchimento capilar (s)</label><input id="vitalCapillary" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 2"></div>
+              <div class="vital-field"><label for="vitalSystolic">PA sistólica (mmHg)</label><input id="vitalSystolic" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 90"></div>
+              <div class="vital-field"><label for="vitalDiastolic">PA diastólica (mmHg)</label><input id="vitalDiastolic" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 55"></div>
+              <div class="vital-field wide"><label for="vitalConsciousness">Consciência (AVPU)</label><select id="vitalConsciousness"><option value="">Não informado</option><option value="A">A — alerta</option><option value="V">V — responde à voz</option><option value="P">P — responde à dor</option><option value="U">U — não responde</option></select></div>
+              <div class="vital-field wide"><label for="vitalSupport">Oxigênio/suporte em uso</label><input id="vitalSupport" type="text" maxlength="80" autocomplete="off" placeholder="Ex.: cateter 2 L/min"></div>
+            </div>
+            <div class="vitals-footer">
+              <button id="clearVitals" class="button secondary" type="button">Limpar sinais vitais</button>
+              <p id="vitalsStatus" class="measurement-status" role="status" aria-live="polite">Nenhum sinal vital informado.</p>
+            </div>
+          </section>
+        </div>
+      </details>
+    </section>
+
     <section class="panel clinical-panel" aria-label="Checagem de segurança clínica">
       <details id="clinical-check">
         <summary>
@@ -1193,6 +1451,34 @@
     const resetPreparationSettingsButton = document.getElementById("resetPreparationSettings");
     const preparationModeSummary = document.getElementById("preparationModeSummary");
     const configStatus = document.getElementById("configStatus");
+    const manualBreathCount = document.getElementById("manualBreathCount");
+    const manualBreathTimeLabel = document.getElementById("manualBreathTimeLabel");
+    const manualBreathTime = document.getElementById("manualBreathTime");
+    const manualBreathTap = document.getElementById("manualBreathTap");
+    const manualBreathStart = document.getElementById("manualBreathStart");
+    const manualBreathUndo = document.getElementById("manualBreathUndo");
+    const manualBreathFinish = document.getElementById("manualBreathFinish");
+    const manualBreathStatus = document.getElementById("manualBreathStatus");
+    const sensorBreathRate = document.getElementById("sensorBreathRate");
+    const sensorBreathTimeLabel = document.getElementById("sensorBreathTimeLabel");
+    const sensorBreathTime = document.getElementById("sensorBreathTime");
+    const sensorBreathStart = document.getElementById("sensorBreathStart");
+    const sensorBreathStop = document.getElementById("sensorBreathStop");
+    const sensorBreathReset = document.getElementById("sensorBreathReset");
+    const sensorBreathStatus = document.getElementById("sensorBreathStatus");
+    const sensorQualityBar = document.getElementById("sensorQualityBar");
+    const respirationComparison = document.getElementById("respirationComparison");
+    const vitalsSummary = document.getElementById("vitals-summary");
+    const vitalsStatus = document.getElementById("vitalsStatus");
+    const clearVitalsButton = document.getElementById("clearVitals");
+    const manualVitalInputs = [...document.querySelectorAll("#vitalHeartRate, #vitalSpo2, #vitalTemperature, #vitalCapillary, #vitalSystolic, #vitalDiastolic, #vitalConsciousness, #vitalSupport")];
+
+    const RESPIRATION_DURATION_MS = 60000;
+    const SENSOR_POSITIONING_MS = 5000;
+    const respirationState = {
+      manual: { running: false, startedAt: null, count: 0, taps: [], timer: null, result: null },
+      sensor: { phase: "idle", positioningStartedAt: null, measurementStartedAt: null, samples: [], timer: null, result: null, wakeLock: null }
+    };
 
     function escapeHtml(value) {
       return String(value).replace(/[&<>"']/g, character => ({
@@ -1415,6 +1701,483 @@
       if (!normalized) return null;
       const number = Number(normalized);
       return Number.isFinite(number) ? number : NaN;
+    }
+
+    function setMeasurementStatus(element, text, tone = "") {
+      element.className = `measurement-status${tone ? ` ${tone}` : ""}`;
+      element.textContent = text;
+    }
+
+    function respiratoryRate(count, elapsedMs) {
+      if (!Number.isFinite(count) || count < 0 || !Number.isFinite(elapsedMs) || elapsedMs <= 0) return null;
+      return count * 60000 / elapsedMs;
+    }
+
+    function intervalRegularity(timestamps) {
+      if (!Array.isArray(timestamps) || timestamps.length < 4) return null;
+      const intervals = timestamps.slice(1).map((time, index) => time - timestamps[index]);
+      const average = intervals.reduce((sum, value) => sum + value, 0) / intervals.length;
+      if (!average) return null;
+      const variance = intervals.reduce((sum, value) => sum + (value - average) ** 2, 0) / intervals.length;
+      return Math.sqrt(variance) / average;
+    }
+
+    function updateManualRespirationDisplay(remainingMs = RESPIRATION_DURATION_MS) {
+      manualBreathCount.textContent = String(respirationState.manual.count);
+      manualBreathTime.textContent = `${Math.max(0, Math.ceil(remainingMs / 1000))} s`;
+      manualBreathUndo.disabled = !respirationState.manual.running || respirationState.manual.count === 0;
+    }
+
+    function startManualRespiration() {
+      const manual = respirationState.manual;
+      if (manual.timer) window.clearInterval(manual.timer);
+      manual.running = true;
+      manual.startedAt = performance.now();
+      manual.count = 0;
+      manual.taps = [];
+      manual.result = null;
+      manualBreathStart.disabled = true;
+      manualBreathTap.disabled = false;
+      manualBreathFinish.disabled = false;
+      manualBreathStart.textContent = "Contagem em andamento";
+      manualBreathTimeLabel.textContent = "Tempo restante";
+      setMeasurementStatus(manualBreathStatus, "Observe tórax ou abdome e toque uma vez por ciclo.", "success");
+      updateManualRespirationDisplay();
+      updateRespirationComparison();
+      manual.timer = window.setInterval(() => {
+        const elapsed = performance.now() - manual.startedAt;
+        const remaining = RESPIRATION_DURATION_MS - elapsed;
+        updateManualRespirationDisplay(remaining);
+        if (remaining <= 0) finishManualRespiration(true);
+      }, 100);
+      manualBreathTap.focus();
+    }
+
+    function registerManualBreath() {
+      const manual = respirationState.manual;
+      if (!manual.running) return;
+      manual.count += 1;
+      manual.taps.push(performance.now());
+      if (navigator.vibrate) navigator.vibrate(18);
+      updateManualRespirationDisplay(RESPIRATION_DURATION_MS - (performance.now() - manual.startedAt));
+    }
+
+    function undoManualBreath() {
+      const manual = respirationState.manual;
+      if (!manual.running || manual.count === 0) return;
+      manual.count -= 1;
+      manual.taps.pop();
+      updateManualRespirationDisplay(RESPIRATION_DURATION_MS - (performance.now() - manual.startedAt));
+      setMeasurementStatus(manualBreathStatus, "Último toque removido. Continue a contagem.", "success");
+    }
+
+    function finishManualRespiration(completed = false) {
+      const manual = respirationState.manual;
+      if (!manual.running) return;
+      const measuredElapsed = performance.now() - manual.startedAt;
+      const elapsedMs = completed ? RESPIRATION_DURATION_MS : Math.min(measuredElapsed, RESPIRATION_DURATION_MS);
+      window.clearInterval(manual.timer);
+      manual.timer = null;
+      manual.running = false;
+      manualBreathStart.disabled = false;
+      manualBreathTap.disabled = true;
+      manualBreathUndo.disabled = true;
+      manualBreathFinish.disabled = true;
+      manualBreathStart.textContent = "Repetir 60 segundos";
+      manualBreathCount.textContent = String(manual.count);
+      manualBreathTimeLabel.textContent = "Tempo contado";
+      manualBreathTime.textContent = `${Math.round(elapsedMs / 1000)} s`;
+
+      if (elapsedMs < 15000 || manual.count < 2) {
+        manual.result = null;
+        setMeasurementStatus(manualBreathStatus, "Contagem curta demais. Repita e complete 60 segundos.", "error");
+        updateRespirationComparison();
+        return;
+      }
+
+      const bpm = respiratoryRate(manual.count, elapsedMs);
+      const regularity = intervalRegularity(manual.taps);
+      manual.result = {
+        bpm,
+        count: manual.count,
+        elapsedSec: elapsedMs / 1000,
+        complete: completed,
+        regularity
+      };
+      const rhythm = regularity === null ? "" : regularity > 0.25 ? " Ritmo dos toques variável." : " Ritmo dos toques relativamente regular.";
+      const prefix = completed ? "Contagem completa" : "Estimativa incompleta";
+      setMeasurementStatus(manualBreathStatus, `${prefix}: ${Math.round(bpm)} irpm em ${Math.round(elapsedMs / 1000)} s.${rhythm}`, completed ? "success" : "warning");
+      updateRespirationComparison();
+    }
+
+    function median(values) {
+      if (!values.length) return 0;
+      const sorted = [...values].sort((a, b) => a - b);
+      const middle = Math.floor(sorted.length / 2);
+      return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+    }
+
+    function movingAverage(values, width) {
+      const size = Math.max(1, Math.round(width));
+      const output = new Array(values.length);
+      let sum = 0;
+      for (let index = 0; index < values.length; index += 1) {
+        sum += values[index];
+        if (index >= size) sum -= values[index - size];
+        output[index] = sum / Math.min(index + 1, size);
+      }
+      return output;
+    }
+
+    function resampleMotion(samples, field, frequency = 20) {
+      if (!Array.isArray(samples) || samples.length < 30) return null;
+      const ordered = samples.filter(sample => Number.isFinite(sample.t) && Number.isFinite(sample[field])).sort((a, b) => a.t - b.t);
+      if (ordered.length < 30) return null;
+      const step = 1000 / frequency;
+      const start = ordered[0].t;
+      const end = ordered[ordered.length - 1].t;
+      if (end - start < 15000) return null;
+      const values = [];
+      let sourceIndex = 1;
+      for (let time = start; time <= end && values.length < 1800; time += step) {
+        while (sourceIndex < ordered.length && ordered[sourceIndex].t < time) sourceIndex += 1;
+        if (sourceIndex >= ordered.length) break;
+        const previous = ordered[sourceIndex - 1];
+        const next = ordered[sourceIndex];
+        const span = next.t - previous.t;
+        const ratio = span > 0 ? (time - previous.t) / span : 0;
+        values.push(previous[field] + (next[field] - previous[field]) * Math.max(0, Math.min(1, ratio)));
+      }
+      return { values, frequency, durationMs: end - start, sourceRate: ordered.length / ((end - start) / 1000) };
+    }
+
+    function scoreRespiratoryAxis(samples, field) {
+      const series = resampleMotion(samples, field);
+      if (!series || series.values.length < 300) return null;
+      const shortSmoothed = movingAverage(series.values, Math.max(2, series.frequency * 0.12));
+      const baseline = movingAverage(shortSmoothed, series.frequency * 3);
+      let signal = shortSmoothed.map((value, index) => value - baseline[index]);
+      const center = median(signal);
+      const deviations = signal.map(value => Math.abs(value - center));
+      const mad = median(deviations) || 1e-6;
+      const limit = mad * 6;
+      signal = signal.map(value => Math.max(center - limit, Math.min(center + limit, value)) - center);
+      const energy = signal.reduce((sum, value) => sum + value * value, 0) / signal.length;
+      if (!Number.isFinite(energy) || energy < 1e-8) return null;
+
+      const minLag = Math.floor(series.frequency * 60 / 100);
+      const maxLag = Math.min(Math.ceil(series.frequency * 60 / 8), Math.floor(signal.length / 3));
+      let bestLag = null;
+      let bestCorrelation = -1;
+      const correlations = new Map();
+      for (let lag = minLag; lag <= maxLag; lag += 1) {
+        let product = 0;
+        let firstEnergy = 0;
+        let secondEnergy = 0;
+        for (let index = lag; index < signal.length; index += 1) {
+          const first = signal[index];
+          const second = signal[index - lag];
+          product += first * second;
+          firstEnergy += first * first;
+          secondEnergy += second * second;
+        }
+        const correlation = product / Math.sqrt(Math.max(firstEnergy * secondEnergy, 1e-12));
+        correlations.set(lag, correlation);
+        if (correlation > bestCorrelation) {
+          bestCorrelation = correlation;
+          bestLag = lag;
+        }
+      }
+      if (!bestLag || !Number.isFinite(bestCorrelation)) return null;
+      const strongLocalPeaks = [];
+      for (let lag = minLag + 1; lag < maxLag; lag += 1) {
+        const value = correlations.get(lag);
+        if (value >= correlations.get(lag - 1) && value > correlations.get(lag + 1) && value >= Math.max(0.25, bestCorrelation * 0.85)) {
+          strongLocalPeaks.push({ lag, correlation: value });
+        }
+      }
+      if (strongLocalPeaks.length) {
+        bestLag = strongLocalPeaks[0].lag;
+        bestCorrelation = strongLocalPeaks[0].correlation;
+      }
+      const bpm = 60 * series.frequency / bestLag;
+      const coverage = Math.min(1, series.durationMs / RESPIRATION_DURATION_MS);
+      const sampling = Math.min(1, series.sourceRate / 15);
+      const quality = Math.max(0, Math.min(1, bestCorrelation * coverage * sampling));
+      return { field, bpm, correlation: bestCorrelation, quality, sourceRate: series.sourceRate, durationMs: series.durationMs };
+    }
+
+    function analyzeRespirationSignal(samples) {
+      if (!Array.isArray(samples) || samples.length < 200) return null;
+      const candidates = ["x", "y", "z", "magnitude"]
+        .map(field => scoreRespiratoryAxis(samples, field))
+        .filter(Boolean)
+        .filter(candidate => candidate.bpm >= 8 && candidate.bpm <= 100)
+        .sort((a, b) => b.quality - a.quality);
+      if (!candidates.length) return null;
+      const best = candidates[0];
+      const qualityLabel = best.quality >= 0.55 ? "boa" : best.quality >= 0.32 ? "moderada" : "baixa";
+      return { ...best, qualityLabel, complete: best.durationMs >= 55000 };
+    }
+
+    async function acquireWakeLock() {
+      try {
+        if ("wakeLock" in navigator) respirationState.sensor.wakeLock = await navigator.wakeLock.request("screen");
+      } catch {}
+    }
+
+    async function releaseWakeLock() {
+      try { await respirationState.sensor.wakeLock?.release(); } catch {}
+      respirationState.sensor.wakeLock = null;
+    }
+
+    function handleDeviceMotion(event) {
+      const sensor = respirationState.sensor;
+      if (sensor.phase !== "measuring") return;
+      const acceleration = event.accelerationIncludingGravity || event.acceleration;
+      const x = Number(acceleration?.x);
+      const y = Number(acceleration?.y);
+      const z = Number(acceleration?.z);
+      if (![x, y, z].every(Number.isFinite)) return;
+      sensor.samples.push({ t: performance.now(), x, y, z, magnitude: Math.hypot(x, y, z) });
+      if (sensor.samples.length > 10000) sensor.samples.shift();
+    }
+
+    function updateSensorProgress() {
+      const sensor = respirationState.sensor;
+      if (sensor.phase === "positioning") {
+        const remaining = SENSOR_POSITIONING_MS - (performance.now() - sensor.positioningStartedAt);
+        sensorBreathTimeLabel.textContent = "Posicionar";
+        sensorBreathTime.textContent = `${Math.max(0, Math.ceil(remaining / 1000))} s`;
+        setMeasurementStatus(sensorBreathStatus, `Posicione e estabilize o celular. A coleta começa em ${Math.max(0, Math.ceil(remaining / 1000))} s.`, "warning");
+        if (remaining <= 0) {
+          sensor.phase = "measuring";
+          sensor.samples = [];
+          sensor.measurementStartedAt = performance.now();
+          sensorBreathTimeLabel.textContent = "Tempo restante";
+          sensorBreathTime.textContent = "60 s";
+          setMeasurementStatus(sensorBreathStatus, "Coletando movimento. Mantenha o aparelho imóvel e observe a criança.", "success");
+        }
+        return;
+      }
+      if (sensor.phase !== "measuring") return;
+      const elapsed = performance.now() - sensor.measurementStartedAt;
+      const remaining = RESPIRATION_DURATION_MS - elapsed;
+      sensorBreathTime.textContent = `${Math.max(0, Math.ceil(remaining / 1000))} s`;
+      const expectedSamples = Math.max(1, elapsed / 1000 * 15);
+      const collection = Math.min(1, sensor.samples.length / expectedSamples);
+      sensorQualityBar.style.width = `${Math.round(collection * 45)}%`;
+      if (elapsed > 3000 && sensor.samples.length < 10) {
+        cancelSensorRespiration("O navegador não forneceu dados do sensor. Tente no Safari/Chrome do próprio celular.", "error");
+        return;
+      }
+      if (remaining <= 0) finishSensorRespiration(true);
+    }
+
+    async function startSensorRespiration() {
+      resetSensorRespiration();
+      if (!("DeviceMotionEvent" in window)) {
+        setMeasurementStatus(sensorBreathStatus, "Este navegador não disponibiliza o sensor de movimento.", "error");
+        return;
+      }
+      try {
+        if (typeof DeviceMotionEvent.requestPermission === "function") {
+          const permission = await DeviceMotionEvent.requestPermission();
+          if (permission !== "granted") {
+            setMeasurementStatus(sensorBreathStatus, "Permissão de movimento negada. Libere o acesso no navegador para testar.", "error");
+            return;
+          }
+        }
+      } catch {
+        setMeasurementStatus(sensorBreathStatus, "Não foi possível solicitar acesso ao sensor neste navegador.", "error");
+        return;
+      }
+      const sensor = respirationState.sensor;
+      sensor.phase = "positioning";
+      sensor.positioningStartedAt = performance.now();
+      sensorBreathStart.disabled = true;
+      sensorBreathStop.disabled = false;
+      sensorBreathRate.textContent = "—";
+      sensorBreathTimeLabel.textContent = "Posicionar";
+      sensorQualityBar.style.width = "0";
+      window.addEventListener("devicemotion", handleDeviceMotion);
+      await acquireWakeLock();
+      updateSensorProgress();
+      sensor.timer = window.setInterval(updateSensorProgress, 100);
+    }
+
+    async function stopSensorCollection() {
+      const sensor = respirationState.sensor;
+      if (sensor.timer) window.clearInterval(sensor.timer);
+      sensor.timer = null;
+      window.removeEventListener("devicemotion", handleDeviceMotion);
+      sensor.phase = "idle";
+      sensorBreathStart.disabled = false;
+      sensorBreathStop.disabled = true;
+      await releaseWakeLock();
+    }
+
+    async function finishSensorRespiration(completed = false) {
+      const sensor = respirationState.sensor;
+      if (sensor.phase === "positioning") {
+        await cancelSensorRespiration("Leitura interrompida antes do início da coleta.", "warning");
+        return;
+      }
+      if (sensor.phase !== "measuring") return;
+      const elapsedMs = performance.now() - sensor.measurementStartedAt;
+      const samples = [...sensor.samples];
+      await stopSensorCollection();
+      sensorBreathTimeLabel.textContent = "Tempo coletado";
+      sensorBreathTime.textContent = `${Math.round(elapsedMs / 1000)} s`;
+      if (elapsedMs < 20000) {
+        sensor.result = null;
+        setMeasurementStatus(sensorBreathStatus, "Coleta curta demais. Repita e mantenha o celular estável por 60 segundos.", "error");
+        updateRespirationComparison();
+        return;
+      }
+      const result = analyzeRespirationSignal(samples);
+      if (!result || result.quality < 0.2) {
+        sensor.result = null;
+        sensorBreathRate.textContent = "—";
+        sensorQualityBar.style.width = "12%";
+        setMeasurementStatus(sensorBreathStatus, "Sinal insuficiente ou com movimento excessivo. Não foi gerada uma frequência.", "error");
+        updateRespirationComparison();
+        return;
+      }
+      sensor.result = { ...result, complete: completed && result.complete };
+      sensorBreathRate.textContent = `${Math.round(result.bpm)} irpm`;
+      sensorQualityBar.style.width = `${Math.round(result.quality * 100)}%`;
+      const prefix = sensor.result.complete ? "Coleta completa" : "Estimativa incompleta";
+      const tone = result.qualityLabel === "baixa" ? "warning" : "success";
+      setMeasurementStatus(sensorBreathStatus, `${prefix}: ${Math.round(result.bpm)} irpm; qualidade matemática ${result.qualityLabel}. Resultado experimental.`, tone);
+      updateRespirationComparison();
+    }
+
+    async function cancelSensorRespiration(message = "Leitura interrompida.", tone = "warning") {
+      const sensor = respirationState.sensor;
+      const collectedMs = sensor.phase === "measuring" && sensor.measurementStartedAt
+        ? performance.now() - sensor.measurementStartedAt
+        : 0;
+      await stopSensorCollection();
+      sensor.result = null;
+      sensorBreathRate.textContent = "—";
+      sensorBreathTimeLabel.textContent = "Tempo coletado";
+      sensorBreathTime.textContent = collectedMs ? `${Math.round(collectedMs / 1000)} s` : "—";
+      sensorQualityBar.style.width = "0";
+      setMeasurementStatus(sensorBreathStatus, message, tone);
+      updateRespirationComparison();
+    }
+
+    function resetSensorRespiration() {
+      const sensor = respirationState.sensor;
+      if (sensor.timer) window.clearInterval(sensor.timer);
+      window.removeEventListener("devicemotion", handleDeviceMotion);
+      releaseWakeLock();
+      sensor.phase = "idle";
+      sensor.positioningStartedAt = null;
+      sensor.measurementStartedAt = null;
+      sensor.samples = [];
+      sensor.result = null;
+      sensor.timer = null;
+      sensorBreathStart.disabled = false;
+      sensorBreathStop.disabled = true;
+      sensorBreathRate.textContent = "—";
+      sensorBreathTimeLabel.textContent = "Tempo restante";
+      sensorBreathTime.textContent = "60 s";
+      sensorQualityBar.style.width = "0";
+      setMeasurementStatus(sensorBreathStatus, "O aparelho pedirá acesso ao movimento. Haverá 5 segundos para posicioná-lo.");
+      updateRespirationComparison();
+    }
+
+    function updateRespirationComparison() {
+      const manual = respirationState.manual.result;
+      const sensor = respirationState.sensor.result;
+      if (manual && sensor) {
+        const difference = sensor.bpm - manual.bpm;
+        const absolute = Math.abs(difference);
+        const percentage = manual.bpm ? absolute / manual.bpm * 100 : 0;
+        const direction = difference > 0 ? "acima" : difference < 0 ? "abaixo" : "igual à";
+        const manualLabel = manual.complete ? "Manual" : "Manual incompleta";
+        const sensorLabel = sensor.complete ? "sensor" : "sensor incompleto";
+        const repeatNotice = manual.complete ? "" : " Repita a contagem manual por 60 segundos antes de interpretar.";
+        respirationComparison.innerHTML = `<strong>Comparação</strong>${manualLabel}: ${Math.round(manual.bpm)} irpm · ${sensorLabel}: ${Math.round(sensor.bpm)} irpm. O sensor ficou ${formatNumber(absolute)} irpm ${direction} contagem manual (${formatNumber(percentage)}% de diferença). Qualidade matemática: ${sensor.qualityLabel}.${repeatNotice}`;
+      } else if (manual) {
+        const label = manual.complete ? "Referência manual" : "Estimativa manual incompleta";
+        const notice = manual.complete ? "Faça a leitura experimental para comparar." : "Repita por 60 segundos antes de usar como referência.";
+        respirationComparison.innerHTML = `<strong>Comparação</strong>${label}: ${Math.round(manual.bpm)} irpm. ${notice}`;
+      } else if (sensor) {
+        const label = sensor.complete ? "Sensor experimental" : "Sensor experimental incompleto";
+        respirationComparison.innerHTML = `<strong>Comparação</strong>${label}: ${Math.round(sensor.bpm)} irpm. Faça a contagem manual completa antes de interpretar a diferença.`;
+      } else {
+        respirationComparison.innerHTML = "<strong>Comparação</strong>Faça as duas medições para ver a diferença. A contagem manual continua sendo a referência.";
+      }
+      vitalsSummary.textContent = manual
+        ? `${manual.complete ? "FR manual" : "FR est."} ${Math.round(manual.bpm)} irpm`
+        : "manual + experimental";
+    }
+
+    function validateManualVitals() {
+      const definitions = [
+        ["vitalHeartRate", "FC", 20, 300],
+        ["vitalSpo2", "SpO₂", 30, 100],
+        ["vitalTemperature", "temperatura", 25, 45],
+        ["vitalCapillary", "enchimento capilar", 0, 20],
+        ["vitalSystolic", "PA sistólica", 20, 250],
+        ["vitalDiastolic", "PA diastólica", 10, 180]
+      ];
+      const errors = [];
+      definitions.forEach(([id, label, minimum, maximum]) => {
+        const input = document.getElementById(id);
+        const value = parseNumber(input.value);
+        const invalid = value !== null && (!Number.isFinite(value) || value < minimum || value > maximum);
+        input.setAttribute("aria-invalid", String(invalid));
+        if (invalid) errors.push(label);
+      });
+      const systolic = parseNumber(document.getElementById("vitalSystolic").value);
+      const diastolic = parseNumber(document.getElementById("vitalDiastolic").value);
+      if (Number.isFinite(systolic) && Number.isFinite(diastolic) && diastolic >= systolic) {
+        document.getElementById("vitalSystolic").setAttribute("aria-invalid", "true");
+        document.getElementById("vitalDiastolic").setAttribute("aria-invalid", "true");
+        errors.push("PA: diastólica deve ser menor que a sistólica");
+      }
+      const filled = manualVitalInputs.filter(input => String(input.value).trim()).length;
+      if (errors.length) {
+        setMeasurementStatus(vitalsStatus, `Revise: ${errors.join(", ")}.`, "error");
+      } else if (filled) {
+        const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+        setMeasurementStatus(vitalsStatus, `${filled} campo${filled === 1 ? "" : "s"} informado${filled === 1 ? "" : "s"} às ${time}. Dados não armazenados.`, "success");
+      } else {
+        setMeasurementStatus(vitalsStatus, "Nenhum sinal vital informado.");
+      }
+    }
+
+    function clearManualVitals() {
+      manualVitalInputs.forEach(input => {
+        input.value = "";
+        input.removeAttribute("aria-invalid");
+      });
+      validateManualVitals();
+    }
+
+    function resetRespirationMeasurements() {
+      const manual = respirationState.manual;
+      if (manual.timer) window.clearInterval(manual.timer);
+      manual.running = false;
+      manual.startedAt = null;
+      manual.count = 0;
+      manual.taps = [];
+      manual.timer = null;
+      manual.result = null;
+      manualBreathStart.disabled = false;
+      manualBreathStart.textContent = "Iniciar 60 segundos";
+      manualBreathTimeLabel.textContent = "Tempo restante";
+      manualBreathTap.disabled = true;
+      manualBreathUndo.disabled = true;
+      manualBreathFinish.disabled = true;
+      updateManualRespirationDisplay();
+      setMeasurementStatus(manualBreathStatus, "Pronta para iniciar.");
+      resetSensorRespiration();
+      updateRespirationComparison();
     }
 
     function readAge() {
@@ -1912,6 +2675,28 @@
       });
     });
 
+    manualBreathStart.addEventListener("click", startManualRespiration);
+    manualBreathTap.addEventListener("click", registerManualBreath);
+    manualBreathUndo.addEventListener("click", undoManualBreath);
+    manualBreathFinish.addEventListener("click", () => finishManualRespiration(false));
+    sensorBreathStart.addEventListener("click", startSensorRespiration);
+    sensorBreathStop.addEventListener("click", () => finishSensorRespiration(false));
+    sensorBreathReset.addEventListener("click", resetSensorRespiration);
+    manualVitalInputs.forEach(input => {
+      input.addEventListener(input.tagName === "SELECT" ? "change" : "input", validateManualVitals);
+    });
+    clearVitalsButton.addEventListener("click", clearManualVitals);
+    document.getElementById("vitals-check").addEventListener("toggle", event => {
+      if (event.target.open) return;
+      if (respirationState.manual.running) finishManualRespiration(false);
+      if (respirationState.sensor.phase !== "idle") cancelSensorRespiration("Leitura interrompida porque o painel foi fechado.", "warning");
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && respirationState.sensor.phase !== "idle") {
+        cancelSensorRespiration("Leitura interrompida porque o aplicativo saiu da tela ativa.", "warning");
+      }
+    });
+
     document.getElementById("novoPaciente").addEventListener("click", () => {
       pesoInput.value = "";
       idadeInput.value = "";
@@ -1929,6 +2714,8 @@
       idadeStatus.className = "status-line warning";
       idadeStatus.textContent = "Informe a idade para alertas neonatal e de succinilcolina.";
       idadeStatus.hidden = false;
+      resetRespirationMeasurements();
+      clearManualVitals();
       render();
       pesoInput.focus();
     });
@@ -1954,7 +2741,7 @@
       navigator.serviceWorker.register("./sw.js").catch(() => {});
     }
 
-    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber });
+    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber, respiratoryRate, analyzeRespirationSignal });
     applyTheme(document.documentElement.dataset.theme, false);
     updateConnectionStatus();
     render();

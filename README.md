@@ -18,6 +18,9 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Oferece modo claro e escuro, inicia pela preferência do aparelho e memoriza somente a escolha visual.
 - Inclui uma área simples de diluições para ajustar proporções e volumes finais de reconstituição no aparelho em uso.
 - Uma alteração só passa a valer depois da confirmação da médica e pode ser restaurada aos valores padrão a qualquer momento.
+- Inclui contador respiratório manual de 60 segundos e leitura experimental pelo acelerômetro/giroscópio do celular.
+- Compara a leitura por movimento com a contagem manual e rejeita coleta curta, ausência de sensor ou sinal matematicamente insuficiente.
+- Permite anotar FC, SpO₂, temperatura, pressão arterial, enchimento capilar, consciência e suporte de oxigênio sem armazenar os dados.
 - Funciona offline após o primeiro acesso bem-sucedido.
 
 ## Fonte institucional
@@ -31,10 +34,19 @@ A matriz completa de evidências, decisões e limitações está em [`REVISAO_CL
 1. Abra <https://ikmaciel.github.io/SRI-Pediatria/>.
 2. Informe o peso e a idade.
 3. Abra `Checagem de segurança` quando houver comorbidades relevantes ou mais de um medicamento planejado.
-4. Selecione `SRI`, `Reanimação` ou `Outros`.
-5. Confira dose total e volume calculado.
-6. Quando houver diluição, confira separadamente o volume da ampola, o diluente e o volume final.
-7. Confirme no rótulo a concentração e siga o protocolo institucional antes da administração.
+4. Abra `Respiração e sinais vitais` para fazer a contagem manual ou testar o sensor de movimento.
+5. Selecione `SRI`, `Reanimação` ou `Outros`.
+6. Confira dose total e volume calculado.
+7. Quando houver diluição, confira separadamente o volume da ampola, o diluente e o volume final.
+8. Confirme no rótulo a concentração e siga o protocolo institucional antes da administração.
+
+## Respiração e sinais vitais
+
+O contador manual usa uma janela padrão de 60 segundos: inicie o cronômetro e toque uma vez por ciclo respiratório completo. Uma finalização antes de 15 segundos é rejeitada; medições entre 15 e 59 segundos aparecem explicitamente como estimativa incompleta.
+
+O modo `Movimento do tórax — experimental` solicita acesso ao acelerômetro/giroscópio, oferece 5 segundos para posicionar o aparelho e coleta até 60 segundos. O algoritmo procura periodicidade entre 8 e 100 irpm nos eixos do sensor, calcula uma qualidade matemática e não apresenta frequência quando a coleta é curta ou insuficiente. O telefone deve permanecer sob supervisão, nunca sobre face ou pescoço, e o resultado não substitui a contagem clínica nem equipamento médico validado.
+
+Os sinais vitais digitados e as duas medições respiratórias permanecem somente na memória da página atual. `Novo paciente` limpa todos esses valores.
 
 ## Diluições
 
@@ -53,3 +65,9 @@ O botão `Diluições`, no rodapé, permite editar diretamente a proporção de 
 ## Tecnologia
 
 HTML, CSS e JavaScript sem dependências externas. O `service worker` usa estratégia de rede primeiro e mantém uma cópia local para indisponibilidade de conexão.
+
+Teste do algoritmo respiratório:
+
+```powershell
+node .\tests\respiration.test.js
+```

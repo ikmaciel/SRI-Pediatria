@@ -40,7 +40,11 @@ A contagem manual por 60 segundos é a referência do módulo. O botão registra
 
 A leitura pelo celular é um protótipo comparativo, não um monitor. Após 5 segundos para posicionamento, o navegador coleta aceleração nos três eixos e no vetor de magnitude. O processamento remove tendência lenta, limita artefatos extremos e procura autocorrelação periódica entre 8 e 100 irpm. A frequência só é mostrada após pelo menos 20 segundos e quando a qualidade matemática mínima é atingida; ausência de eventos, saída da tela, coleta curta e sinal insuficiente encerram ou rejeitam a leitura.
 
-O algoritmo foi verificado apenas com sinais sintéticos regulares de 18–72 irpm e ruído aleatório. Isso testa a implementação, mas **não constitui validação clínica**. Ainda faltam comparação prospectiva simultânea com contagem manual e monitor respiratório validado, diferentes modelos de celular, posições, roupas, faixas etárias, movimentos, choro e doenças respiratórias. Nenhum alerta ou conduta do programa depende do sensor.
+Quando autorizado, o microfone funciona somente como confirmação secundária. O app processa blocos de áudio em memória, entre aproximadamente 80 e 2.000 Hz, e guarda apenas valores transitórios de intensidade e pico; não usa `MediaRecorder`, não cria arquivo e não envia som. A periodicidade acústica precisa concordar em até 20% com o movimento. O áudio recebe peso menor na combinação e é descartado se estiver baixo, saturado, sem periodicidade ou discordante. Sem movimento suficiente, nenhum resultado é produzido, mesmo que exista áudio.
+
+Microfones, posição física, capas, ganho automático, choro, fala, tosse e ruído ambiental variam muito. O navegador é solicitado a desabilitar cancelamento de eco, supressão de ruído e ganho automático, mas pode ignorar essas preferências. Estudos pediátricos recentes indicam viabilidade de ausculta com microfone de smartphone, sem validar este algoritmo ou seu uso em emergência.
+
+O algoritmo foi verificado apenas com sinais sintéticos regulares de 18–72 irpm, áudio concordante, áudio discordante, som baixo e ruído aleatório. Isso testa a implementação, mas **não constitui validação clínica**. Ainda faltam comparação prospectiva simultânea com contagem manual e monitor respiratório validado, diferentes modelos de celular, microfones, posições, roupas, faixas etárias, movimentos, choro e doenças respiratórias. Nenhum alerta ou conduta do programa depende do sensor.
 
 Acesso a acelerômetro/giroscópio depende de HTTPS, permissão e implementação do navegador. A Anvisa informa que software que calcula sinais vitais a partir de sensores para finalidade médica pode exigir regularização e estudos clínicos robustos. Por isso, esta função permanece identificada como experimental e separada dos cálculos de medicamentos.
 
@@ -71,6 +75,8 @@ Acesso a acelerômetro/giroscópio depende de HTTPS, permissão e implementaçã
 23. [W3C — Device Orientation and Motion](https://www.w3.org/TR/orientation-event/)
 24. [FDA — riscos de monitores infantis não autorizados](https://www.fda.gov/medical-devices/safety-communications/do-not-use-unauthorized-infant-devices-monitoring-vital-signs-fda-safety-communication)
 25. [Anvisa — perguntas e respostas sobre a RDC 657/2022](https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/software-como-dispositivo-medico-perguntas-e-respostas/perguntas-respostas-rdc-657-de-2022-v1-01-09-2022.pdf)
+26. [Lung auscultation using smartphone built-in microphone versus digital stethoscope — estudo pediátrico de viabilidade](https://www.minervamedica.it/en/journals/minerva-pediatrics/article.php?cod=R15Y2026N02A0155)
+27. [W3C — Media Capture and Streams](https://w3c.github.io/mediacapture-main/getusermedia.html)
 
 ## Limites que permanecem
 
@@ -79,3 +85,4 @@ Acesso a acelerômetro/giroscópio depende de HTTPS, permissão e implementaçã
 - Apresentações brasileiras podem diferir das bulas usadas como referência. O rótulo físico e a farmácia do serviço prevalecem.
 - O programa não realiza diagnóstico, não recomenda automaticamente um agente e não substitui checagem independente do preparo.
 - A frequência respiratória calculada pelo sensor não foi validada em crianças e não pode ser usada como monitor, alarme ou base isolada para decisão clínica.
+- A confirmação acústica não classifica sibilos, estertores, estridor ou qualquer doença; ela verifica apenas concordância rítmica com o movimento.

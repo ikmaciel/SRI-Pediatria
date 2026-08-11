@@ -19,7 +19,8 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Inclui uma área simples de diluições para ajustar proporções e volumes finais de reconstituição no aparelho em uso.
 - Uma alteração só passa a valer depois da confirmação da médica e pode ser restaurada aos valores padrão a qualquer momento.
 - Inclui contador respiratório manual de 60 segundos e leitura experimental pelo acelerômetro/giroscópio do celular.
-- Compara a leitura por movimento com a contagem manual e rejeita coleta curta, ausência de sensor ou sinal matematicamente insuficiente.
+- Pode usar o microfone como confirmação secundária: áudio baixo, saturado, ruidoso ou discordante é descartado e nunca gera resultado sozinho.
+- Compara a leitura por movimento/áudio com a contagem manual e rejeita coleta curta, ausência de sensor ou sinal matematicamente insuficiente.
 - Permite anotar FC, SpO₂, temperatura, pressão arterial, enchimento capilar, consciência e suporte de oxigênio sem armazenar os dados.
 - Funciona offline após o primeiro acesso bem-sucedido.
 
@@ -44,7 +45,9 @@ A matriz completa de evidências, decisões e limitações está em [`REVISAO_CL
 
 O contador manual usa uma janela padrão de 60 segundos: inicie o cronômetro e toque uma vez por ciclo respiratório completo. Uma finalização antes de 15 segundos é rejeitada; medições entre 15 e 59 segundos aparecem explicitamente como estimativa incompleta.
 
-O modo `Movimento do tórax — experimental` solicita acesso ao acelerômetro/giroscópio, oferece 5 segundos para posicionar o aparelho e coleta até 60 segundos. O algoritmo procura periodicidade entre 8 e 100 irpm nos eixos do sensor, calcula uma qualidade matemática e não apresenta frequência quando a coleta é curta ou insuficiente. O telefone deve permanecer sob supervisão, nunca sobre face ou pescoço, e o resultado não substitui a contagem clínica nem equipamento médico validado.
+O modo `Movimento + som — experimental` solicita acesso ao acelerômetro/giroscópio e, opcionalmente, ao microfone; oferece 5 segundos para posicionar o aparelho e coleta até 60 segundos. O algoritmo procura periodicidade entre 8 e 100 irpm nos eixos do sensor. O áudio é analisado localmente como envelope de intensidade e só participa do resultado quando encontra ritmo compatível com o movimento. Som baixo, saturação, falta de periodicidade, discordância ou permissão negada fazem o app usar somente o movimento. Nenhum arquivo de áudio é criado, salvo ou enviado.
+
+O telefone deve permanecer sob supervisão, nunca sobre face ou pescoço, e o resultado não substitui a contagem clínica nem equipamento médico validado.
 
 Os sinais vitais digitados e as duas medições respiratórias permanecem somente na memória da página atual. `Novo paciente` limpa todos esses valores.
 

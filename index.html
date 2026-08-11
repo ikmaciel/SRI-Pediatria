@@ -492,6 +492,49 @@
       transition: width .2s ease;
     }
 
+    .audio-option {
+      display: flex;
+      min-height: 44px;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      font-size: .8rem;
+      cursor: pointer;
+    }
+
+    .audio-option input { width: 22px; height: 22px; margin: 0; flex: 0 0 auto; accent-color: var(--brand); }
+
+    .audio-signal {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      min-height: 2.5em;
+      margin: 9px 0 0;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    .audio-dot {
+      width: 9px;
+      height: 9px;
+      margin-top: .35em;
+      flex: 0 0 9px;
+      border-radius: 50%;
+      background: var(--input-line);
+    }
+
+    .audio-signal[data-state="listening"] .audio-dot { background: var(--warning-line); }
+    .audio-signal[data-state="confirmed"] { color: var(--brand-ink); font-weight: 750; }
+    .audio-signal[data-state="confirmed"] .audio-dot { background: var(--brand); }
+    .audio-signal[data-state="rejected"] { color: var(--warning); font-weight: 700; }
+    .audio-signal[data-state="rejected"] .audio-dot { background: var(--warning-line); }
+    .audio-signal[data-state="error"] { color: var(--danger); font-weight: 700; }
+    .audio-signal[data-state="error"] .audio-dot { background: var(--danger); }
+
     .comparison-box {
       margin-top: 10px;
       padding: 12px;
@@ -1022,7 +1065,7 @@
         </summary>
         <div class="vitals-body">
           <div class="sensor-warning">
-            <strong>Leitura por movimento é experimental.</strong>
+            <strong>Leitura por movimento e áudio é experimental.</strong>
             Compare sempre com a contagem manual. Não use o resultado do celular para indicar, adiar ou modificar uma conduta e não interrompa a avaliação clínica para completar a medição.
           </div>
 
@@ -1048,19 +1091,21 @@
             </section>
 
             <section class="measurement-card" aria-labelledby="sensor-resp-title">
-              <h3 id="sensor-resp-title">Movimento do tórax — experimental</h3>
+              <h3 id="sensor-resp-title">Movimento + som — experimental</h3>
               <p class="measurement-help">Com supervisão contínua, coloque o celular estável sobre a região toracoabdominal. Nunca cubra face ou pescoço.</p>
+              <label class="audio-option"><input id="useRespiratoryAudio" type="checkbox" checked><span>Usar o microfone somente para confirmar o ritmo do movimento</span></label>
               <div class="measurement-readout">
                 <div class="measurement-value"><span>Resultado</span><strong id="sensorBreathRate">—</strong></div>
                 <div class="measurement-value"><span id="sensorBreathTimeLabel">Tempo restante</span><strong id="sensorBreathTime">60 s</strong></div>
               </div>
               <div class="quality-meter" aria-hidden="true"><span id="sensorQualityBar"></span></div>
+              <p id="audioBreathStatus" class="audio-signal" data-state="idle"><span class="audio-dot" aria-hidden="true"></span><span id="audioBreathStatusText">Áudio não iniciado. Nenhum som é gravado ou armazenado.</span></p>
               <div class="measurement-actions">
                 <button id="sensorBreathStart" class="button primary-action" type="button">Iniciar sensor</button>
                 <button id="sensorBreathStop" class="button secondary" type="button" disabled>Interromper</button>
                 <button id="sensorBreathReset" class="button secondary" type="button">Limpar leitura</button>
               </div>
-              <p id="sensorBreathStatus" class="measurement-status" role="status" aria-live="polite">O aparelho pedirá acesso ao movimento. Haverá 5 segundos para posicioná-lo.</p>
+              <p id="sensorBreathStatus" class="measurement-status" role="status" aria-live="polite">O aparelho pedirá acesso ao movimento e, se habilitado, ao microfone. Haverá 5 segundos para posicioná-lo.</p>
             </section>
           </div>
 
@@ -1467,6 +1512,9 @@
     const sensorBreathReset = document.getElementById("sensorBreathReset");
     const sensorBreathStatus = document.getElementById("sensorBreathStatus");
     const sensorQualityBar = document.getElementById("sensorQualityBar");
+    const useRespiratoryAudio = document.getElementById("useRespiratoryAudio");
+    const audioBreathStatus = document.getElementById("audioBreathStatus");
+    const audioBreathStatusText = document.getElementById("audioBreathStatusText");
     const respirationComparison = document.getElementById("respirationComparison");
     const vitalsSummary = document.getElementById("vitals-summary");
     const vitalsStatus = document.getElementById("vitalsStatus");
@@ -1477,7 +1525,12 @@
     const SENSOR_POSITIONING_MS = 5000;
     const respirationState = {
       manual: { running: false, startedAt: null, count: 0, taps: [], timer: null, result: null },
-      sensor: { phase: "idle", positioningStartedAt: null, measurementStartedAt: null, samples: [], timer: null, result: null, wakeLock: null }
+      sensor: {
+        phase: "idle", positioningStartedAt: null, measurementStartedAt: null,
+        samples: [], timer: null, result: null, wakeLock: null,
+        audioStream: null, audioContext: null, audioAnalyser: null, audioTimer: null,
+        audioSamples: [], audioAvailable: false
+      }
     };
 
     function escapeHtml(value) {
@@ -1920,6 +1973,64 @@
       return { ...best, qualityLabel, complete: best.durationMs >= 55000 };
     }
 
+    function percentile(values, fraction) {
+      if (!values.length) return 0;
+      const sorted = [...values].sort((a, b) => a - b);
+      const index = Math.max(0, Math.min(sorted.length - 1, Math.round((sorted.length - 1) * fraction)));
+      return sorted[index];
+    }
+
+    function analyzeAudioRespiration(samples, motionResult) {
+      if (!Array.isArray(samples) || samples.length < 200) {
+        return { confirmed: false, state: "rejected", reason: "Áudio insuficiente; resultado mantido apenas pelo movimento." };
+      }
+      const levels = samples.map(sample => sample.rms).filter(Number.isFinite);
+      const peaks = samples.map(sample => sample.peak).filter(Number.isFinite);
+      if (!levels.length) {
+        return { confirmed: false, state: "rejected", reason: "Áudio indisponível; resultado mantido apenas pelo movimento." };
+      }
+      const upperLevel = percentile(levels, 0.9);
+      const lowerLevel = percentile(levels, 0.1);
+      const clippingFraction = peaks.length ? peaks.filter(value => value >= 0.98).length / peaks.length : 0;
+      if (upperLevel < 0.0008 || upperLevel - lowerLevel < 0.00015) {
+        return { confirmed: false, state: "rejected", reason: "Som muito baixo; resultado mantido apenas pelo movimento." };
+      }
+      if (clippingFraction > 0.08) {
+        return { confirmed: false, state: "rejected", reason: "Áudio saturado ou muito ruidoso; resultado mantido apenas pelo movimento." };
+      }
+      const acoustic = scoreRespiratoryAxis(samples, "rms");
+      if (!acoustic || acoustic.quality < 0.3) {
+        return { confirmed: false, state: "rejected", reason: "Som sem periodicidade respiratória suficiente; resultado mantido apenas pelo movimento." };
+      }
+      const candidateRates = [acoustic.bpm];
+      if (acoustic.bpm / 2 >= 8) candidateRates.push(acoustic.bpm / 2);
+      if (acoustic.bpm * 2 <= 100) candidateRates.push(acoustic.bpm * 2);
+      const audioBpm = candidateRates.sort((a, b) => Math.abs(a - motionResult.bpm) - Math.abs(b - motionResult.bpm))[0];
+      const differenceRatio = Math.abs(audioBpm - motionResult.bpm) / motionResult.bpm;
+      if (differenceRatio > 0.2) {
+        return {
+          ...acoustic,
+          bpm: audioBpm,
+          confirmed: false,
+          state: "rejected",
+          reason: `Som e movimento discordaram (${Math.round(audioBpm)} vs. ${Math.round(motionResult.bpm)} irpm); mantido apenas o movimento.`
+        };
+      }
+      const adjustedQuality = Math.max(0, Math.min(1, acoustic.quality * (1 - clippingFraction)));
+      const audioWeight = Math.min(0.35, Math.max(0.15, adjustedQuality * 0.35));
+      const motionWeight = Math.max(0.55, motionResult.quality);
+      const fusedBpm = (motionResult.bpm * motionWeight + audioBpm * audioWeight) / (motionWeight + audioWeight);
+      return {
+        ...acoustic,
+        bpm: audioBpm,
+        fusedBpm,
+        confirmed: true,
+        state: "confirmed",
+        quality: adjustedQuality,
+        reason: `Áudio confirmou o ritmo (${Math.round(audioBpm)} irpm); resultado combinado com maior peso para o movimento.`
+      };
+    }
+
     async function acquireWakeLock() {
       try {
         if ("wakeLock" in navigator) respirationState.sensor.wakeLock = await navigator.wakeLock.request("screen");
@@ -1929,6 +2040,82 @@
     async function releaseWakeLock() {
       try { await respirationState.sensor.wakeLock?.release(); } catch {}
       respirationState.sensor.wakeLock = null;
+    }
+
+    function setAudioBreathStatus(text, state = "idle") {
+      audioBreathStatus.dataset.state = state;
+      audioBreathStatusText.textContent = text;
+    }
+
+    async function startRespiratoryAudio() {
+      const sensor = respirationState.sensor;
+      sensor.audioAvailable = false;
+      sensor.audioSamples = [];
+      if (!useRespiratoryAudio.checked) {
+        setAudioBreathStatus("Microfone desativado; usando somente o movimento.", "rejected");
+        return false;
+      }
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setAudioBreathStatus("Microfone indisponível neste navegador; usando somente o movimento.", "error");
+        return false;
+      }
+      try {
+        const supported = navigator.mediaDevices.getSupportedConstraints?.() || {};
+        const audioConstraints = { channelCount: 1 };
+        if (supported.echoCancellation) audioConstraints.echoCancellation = false;
+        if (supported.noiseSuppression) audioConstraints.noiseSuppression = false;
+        if (supported.autoGainControl) audioConstraints.autoGainControl = false;
+        sensor.audioStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) throw new Error("AudioContext indisponível");
+        sensor.audioContext = new AudioContextClass({ latencyHint: "interactive" });
+        const source = sensor.audioContext.createMediaStreamSource(sensor.audioStream);
+        const highPass = sensor.audioContext.createBiquadFilter();
+        highPass.type = "highpass";
+        highPass.frequency.value = 80;
+        const lowPass = sensor.audioContext.createBiquadFilter();
+        lowPass.type = "lowpass";
+        lowPass.frequency.value = 2000;
+        sensor.audioAnalyser = sensor.audioContext.createAnalyser();
+        sensor.audioAnalyser.fftSize = 1024;
+        sensor.audioAnalyser.smoothingTimeConstant = 0.15;
+        source.connect(highPass).connect(lowPass).connect(sensor.audioAnalyser);
+        await sensor.audioContext.resume();
+        const buffer = new Float32Array(sensor.audioAnalyser.fftSize);
+        sensor.audioTimer = window.setInterval(() => {
+          if (sensor.phase !== "measuring" || !sensor.audioAnalyser) return;
+          sensor.audioAnalyser.getFloatTimeDomainData(buffer);
+          let energy = 0;
+          let peak = 0;
+          for (const value of buffer) {
+            energy += value * value;
+            peak = Math.max(peak, Math.abs(value));
+          }
+          sensor.audioSamples.push({ t: performance.now(), rms: Math.sqrt(energy / buffer.length), peak });
+          if (sensor.audioSamples.length > 2000) sensor.audioSamples.shift();
+        }, 50);
+        sensor.audioAvailable = true;
+        setAudioBreathStatus("Microfone ativo. O som é analisado localmente e não é gravado.", "listening");
+        return true;
+      } catch {
+        await stopRespiratoryAudio();
+        setAudioBreathStatus("Permissão ou captura de áudio indisponível; usando somente o movimento.", "error");
+        return false;
+      }
+    }
+
+    async function stopRespiratoryAudio() {
+      const sensor = respirationState.sensor;
+      if (sensor.audioTimer) window.clearInterval(sensor.audioTimer);
+      sensor.audioTimer = null;
+      const stream = sensor.audioStream;
+      const context = sensor.audioContext;
+      sensor.audioStream = null;
+      sensor.audioContext = null;
+      sensor.audioAnalyser = null;
+      sensor.audioAvailable = false;
+      stream?.getTracks().forEach(track => track.stop());
+      try { await context?.close(); } catch {}
     }
 
     function handleDeviceMotion(event) {
@@ -1953,10 +2140,11 @@
         if (remaining <= 0) {
           sensor.phase = "measuring";
           sensor.samples = [];
+          sensor.audioSamples = [];
           sensor.measurementStartedAt = performance.now();
           sensorBreathTimeLabel.textContent = "Tempo restante";
           sensorBreathTime.textContent = "60 s";
-          setMeasurementStatus(sensorBreathStatus, "Coletando movimento. Mantenha o aparelho imóvel e observe a criança.", "success");
+          setMeasurementStatus(sensorBreathStatus, `Coletando movimento${sensor.audioAvailable ? " e som" : ""}. Mantenha o aparelho imóvel e observe a criança.`, "success");
         }
         return;
       }
@@ -1992,6 +2180,7 @@
         setMeasurementStatus(sensorBreathStatus, "Não foi possível solicitar acesso ao sensor neste navegador.", "error");
         return;
       }
+      await startRespiratoryAudio();
       const sensor = respirationState.sensor;
       sensor.phase = "positioning";
       sensor.positioningStartedAt = performance.now();
@@ -2000,6 +2189,7 @@
       sensorBreathRate.textContent = "—";
       sensorBreathTimeLabel.textContent = "Posicionar";
       sensorQualityBar.style.width = "0";
+      useRespiratoryAudio.disabled = true;
       window.addEventListener("devicemotion", handleDeviceMotion);
       await acquireWakeLock();
       updateSensorProgress();
@@ -2014,6 +2204,8 @@
       sensor.phase = "idle";
       sensorBreathStart.disabled = false;
       sensorBreathStop.disabled = true;
+      useRespiratoryAudio.disabled = false;
+      await stopRespiratoryAudio();
       await releaseWakeLock();
     }
 
@@ -2026,6 +2218,8 @@
       if (sensor.phase !== "measuring") return;
       const elapsedMs = performance.now() - sensor.measurementStartedAt;
       const samples = [...sensor.samples];
+      const audioSamples = [...sensor.audioSamples];
+      const audioWasAvailable = sensor.audioAvailable;
       await stopSensorCollection();
       sensorBreathTimeLabel.textContent = "Tempo coletado";
       sensorBreathTime.textContent = `${Math.round(elapsedMs / 1000)} s`;
@@ -2040,16 +2234,35 @@
         sensor.result = null;
         sensorBreathRate.textContent = "—";
         sensorQualityBar.style.width = "12%";
+        if (audioWasAvailable) setAudioBreathStatus("O áudio não é usado sozinho quando o movimento é insuficiente.", "rejected");
         setMeasurementStatus(sensorBreathStatus, "Sinal insuficiente ou com movimento excessivo. Não foi gerada uma frequência.", "error");
         updateRespirationComparison();
         return;
       }
-      sensor.result = { ...result, complete: completed && result.complete };
-      sensorBreathRate.textContent = `${Math.round(result.bpm)} irpm`;
+      const audioResult = audioWasAvailable
+        ? analyzeAudioRespiration(audioSamples, result)
+        : {
+            confirmed: false,
+            state: "rejected",
+            reason: useRespiratoryAudio.checked
+              ? "Áudio indisponível; resultado somente pelo movimento."
+              : "Microfone desativado; resultado somente pelo movimento."
+          };
+      const finalBpm = audioResult.confirmed ? audioResult.fusedBpm : result.bpm;
+      sensor.result = {
+        ...result,
+        bpm: finalBpm,
+        motionBpm: result.bpm,
+        audio: audioResult,
+        complete: completed && result.complete
+      };
+      sensorBreathRate.textContent = `${Math.round(finalBpm)} irpm`;
       sensorQualityBar.style.width = `${Math.round(result.quality * 100)}%`;
       const prefix = sensor.result.complete ? "Coleta completa" : "Estimativa incompleta";
       const tone = result.qualityLabel === "baixa" ? "warning" : "success";
-      setMeasurementStatus(sensorBreathStatus, `${prefix}: ${Math.round(result.bpm)} irpm; qualidade matemática ${result.qualityLabel}. Resultado experimental.`, tone);
+      const source = audioResult.confirmed ? "movimento confirmado pelo áudio" : "somente movimento";
+      setAudioBreathStatus(audioResult.reason, audioResult.state);
+      setMeasurementStatus(sensorBreathStatus, `${prefix}: ${Math.round(finalBpm)} irpm por ${source}; qualidade do movimento ${result.qualityLabel}. Resultado experimental.`, tone);
       updateRespirationComparison();
     }
 
@@ -2064,6 +2277,7 @@
       sensorBreathTimeLabel.textContent = "Tempo coletado";
       sensorBreathTime.textContent = collectedMs ? `${Math.round(collectedMs / 1000)} s` : "—";
       sensorQualityBar.style.width = "0";
+      setAudioBreathStatus("Captura encerrada. Nenhum som foi armazenado.", "rejected");
       setMeasurementStatus(sensorBreathStatus, message, tone);
       updateRespirationComparison();
     }
@@ -2072,20 +2286,29 @@
       const sensor = respirationState.sensor;
       if (sensor.timer) window.clearInterval(sensor.timer);
       window.removeEventListener("devicemotion", handleDeviceMotion);
+      stopRespiratoryAudio();
       releaseWakeLock();
       sensor.phase = "idle";
       sensor.positioningStartedAt = null;
       sensor.measurementStartedAt = null;
       sensor.samples = [];
+      sensor.audioSamples = [];
       sensor.result = null;
       sensor.timer = null;
       sensorBreathStart.disabled = false;
       sensorBreathStop.disabled = true;
+      useRespiratoryAudio.disabled = false;
       sensorBreathRate.textContent = "—";
       sensorBreathTimeLabel.textContent = "Tempo restante";
       sensorBreathTime.textContent = "60 s";
       sensorQualityBar.style.width = "0";
-      setMeasurementStatus(sensorBreathStatus, "O aparelho pedirá acesso ao movimento. Haverá 5 segundos para posicioná-lo.");
+      setAudioBreathStatus(
+        useRespiratoryAudio.checked
+          ? "Áudio não iniciado. Nenhum som é gravado ou armazenado."
+          : "Microfone desativado; a leitura usará somente o movimento.",
+        useRespiratoryAudio.checked ? "idle" : "rejected"
+      );
+      setMeasurementStatus(sensorBreathStatus, "O aparelho pedirá acesso ao movimento e, se habilitado, ao microfone. Haverá 5 segundos para posicioná-lo.");
       updateRespirationComparison();
     }
 
@@ -2098,15 +2321,17 @@
         const percentage = manual.bpm ? absolute / manual.bpm * 100 : 0;
         const direction = difference > 0 ? "acima" : difference < 0 ? "abaixo" : "igual à";
         const manualLabel = manual.complete ? "Manual" : "Manual incompleta";
-        const sensorLabel = sensor.complete ? "sensor" : "sensor incompleto";
+        const sensorMethod = sensor.audio?.confirmed ? "movimento + áudio" : "movimento";
+        const sensorLabel = sensor.complete ? sensorMethod : `${sensorMethod} incompleto`;
         const repeatNotice = manual.complete ? "" : " Repita a contagem manual por 60 segundos antes de interpretar.";
-        respirationComparison.innerHTML = `<strong>Comparação</strong>${manualLabel}: ${Math.round(manual.bpm)} irpm · ${sensorLabel}: ${Math.round(sensor.bpm)} irpm. O sensor ficou ${formatNumber(absolute)} irpm ${direction} contagem manual (${formatNumber(percentage)}% de diferença). Qualidade matemática: ${sensor.qualityLabel}.${repeatNotice}`;
+        respirationComparison.innerHTML = `<strong>Comparação</strong>${manualLabel}: ${Math.round(manual.bpm)} irpm · ${sensorLabel}: ${Math.round(sensor.bpm)} irpm. O sensor ficou ${formatNumber(absolute)} irpm ${direction} contagem manual (${formatNumber(percentage)}% de diferença). Qualidade do movimento: ${sensor.qualityLabel}.${repeatNotice}`;
       } else if (manual) {
         const label = manual.complete ? "Referência manual" : "Estimativa manual incompleta";
         const notice = manual.complete ? "Faça a leitura experimental para comparar." : "Repita por 60 segundos antes de usar como referência.";
         respirationComparison.innerHTML = `<strong>Comparação</strong>${label}: ${Math.round(manual.bpm)} irpm. ${notice}`;
       } else if (sensor) {
-        const label = sensor.complete ? "Sensor experimental" : "Sensor experimental incompleto";
+        const method = sensor.audio?.confirmed ? "movimento + áudio" : "movimento";
+        const label = sensor.complete ? `Sensor experimental (${method})` : `Sensor experimental incompleto (${method})`;
         respirationComparison.innerHTML = `<strong>Comparação</strong>${label}: ${Math.round(sensor.bpm)} irpm. Faça a contagem manual completa antes de interpretar a diferença.`;
       } else {
         respirationComparison.innerHTML = "<strong>Comparação</strong>Faça as duas medições para ver a diferença. A contagem manual continua sendo a referência.";
@@ -2682,6 +2907,14 @@
     sensorBreathStart.addEventListener("click", startSensorRespiration);
     sensorBreathStop.addEventListener("click", () => finishSensorRespiration(false));
     sensorBreathReset.addEventListener("click", resetSensorRespiration);
+    useRespiratoryAudio.addEventListener("change", () => {
+      setAudioBreathStatus(
+        useRespiratoryAudio.checked
+          ? "Áudio habilitado para a próxima leitura. Nenhum som será armazenado."
+          : "Microfone desativado; a leitura usará somente o movimento.",
+        useRespiratoryAudio.checked ? "idle" : "rejected"
+      );
+    });
     manualVitalInputs.forEach(input => {
       input.addEventListener(input.tagName === "SELECT" ? "change" : "input", validateManualVitals);
     });

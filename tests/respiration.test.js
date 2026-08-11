@@ -30,6 +30,21 @@ function syntheticBreathing(bpm, noise = 0.004, durationMs = 60000) {
   return samples;
 }
 
+function syntheticAudio(bpm, amplitude = 0.012, noise = 0.0008, durationMs = 60000) {
+  const samples = [];
+  let seed = 654321;
+  const random = () => {
+    seed = (seed * 1103515245 + 12345) >>> 0;
+    return seed / 4294967296 - 0.5;
+  };
+  for (let time = 0; time <= durationMs; time += 50) {
+    const phase = 2 * Math.PI * (bpm / 60) * (time / 1000);
+    const rms = Math.max(0, 0.004 + amplitude * (0.5 + 0.5 * Math.sin(phase)) + noise * random());
+    samples.push({ t: time, rms, peak: Math.min(0.9, rms * 4) });
+  }
+  return samples;
+}
+
 for (const expected of [18, 24, 36, 48, 72]) {
   const result = context.analyzeRespirationSignal(syntheticBreathing(expected));
   assert.ok(result, `Sem resultado para ${expected} irpm`);
@@ -54,4 +69,16 @@ for (let time = 0; time <= 60000; time += 20) {
 const noiseResult = context.analyzeRespirationSignal(randomMotion);
 assert.ok(!noiseResult || noiseResult.quality < 0.2, "Movimento aleatório não deveria produzir leitura aceitável");
 
-console.log("Análise respiratória: sinais de 18–72 irpm reconhecidos; coleta curta e movimento aleatório rejeitados.");
+const motion24 = context.analyzeRespirationSignal(syntheticBreathing(24));
+const audio24 = context.analyzeAudioRespiration(syntheticAudio(24), motion24);
+assert.equal(audio24.confirmed, true, "Áudio periódico concordante deveria confirmar o movimento");
+assert.ok(Math.abs(audio24.fusedBpm - 24) <= 2, `Fusão esperada próxima de 24, obtida ${audio24.fusedBpm}`);
+
+const discordantAudio = context.analyzeAudioRespiration(syntheticAudio(35), motion24);
+assert.equal(discordantAudio.confirmed, false, "Áudio discordante não deveria alterar o movimento");
+
+const lowAudio = context.analyzeAudioRespiration(syntheticAudio(24, 0.00005, 0.00001), motion24);
+assert.equal(lowAudio.confirmed, false, "Som muito baixo não deveria confirmar o movimento");
+assert.match(lowAudio.reason, /baixo/i);
+
+console.log("Análise respiratória: movimento 18–72 irpm; áudio concordante confirmado; ruído, discordância e som baixo rejeitados.");

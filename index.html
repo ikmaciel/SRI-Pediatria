@@ -185,6 +185,32 @@
       box-shadow: var(--shadow);
     }
 
+    .respiration-launch {
+      display: grid;
+      width: 100%;
+      min-height: 82px;
+      grid-template-columns: 54px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 12px;
+      padding: 13px 15px;
+      border: 2px solid var(--brand);
+      border-radius: var(--radius);
+      background: var(--brand);
+      color: var(--on-brand);
+      box-shadow: 0 8px 22px color-mix(in srgb, var(--brand) 28%, transparent);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .respiration-launch:hover { background: var(--brand-dark); }
+    .respiration-launch-icon { display: grid; width: 54px; height: 54px; place-items: center; border-radius: 14px; background: rgba(255, 255, 255, .14); }
+    .respiration-launch-icon svg { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+    .respiration-launch-copy { min-width: 0; }
+    .respiration-launch-copy strong { display: block; font-size: 1.05rem; letter-spacing: .01em; }
+    .respiration-launch-copy small { display: block; margin-top: 2px; font-size: .78rem; font-weight: 650; opacity: .9; }
+    .respiration-launch-arrow { font-size: 1.45rem; font-weight: 500; line-height: 1; }
+
     .patient-panel { padding: 16px; }
 
     .weight-row {
@@ -1112,6 +1138,17 @@
       </div>
     </header>
 
+    <button id="openRespirationAnalysis" class="respiration-launch" type="button" aria-controls="vitals-check" aria-expanded="false">
+      <span class="respiration-launch-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><path d="M23 13v22M21 19c-3-6-7-8-10-5-4 4-6 12-6 20 0 4 3 6 7 5 6-1 9-6 9-12M27 19c3-6 7-8 10-5 4 4 6 12 6 20 0 4-3 6-7 5-6-1-9-6-9-12"/></svg>
+      </span>
+      <span class="respiration-launch-copy">
+        <strong>Analisar respiração</strong>
+        <small>Contagem, animação e eventos respiratórios</small>
+      </span>
+      <span class="respiration-launch-arrow" aria-hidden="true">›</span>
+    </button>
+
     <section class="panel patient-panel" aria-labelledby="dados-paciente">
       <h2 id="dados-paciente">Peso do paciente</h2>
       <div class="weight-row">
@@ -1648,6 +1685,8 @@
     const audioBreathStatusText = document.getElementById("audioBreathStatusText");
     const respirationComparison = document.getElementById("respirationComparison");
     const respiratoryAgeAssessment = document.getElementById("respiratoryAgeAssessment");
+    const openRespirationAnalysisButton = document.getElementById("openRespirationAnalysis");
+    const vitalsDetails = document.getElementById("vitals-check");
     const breathingVisual = document.getElementById("breathingVisual");
     const breathingPhase = document.getElementById("breathingPhase");
     const breathingPhaseHelp = document.getElementById("breathingPhaseHelp");
@@ -3445,7 +3484,15 @@
     });
     respiratorySignInputs.forEach(input => input.addEventListener("change", updateRespiratorySignsStatus));
     clearVitalsButton.addEventListener("click", clearManualVitals);
-    document.getElementById("vitals-check").addEventListener("toggle", event => {
+    openRespirationAnalysisButton.addEventListener("click", () => {
+      vitalsDetails.open = true;
+      openRespirationAnalysisButton.setAttribute("aria-expanded", "true");
+      window.requestAnimationFrame(() => {
+        document.querySelector(".vitals-panel").scrollIntoView({ block: "start" });
+      });
+    });
+    vitalsDetails.addEventListener("toggle", event => {
+      openRespirationAnalysisButton.setAttribute("aria-expanded", String(event.target.open));
       if (event.target.open) return;
       if (respirationState.manual.running) finishManualRespiration(false);
       if (respirationState.sensor.phase !== "idle") cancelSensorRespiration("Leitura interrompida porque o painel foi fechado.", "warning");

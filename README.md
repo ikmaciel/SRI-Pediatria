@@ -19,6 +19,7 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Inclui uma área simples de diluições para ajustar proporções e volumes finais de reconstituição no aparelho em uso.
 - Uma alteração só passa a valer depois da confirmação da médica e pode ser restaurada aos valores padrão a qualquer momento.
 - Inclui contador respiratório manual de 60 segundos e leitura experimental pelo acelerômetro/giroscópio do celular.
+- Mantém um botão grande `Analisar respiração` no topo, independente da navegação de medicamentos.
 - Classifica somente a contagem manual completa como abaixo, dentro ou acima da faixa respiratória aceitável por idade; peso não altera essa faixa.
 - Pode usar o microfone como confirmação secundária: áudio baixo, saturado, ruidoso ou discordante é descartado e nunca gera resultado sozinho.
 - Mostra animação ao vivo do movimento; a médica sincroniza o sentido durante uma inspiração visível antes de o app nomear inspiração/expiração provável.
@@ -40,7 +41,7 @@ A matriz completa de evidências, decisões e limitações está em [`REVISAO_CL
 1. Abra <https://ikmaciel.github.io/SRI-Pediatria/>.
 2. Informe o peso e a idade.
 3. Abra `Checagem de segurança` quando houver comorbidades relevantes ou mais de um medicamento planejado.
-4. Abra `Respiração e sinais vitais` para fazer a contagem manual ou testar o sensor de movimento.
+4. Toque no botão destacado `Analisar respiração` para abrir diretamente a contagem, a animação e os eventos respiratórios.
 5. Selecione `SRI`, `Reanimação` ou `Outros`.
 6. Confira dose total e volume calculado.
 7. Quando houver diluição, confira separadamente o volume da ampola, o diluente e o volume final.

@@ -2,6 +2,12 @@
 
 Este arquivo registra mudanças que podem alterar interpretação, cálculo, preparo, seleção ou segurança clínica. Aprovação pendente nunca deve ser interpretada como homologação.
 
+## 2026-08-12 — interface v28 — avisos respiratórios simplificados
+
+- Indicação de caráter experimental concentrada em uma única linha discreta na escolha da contagem automática.
+- Removidas repetições do aviso na abertura, medição, resultado, comparação e instalação.
+- Mensagens operacionais contextuais de permissão, qualidade do sinal e falha do sensor foram preservadas.
+
 ## 2026-08-12 — correção v27 — contagem automática restaurada
 
 - Contagem respiratória automática novamente habilitada na interface.

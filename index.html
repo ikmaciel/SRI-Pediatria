@@ -291,7 +291,6 @@
     .respiration-session-dialog .vitals-panel { margin: 0; box-shadow: none; }
     .respiration-session-dialog .vitals-panel > details > summary { display: none; }
     .respiration-session-dialog .vitals-body { padding: 0; }
-    .respiration-session-dialog[data-mode="manual"] .sensor-warning { display: none; }
     .respiration-session-dialog[data-mode="manual"] #sensorMeasurementCard > :not(.observed-events) { display: none; }
     .respiration-session-dialog[data-mode="automatic"] #manualMeasurementCard { display: none; }
     .respiration-session-dialog[data-mode="automatic"] .observed-events > strong,
@@ -301,7 +300,6 @@
     .respiration-session-dialog[data-mode="automatic"] .vitals-entry { display: none; }
     .respiration-session-dialog[data-mode="automatic"] .vitals-body { display: flex; flex-direction: column; }
     .respiration-session-dialog[data-mode="automatic"] .respiration-grid { order: 1; }
-    .respiration-session-dialog[data-mode="automatic"] .sensor-warning { order: 2; margin-top: 12px; }
     .respiration-session-dialog[data-mode="automatic"] #sensorMeasurementCard { display: flex; flex-direction: column; }
     .respiration-session-dialog[data-mode="automatic"] #sensorMeasurementCard > h3 { display: none; }
     .respiration-session-dialog[data-mode="automatic"] .automatic-live-readout { order: 1; }
@@ -565,18 +563,6 @@
     }
 
     .clinical-alert strong { display: block; margin-bottom: 2px; }
-
-    .sensor-warning {
-      margin-bottom: 12px;
-      padding: 11px 12px;
-      border-left: 4px solid var(--warning-line);
-      border-radius: 10px;
-      background: var(--warning-bg);
-      color: var(--warning-ink);
-      font-size: .86rem;
-    }
-
-    .sensor-warning strong { display: block; margin-bottom: 2px; }
 
     .respiration-grid {
       display: grid;
@@ -1390,7 +1376,7 @@
       </span>
       <span class="respiration-launch-copy">
         <strong>Contagem respiratória</strong>
-        <small>Manual como referência; sensor somente experimental</small>
+        <small>Contagem manual ou automática</small>
       </span>
       <span class="respiration-launch-arrow" aria-hidden="true">›</span>
     </button>
@@ -1414,17 +1400,12 @@
       <details id="vitals-check">
         <summary>
           <span>Respiração e sinais vitais</span>
-          <span id="vitals-summary" class="summary-note">manual + experimental</span>
+          <span id="vitals-summary" class="summary-note">manual + automática</span>
         </summary>
         <div class="vitals-body">
-          <div class="sensor-warning">
-            <strong>Leitura por movimento e áudio é experimental.</strong>
-            Compare sempre com a contagem manual. Não use o resultado do celular para indicar, adiar ou modificar uma conduta e não interrompa a avaliação clínica para completar a medição.
-          </div>
-
           <div class="respiration-grid">
             <section id="manualMeasurementCard" class="measurement-card" aria-labelledby="manual-resp-title">
-              <h3 id="manual-resp-title">Contagem manual — referência</h3>
+              <h3 id="manual-resp-title">Contagem manual</h3>
               <p class="measurement-help">Com a criança em repouso e sem choro, toque uma vez a cada ciclo respiratório completo durante 60 segundos.</p>
               <div class="measurement-readout">
                 <div class="measurement-value"><span>Contagem</span><strong id="manualBreathCount">0</strong></div>
@@ -1444,7 +1425,7 @@
             </section>
 
             <section id="sensorMeasurementCard" class="measurement-card" aria-labelledby="sensor-resp-title">
-              <h3 id="sensor-resp-title" tabindex="-1">Movimento + som — experimental</h3>
+              <h3 id="sensor-resp-title" tabindex="-1">Contagem automática</h3>
               <p class="measurement-help">Com supervisão contínua, coloque o celular estável sobre a região toracoabdominal. Nunca cubra face ou pescoço.</p>
               <div id="sensorLiveReadout" class="measurement-readout automatic-live-readout" aria-live="polite" tabindex="-1">
                 <div class="measurement-value"><span>Ciclos estimados</span><strong id="sensorCycleCount">0</strong></div>
@@ -1453,7 +1434,7 @@
               </div>
               <div class="quality-meter" aria-hidden="true"><span id="sensorQualityBar"></span></div>
               <p id="audioBreathStatus" class="audio-signal" data-state="idle"><span class="audio-dot" aria-hidden="true"></span><span id="audioBreathStatusText">Áudio não iniciado. Nenhum som é gravado ou armazenado.</span></p>
-              <div id="breathingVisual" class="breathing-visual" data-phase="idle" role="img" aria-label="Animação experimental do movimento respiratório">
+              <div id="breathingVisual" class="breathing-visual" data-phase="idle" role="img" aria-label="Animação do movimento respiratório">
                 <svg class="lung-animation" viewBox="0 0 96 96" aria-hidden="true">
                   <path class="airway" d="M48 12v25M48 31 37 42M48 31l11 11"/>
                   <path id="leftLung" class="lung" d="M42 38c-8-5-17 3-21 14-5 13-5 29 1 34 5 4 15 0 20-7V38Z"/>
@@ -1489,12 +1470,12 @@
 
           <div id="respirationComparison" class="comparison-box" role="status" aria-live="polite">
             <strong>Comparação</strong>
-            Faça as duas medições para ver a diferença. A contagem manual continua sendo a referência.
+            Faça as duas medições para ver a diferença.
           </div>
 
           <div id="respiratoryAgeAssessment" class="respiratory-assessment" data-state="pending" role="status" aria-live="polite">
             <strong>Avaliação pela idade</strong>
-            Informe a idade e complete a contagem manual de 60 segundos. O sensor experimental não gera esta classificação.
+            Informe a idade e complete a contagem manual de 60 segundos para gerar esta classificação.
             <small>O peso é usado nos cálculos de medicamentos, mas não define a faixa de frequência respiratória.</small>
           </div>
 
@@ -1639,15 +1620,14 @@
       <div class="config-scroll">
         <section id="respirationModeChoice" class="respiration-mode-choice" aria-labelledby="respiration-mode-title">
           <h3 id="respiration-mode-title">Como deseja fazer a contagem?</h3>
-          <p>A contagem manual é a referência. O modo automático por movimento e som é experimental e deve ser comparado com a avaliação clínica.</p>
           <div class="respiration-mode-buttons">
             <button id="chooseManualRespiration" class="respiration-mode-button" type="button">
               <strong>Contagem manual</strong>
               <small>Toque uma vez por ciclo respiratório durante 60 segundos.</small>
             </button>
             <button id="chooseAutomaticRespiration" class="respiration-mode-button" type="button">
-              <strong>Contagem automática — experimental</strong>
-              <small>Usa o movimento do celular e, se permitido, o microfone como confirmação secundária.</small>
+              <strong>Contagem automática</strong>
+              <small>Experimental · movimento e microfone opcional.</small>
             </button>
           </div>
         </section>
@@ -1750,7 +1730,6 @@
         <button id="installClose" class="icon-button" type="button" aria-label="Fechar instruções de instalação">×</button>
       </header>
       <div class="config-scroll">
-        <div class="sensor-warning"><strong>O app instalado continua sendo experimental.</strong> A instalação não transforma o celular em equipamento médico validado.</div>
         <section class="config-section">
           <h3>Android — Chrome</h3>
           <p>Toque em <strong>Instalar</strong> quando o navegador oferecer a opção. Se ela não aparecer, abra o menu ⋮ e escolha <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong>.</p>
@@ -2410,7 +2389,7 @@
       respirationSavePrompt.hidden = true;
       respirationSessionHost.hidden = false;
       vitalsDetails.open = true;
-      respirationFlowSubtitle.textContent = mode === "manual" ? "Contagem manual — referência" : "Contagem automática — experimental";
+      respirationFlowSubtitle.textContent = mode === "manual" ? "Contagem manual" : "Contagem automática";
       window.requestAnimationFrame(() => {
         (mode === "manual" ? manualBreathStart : document.getElementById("sensorLiveReadout")).focus();
       });
@@ -2501,7 +2480,7 @@
           respirationResultAssessment.textContent = `${result.count} ciclos em ${Math.round(result.elapsedSec)} s.${result.complete ? " Informe a idade para comparar com a faixa etária." : " Estimativa incompleta; repita por 60 segundos."}`;
         } else {
           const source = result.audio?.confirmed ? "movimento confirmado pelo áudio" : "somente movimento";
-          respirationResultAssessment.textContent = `${result.estimatedCycles} ciclos estimados durante a coleta. Frequência experimental por ${source}; qualidade do movimento ${result.qualityLabel}.`;
+          respirationResultAssessment.textContent = `${result.estimatedCycles} ciclos estimados durante a coleta. Frequência por ${source}; qualidade do movimento ${result.qualityLabel}.`;
         }
       }
 
@@ -3559,7 +3538,7 @@
       const tone = result.qualityLabel === "baixa" ? "warning" : "success";
       const source = audioResult.confirmed ? "movimento confirmado pelo áudio" : "somente movimento";
       setAudioBreathStatus(audioResult.reason, audioResult.state);
-      setMeasurementStatus(sensorBreathStatus, `${prefix}: ${Math.round(finalBpm)} irpm por ${source}; qualidade do movimento ${result.qualityLabel}. Resultado experimental.`, tone);
+      setMeasurementStatus(sensorBreathStatus, `${prefix}: ${Math.round(finalBpm)} irpm por ${source}; qualidade do movimento ${result.qualityLabel}.`, tone);
       updateRespiratoryEventSummary();
       updateSnoreObservation();
       breathingVisual.dataset.phase = "idle";
@@ -3646,18 +3625,18 @@
         respirationComparison.innerHTML = `<strong>Comparação</strong>${manualLabel}: ${Math.round(manual.bpm)} irpm · ${sensorLabel}: ${Math.round(sensor.bpm)} irpm. O sensor ficou ${formatNumber(absolute)} irpm ${direction} contagem manual (${formatNumber(percentage)}% de diferença). Qualidade do movimento: ${sensor.qualityLabel}.${repeatNotice}`;
       } else if (manual) {
         const label = manual.complete ? "Referência manual" : "Estimativa manual incompleta";
-        const notice = manual.complete ? "Faça a leitura experimental para comparar." : "Repita por 60 segundos antes de usar como referência.";
+        const notice = manual.complete ? "Faça a leitura automática para comparar." : "Repita por 60 segundos para completar a medição.";
         respirationComparison.innerHTML = `<strong>Comparação</strong>${label}: ${Math.round(manual.bpm)} irpm. ${notice}`;
       } else if (sensor) {
         const method = sensor.audio?.confirmed ? "movimento + áudio" : "movimento";
-        const label = sensor.complete ? `Sensor experimental (${method})` : `Sensor experimental incompleto (${method})`;
-        respirationComparison.innerHTML = `<strong>Comparação</strong>${label}: ${Math.round(sensor.bpm)} irpm. Faça a contagem manual completa antes de interpretar a diferença.`;
+        const label = sensor.complete ? `Automática (${method})` : `Automática incompleta (${method})`;
+        respirationComparison.innerHTML = `<strong>Comparação</strong>${label}: ${Math.round(sensor.bpm)} irpm. Faça também a contagem manual para calcular a diferença.`;
       } else {
-        respirationComparison.innerHTML = "<strong>Comparação</strong>Faça as duas medições para ver a diferença. A contagem manual continua sendo a referência.";
+        respirationComparison.innerHTML = "<strong>Comparação</strong>Faça as duas medições para ver a diferença.";
       }
       vitalsSummary.textContent = manual
         ? `${manual.complete ? "FR manual" : "FR est."} ${Math.round(manual.bpm)} irpm`
-        : "manual + experimental";
+        : "manual + automática";
       updateRespiratoryAgeAssessment();
     }
 

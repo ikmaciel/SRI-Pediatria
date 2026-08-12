@@ -1,5 +1,5 @@
 const CACHE_PREFIX = "sri-pediatrica-fro-";
-const CACHE_NAME = `${CACHE_PREFIX}2026-08-12-v26`;
+const CACHE_NAME = `${CACHE_PREFIX}2026-08-12-v27`;
 const APP_SHELL = [
   "./",
   "./index.html",

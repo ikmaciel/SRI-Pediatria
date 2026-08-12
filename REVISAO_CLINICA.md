@@ -79,7 +79,7 @@ Novos registros de evolução ficam apenas em `sessionStorage` e desaparecem ao 
 
 ### Barreiras adicionadas em 12/08/2026
 
-A interface passou a exigir idade para liberar cálculos, bloquear o catálogo neonatal não homologado, registrar se o peso foi medido ou estimado, alertar para volumes aspirados abaixo de 0,1 mL, selecionar medicamentos diretamente no cartão da indicação e usar checklist de SRI interativo. Preparos locais passaram a somente leitura e o sensor respiratório automático foi suspenso da versão clínica. Essas barreiras reduzem risco, mas ainda requerem homologação institucional e validação de usabilidade.
+A interface passou a exigir idade para liberar cálculos, bloquear o catálogo neonatal não homologado, registrar se o peso foi medido ou estimado, alertar para volumes aspirados abaixo de 0,1 mL, selecionar medicamentos diretamente no cartão da indicação e usar checklist de SRI interativo. Preparos locais passaram a somente leitura. O sensor respiratório automático continua disponível, sempre marcado como experimental, sem classificação clínica e sem substituir a contagem manual. Essas barreiras reduzem risco, mas ainda requerem homologação institucional e validação de usabilidade.
 
 O projeto já utilizava manifesto, ícones e `service worker`. Foram adicionados botão de instalação, tratamento de `beforeinstallprompt`, instruções específicas para iOS, modo `standalone`, atalho para respiração e atualização de cache. A instalação oferece conveniência e uso offline; não constitui validação como dispositivo médico.
 

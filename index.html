@@ -1414,7 +1414,7 @@
       <details id="vitals-check">
         <summary>
           <span>Respiração e sinais vitais</span>
-          <span id="vitals-summary" class="summary-note">manual; sensor suspenso</span>
+          <span id="vitals-summary" class="summary-note">manual + experimental</span>
         </summary>
         <div class="vitals-body">
           <div class="sensor-warning">
@@ -1646,8 +1646,8 @@
               <small>Toque uma vez por ciclo respiratório durante 60 segundos.</small>
             </button>
             <button id="chooseAutomaticRespiration" class="respiration-mode-button" type="button">
-              <strong>Sensor automático — pesquisa suspensa</strong>
-              <small>Indisponível na versão clínica até validação prospectiva e definição regulatória.</small>
+              <strong>Contagem automática — experimental</strong>
+              <small>Usa o movimento do celular e, se permitido, o microfone como confirmação secundária.</small>
             </button>
           </div>
         </section>
@@ -2097,7 +2097,7 @@
     const RESPIRATION_DURATION_MS = 60000;
     const SENSOR_POSITIONING_MS = 5000;
     const TECHNICAL_PAUSE_NOTICE_MS = 10000;
-    const RESPIRATORY_RESEARCH_MODE_ENABLED = false;
+    const RESPIRATORY_RESEARCH_MODE_ENABLED = true;
     const HISTORY_STORAGE_KEY = "sri-pediatric-session-history-v2";
     const LEGACY_HISTORY_STORAGE_KEY = "sri-pediatric-history-v1";
     let deferredInstallPrompt = null;
@@ -3657,7 +3657,7 @@
       }
       vitalsSummary.textContent = manual
         ? `${manual.complete ? "FR manual" : "FR est."} ${Math.round(manual.bpm)} irpm`
-        : "manual; sensor suspenso";
+        : "manual + experimental";
       updateRespiratoryAgeAssessment();
     }
 

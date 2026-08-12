@@ -17,7 +17,7 @@ assert.match(html, /min-height: min\(52dvh, 480px\)/);
 assert.doesNotMatch(html, /id="useRespiratoryAudio"|useRespiratoryAudio\.checked/);
 assert.match(html, /data-mode="automatic"\] \.sensor-warning \{ order: 2/);
 assert.match(html, /Nova versão disponível — atualizar quando não houver atendimento em curso/);
-assert.match(html, /const RESPIRATORY_RESEARCH_MODE_ENABLED = false/);
+assert.match(html, /const RESPIRATORY_RESEARCH_MODE_ENABLED = true/);
 assert.match(html, /chooseAutomaticRespirationButton\.disabled = !RESPIRATORY_RESEARCH_MODE_ENABLED/);
 assert.match(html, /id="respirationTimelineChart"/);
 assert.match(html, /function buildRespiratoryRateTimeline\(/);

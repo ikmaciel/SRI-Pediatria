@@ -2,13 +2,20 @@
 
 Este arquivo registra mudanças que podem alterar interpretação, cálculo, preparo, seleção ou segurança clínica. Aprovação pendente nunca deve ser interpretada como homologação.
 
+## 2026-08-12 — correção v27 — contagem automática restaurada
+
+- Contagem respiratória automática novamente habilitada na interface.
+- Fluxo completo preservado: posicionamento, leitura de movimento, confirmação secundária opcional por microfone, animação, contagem provisória e resultado experimental.
+- Rótulo experimental, ausência de classificação clínica automática e recomendação de confirmação manual mantidos.
+- Cache do aplicativo atualizado para entregar a correção também às instalações PWA existentes.
+
 ## 2026-08-12 — perfil v26 — aprovação institucional pendente
 
 ### Identidade e escopo
 
 - FRO passa a significar `Ferramenta de Redução de Riscos e Otimização`.
 - Cálculo de dose/volume volta a ser o fluxo principal.
-- Sensor respiratório automático suspenso na versão clínica; contagem manual permanece disponível.
+- Sensor respiratório automático continua disponível como função experimental; contagem manual permanece a referência.
 
 ### Barreiras de segurança
 

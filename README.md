@@ -20,7 +20,7 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Inclui contador respiratório manual de 60 segundos e leitura experimental pelo acelerômetro/giroscópio do celular.
 - Mantém a contagem respiratória manual como função auxiliar após a identificação do paciente.
 - Ao abrir, pergunta se a médica deseja contagem manual ou automática; ao terminar, mostra frequência, interpretação disponível e ocorrências registradas antes de oferecer salvamento local para acompanhamento.
-- O sensor automático permanece no código como protótipo técnico, mas está suspenso na interface clínica até validação prospectiva e definição regulatória.
+- O sensor automático permanece disponível como função experimental, claramente separado da interpretação clínica da contagem manual.
 - A área principal do automático prioriza contagem, tempo, animação e controles; orientações, estado do áudio e avisos aparecem depois. O microfone não tem chave manual: quando disponível e autorizado, é usado apenas como confirmação secundária.
 - Classifica somente a contagem manual completa como abaixo, dentro ou acima da faixa respiratória aceitável por idade; peso não altera essa faixa.
 - Pode usar o microfone como confirmação secundária: áudio baixo, saturado, ruidoso ou discordante é descartado e nunca gera resultado sozinho.
@@ -54,7 +54,7 @@ A matriz completa de evidências, decisões e limitações está em [`REVISAO_CL
 6. Informe a dose exata prescrita quando o cartão apresentar uma faixa.
 7. Confira dose total, volume aspirado, diluente, volume final e eventual alerta de microvolume.
 8. Complete o checklist real de SRI e faça dupla conferência independente.
-9. Use a contagem respiratória manual quando necessário; o sensor automático está suspenso.
+9. Use a contagem respiratória manual como referência; a automática pode ser usada experimentalmente para comparação.
 
 ## Respiração e sinais vitais
 
@@ -62,7 +62,7 @@ O contador manual usa uma janela padrão de 60 segundos: com a criança em repou
 
 Depois de uma contagem manual completa, o app mostra se o valor está abaixo, dentro ou acima da faixa aceitável por idade publicada pelo Royal Children's Hospital Melbourne. A faixa é apenas contexto para crianças doentes: não diagnostica normalidade, não substitui tendência nem sinais de esforço respiratório. O peso informado aparece na observação, mas não muda o intervalo. Para menores de 5 anos, quando a frequência atinge o corte da OMS, o app exibe uma observação condicional aplicável somente se houver tosse ou dificuldade respiratória. O sensor experimental jamais produz essa classificação.
 
-O protótipo `Movimento + som — experimental` está suspenso na interface clínica. Seu código e testes sintéticos permanecem para pesquisa e revisão técnica, sem autorização de uso assistencial. Quando reativado em ambiente de pesquisa controlado, solicita acelerômetro/giroscópio e microfone, processa tudo localmente e não cria arquivos de áudio.
+O modo `Movimento + som — experimental` solicita acesso ao acelerômetro/giroscópio e, opcionalmente, ao microfone; oferece 5 segundos para posicionar o aparelho e coleta até 60 segundos. O algoritmo procura periodicidade entre 8 e 90 irpm nos eixos do sensor. Um pico no limite superior ou sem máximo periódico local confiável é rejeitado como sinal insuficiente. O áudio é processado localmente como confirmação secundária e nenhum arquivo de áudio é criado, salvo ou enviado. O resultado não substitui a contagem manual nem equipamento validado.
 
 Para ronco, o app procura episódios acústicos repetitivos com predominância de baixa frequência e concordância aproximada com o movimento respiratório. O resultado aparece como `possível ronco` e nunca como diagnóstico. A médica também pode marcar `Ronco observado` ou `Ronco/ruído de via aérea superior` manualmente.
 

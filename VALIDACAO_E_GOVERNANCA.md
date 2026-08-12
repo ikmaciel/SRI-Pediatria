@@ -18,7 +18,7 @@ Auxiliar profissionais habilitados a conferir cálculos pediátricos de dose e v
 - Checklist de SRI com confirmações reais, reiniciado em `Novo paciente`.
 - Preparos e reconstituições locais em modo somente leitura.
 - Novos registros de evolução limitados à sessão atual.
-- Sensor respiratório automático suspenso na versão clínica.
+- Sensor respiratório automático disponível somente como função experimental, sem classificação clínica e sem substituir a contagem manual.
 
 ## Gates antes de uso assistencial
 
@@ -53,7 +53,7 @@ Cada regra deve ter identificador estável, indicação, população, dose, unid
 
 ## Sensor respiratório
 
-O código permanece disponível apenas como protótipo técnico e para testes sintéticos. Reativação exige protocolo de pesquisa, aprovação ética quando aplicável, comparação simultânea com referência validada, amostra representativa por idade/doença/aparelho/posição e análise de falhas, concordância e impacto clínico. Até lá, nenhum release clínico deve expor o sensor ao usuário.
+O sensor permanece disponível como protótipo técnico experimental e não deve orientar, adiar ou modificar conduta. Validação para finalidade clínica exige protocolo de pesquisa, aprovação ética quando aplicável, comparação simultânea com referência validada, amostra representativa por idade/doença/aparelho/posição e análise de falhas, concordância e impacto clínico.
 
 ## Critério de release
 

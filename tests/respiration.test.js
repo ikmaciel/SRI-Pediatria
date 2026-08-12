@@ -14,6 +14,8 @@ assert.match(html, /id="movementAmplitudeBar"/);
 assert.match(html, /id="sensorCycleCount"/);
 assert.match(html, /FR provisória \(irpm\)/);
 assert.match(html, /min-height: min\(52dvh, 480px\)/);
+assert.doesNotMatch(html, /id="useRespiratoryAudio"|useRespiratoryAudio\.checked/);
+assert.match(html, /data-mode="automatic"\] \.sensor-warning \{ order: 2/);
 assert.match(html, /Nova versão disponível — atualizar agora/);
 const start = html.indexOf("function median(");
 const end = html.indexOf("async function acquireWakeLock", start);

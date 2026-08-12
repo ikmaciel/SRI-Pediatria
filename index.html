@@ -297,6 +297,19 @@
     .respiration-session-dialog[data-mode="automatic"] .comparison-box,
     .respiration-session-dialog[data-mode="automatic"] .respiratory-assessment,
     .respiration-session-dialog[data-mode="automatic"] .vitals-entry { display: none; }
+    .respiration-session-dialog[data-mode="automatic"] .vitals-body { display: flex; flex-direction: column; }
+    .respiration-session-dialog[data-mode="automatic"] .respiration-grid { order: 1; }
+    .respiration-session-dialog[data-mode="automatic"] .sensor-warning { order: 2; margin-top: 12px; }
+    .respiration-session-dialog[data-mode="automatic"] #sensorMeasurementCard { display: flex; flex-direction: column; }
+    .respiration-session-dialog[data-mode="automatic"] #sensorMeasurementCard > h3 { display: none; }
+    .respiration-session-dialog[data-mode="automatic"] .automatic-live-readout { order: 1; }
+    .respiration-session-dialog[data-mode="automatic"] .breathing-visual { order: 2; }
+    .respiration-session-dialog[data-mode="automatic"] .measurement-actions { order: 3; }
+    .respiration-session-dialog[data-mode="automatic"] .quality-meter { order: 4; }
+    .respiration-session-dialog[data-mode="automatic"] .audio-signal { order: 5; }
+    .respiration-session-dialog[data-mode="automatic"] .observed-events { order: 6; }
+    .respiration-session-dialog[data-mode="automatic"] #sensorMeasurementCard > .measurement-help { order: 7; margin-top: 14px; }
+    .respiration-session-dialog[data-mode="automatic"] #sensorBreathStatus { order: 8; }
     .respiration-session-dialog[data-mode="automatic"] .breathing-visual {
       grid-template-columns: 1fr;
       min-height: min(52dvh, 480px);
@@ -668,22 +681,6 @@
       background: var(--warning-line);
       transition: width .2s ease;
     }
-
-    .audio-option {
-      display: flex;
-      min-height: 44px;
-      align-items: center;
-      gap: 9px;
-      margin: 0 0 10px;
-      padding: 8px 10px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: var(--surface);
-      font-size: .8rem;
-      cursor: pointer;
-    }
-
-    .audio-option input { width: 22px; height: 22px; margin: 0; flex: 0 0 auto; accent-color: var(--brand); }
 
     .audio-signal {
       display: flex;
@@ -1384,8 +1381,7 @@
             <section id="sensorMeasurementCard" class="measurement-card" aria-labelledby="sensor-resp-title">
               <h3 id="sensor-resp-title" tabindex="-1">Movimento + som — experimental</h3>
               <p class="measurement-help">Com supervisão contínua, coloque o celular estável sobre a região toracoabdominal. Nunca cubra face ou pescoço.</p>
-              <label class="audio-option"><input id="useRespiratoryAudio" type="checkbox" checked><span>Usar o microfone somente para confirmar o ritmo do movimento</span></label>
-              <div class="measurement-readout automatic-live-readout" aria-live="polite">
+              <div id="sensorLiveReadout" class="measurement-readout automatic-live-readout" aria-live="polite" tabindex="-1">
                 <div class="measurement-value"><span>Ciclos estimados</span><strong id="sensorCycleCount">0</strong></div>
                 <div class="measurement-value"><span id="sensorBreathRateLabel">FR provisória</span><strong id="sensorBreathRate">—</strong></div>
                 <div class="measurement-value measurement-time"><span id="sensorBreathTimeLabel">Tempo restante</span><strong id="sensorBreathTime">60 s</strong></div>
@@ -1422,7 +1418,7 @@
                 <button id="sensorBreathStop" class="button secondary" type="button" disabled>Interromper</button>
                 <button id="sensorBreathReset" class="button secondary" type="button">Limpar leitura</button>
               </div>
-              <p id="sensorBreathStatus" class="measurement-status" role="status" aria-live="polite">O aparelho pedirá acesso ao movimento e, se habilitado, ao microfone. Haverá 5 segundos para posicioná-lo.</p>
+              <p id="sensorBreathStatus" class="measurement-status" role="status" aria-live="polite">O aparelho pedirá acesso ao movimento e, se disponível, ao microfone. Haverá 5 segundos para posicioná-lo.</p>
             </section>
           </div>
 
@@ -1960,7 +1956,6 @@
     const sensorBreathReset = document.getElementById("sensorBreathReset");
     const sensorBreathStatus = document.getElementById("sensorBreathStatus");
     const sensorQualityBar = document.getElementById("sensorQualityBar");
-    const useRespiratoryAudio = document.getElementById("useRespiratoryAudio");
     const audioBreathStatus = document.getElementById("audioBreathStatus");
     const audioBreathStatusText = document.getElementById("audioBreathStatusText");
     const respirationComparison = document.getElementById("respirationComparison");
@@ -2322,7 +2317,7 @@
       vitalsDetails.open = true;
       respirationFlowSubtitle.textContent = mode === "manual" ? "Contagem manual — referência" : "Contagem automática — experimental";
       window.requestAnimationFrame(() => {
-        (mode === "manual" ? manualBreathStart : document.getElementById("sensor-resp-title")).focus();
+        (mode === "manual" ? manualBreathStart : document.getElementById("sensorLiveReadout")).focus();
       });
     }
 
@@ -3019,10 +3014,6 @@
       const sensor = respirationState.sensor;
       sensor.audioAvailable = false;
       sensor.audioSamples = [];
-      if (!useRespiratoryAudio.checked) {
-        setAudioBreathStatus("Microfone desativado; usando somente o movimento.", "rejected");
-        return false;
-      }
       if (!navigator.mediaDevices?.getUserMedia) {
         setAudioBreathStatus("Microfone indisponível neste navegador; usando somente o movimento.", "error");
         return false;
@@ -3208,7 +3199,6 @@
       sensorBreathRateLabel.textContent = "FR provisória (irpm)";
       sensorBreathTimeLabel.textContent = "Posicionar";
       sensorQualityBar.style.width = "0";
-      useRespiratoryAudio.disabled = true;
       markObservedCoughButton.disabled = true;
       markObservedSneezeButton.disabled = true;
       markObservedSnoreButton.disabled = true;
@@ -3229,7 +3219,6 @@
       sensor.phase = "idle";
       sensorBreathStart.disabled = false;
       sensorBreathStop.disabled = true;
-      useRespiratoryAudio.disabled = false;
       markObservedCoughButton.disabled = true;
       markObservedSneezeButton.disabled = true;
       markObservedSnoreButton.disabled = true;
@@ -3279,9 +3268,7 @@
         : {
             confirmed: false,
             state: "rejected",
-            reason: useRespiratoryAudio.checked
-              ? "Áudio indisponível; resultado somente pelo movimento."
-              : "Microfone desativado; resultado somente pelo movimento."
+            reason: "Áudio indisponível; resultado somente pelo movimento."
           };
       const abruptEvents = analyzeAbruptRespiratoryEvents(audioWasAvailable ? audioSamples : [], samples);
       const motionPauses = detectMotionSignalPauses(samples, result.field);
@@ -3359,7 +3346,6 @@
       sensor.timer = null;
       sensorBreathStart.disabled = false;
       sensorBreathStop.disabled = true;
-      useRespiratoryAudio.disabled = false;
       sensorCycleCount.textContent = "0";
       sensorBreathRateLabel.textContent = "FR provisória (irpm)";
       sensorBreathRate.textContent = "—";
@@ -3374,13 +3360,8 @@
       resetBreathingVisualization();
       updateRespiratoryEventSummary();
       updateSnoreObservation();
-      setAudioBreathStatus(
-        useRespiratoryAudio.checked
-          ? "Áudio não iniciado. Nenhum som é gravado ou armazenado."
-          : "Microfone desativado; a leitura usará somente o movimento.",
-        useRespiratoryAudio.checked ? "idle" : "rejected"
-      );
-      setMeasurementStatus(sensorBreathStatus, "O aparelho pedirá acesso ao movimento e, se habilitado, ao microfone. Haverá 5 segundos para posicioná-lo.");
+      setAudioBreathStatus("Áudio não iniciado. Nenhum som é gravado ou armazenado.", "idle");
+      setMeasurementStatus(sensorBreathStatus, "O aparelho pedirá acesso ao movimento e, se disponível, ao microfone. Haverá 5 segundos para posicioná-lo.");
       updateRespirationComparison();
     }
 
@@ -4246,14 +4227,6 @@
     markObservedSneezeButton.addEventListener("click", () => markObservedRespiratoryEvent("sneeze"));
     markObservedSnoreButton.addEventListener("click", () => markObservedRespiratoryEvent("snore"));
     markObservedPauseButton.addEventListener("click", toggleObservedPause);
-    useRespiratoryAudio.addEventListener("change", () => {
-      setAudioBreathStatus(
-        useRespiratoryAudio.checked
-          ? "Áudio habilitado para a próxima leitura. Nenhum som será armazenado."
-          : "Microfone desativado; a leitura usará somente o movimento.",
-        useRespiratoryAudio.checked ? "idle" : "rejected"
-      );
-    });
     manualVitalInputs.forEach(input => {
       input.addEventListener(input.tagName === "SELECT" ? "change" : "input", validateManualVitals);
     });

@@ -3244,11 +3244,17 @@
       const sensor = respirationState.sensor;
       if (sensor.phase !== "measuring") return;
       const acceleration = event.accelerationIncludingGravity || event.acceleration;
-      const x = Number(acceleration?.x);
-      const y = Number(acceleration?.y);
-      const z = Number(acceleration?.z);
-      if (![x, y, z].every(Number.isFinite)) return;
-      sensor.samples.push({ t: performance.now(), x, y, z, magnitude: Math.hypot(x, y, z) });
+      const axes = ["x", "y", "z"].map(field => {
+        const raw = acceleration?.[field];
+        return raw === null || raw === undefined ? null : Number(raw);
+      });
+      const finiteAxes = axes.filter(Number.isFinite);
+      if (!finiteAxes.length) return;
+      const sample = { t: performance.now(), magnitude: Math.hypot(...finiteAxes) };
+      ["x", "y", "z"].forEach((field, index) => {
+        if (Number.isFinite(axes[index])) sample[field] = axes[index];
+      });
+      sensor.samples.push(sample);
       if (sensor.samples.length > 10000) sensor.samples.shift();
     }
 
@@ -3303,7 +3309,7 @@
       sensorQualityBar.style.width = `${Math.round(collection * 45)}%`;
       updateBreathingVisualization();
       updateProvisionalSensorCount(elapsed);
-      if (elapsed > 3000 && sensor.samples.length < 10) {
+      if (elapsed > 8000 && sensor.samples.length < 20) {
         cancelSensorRespiration("O navegador não forneceu dados do sensor. Tente no Safari/Chrome do próprio celular.", "error");
         return;
       }

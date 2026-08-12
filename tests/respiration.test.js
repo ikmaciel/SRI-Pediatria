@@ -26,6 +26,8 @@ assert.match(html, /Tosses candidatas/);
 assert.match(html, /const coughs = technical\.abrupt\?\.combined/);
 assert.match(html, /function assessRespiratoryAudioEnvironment\(/);
 assert.match(html, /const useAudio = audioWasAvailable && audioEnvironment\.usable/);
+assert.match(html, /const finiteAxes = axes\.filter\(Number\.isFinite\)/);
+assert.match(html, /elapsed > 8000 && sensor\.samples\.length < 20/);
 assert.match(html, /function playMeasurementCompleteTone\(\)/);
 const start = html.indexOf("function median(");
 const end = html.indexOf("async function acquireWakeLock", start);

@@ -1610,10 +1610,10 @@
             <span id="respirationResultAssessment">Resultado indisponível.</span>
           </div>
           <div id="respirationTimelineChart" class="respiration-chart" hidden>
-            <h4>Frequência respiratória durante a coleta</h4>
+            <h4>Movimento respiratório durante a coleta</h4>
             <div id="respirationTimelinePlot"></div>
             <div id="respirationTimelineLegend" class="respiration-chart-legend"></div>
-            <p class="respiration-chart-note">Linha e marcadores são estimativas técnicas do celular, não diagnósticos.</p>
+            <p class="respiration-chart-note">Amplitude e velocidade são relativas ao sinal do celular; não representam volume pulmonar nem fluxo de ar.</p>
           </div>
           <p id="respirationResultEvents" class="respiration-result-detail">Nenhum evento registrado.</p>
           <p id="respirationResultSafety" class="respiration-result-detail">Interprete junto com esforço respiratório, cor, consciência e oxigenação.</p>
@@ -2345,35 +2345,45 @@
       const samples = sensor.samples || [];
       const origin = samples[0]?.t || 0;
       const durationSec = Math.max(1, Math.min(60, ((samples.at(-1)?.t || origin) - origin) / 1000 || 60));
-      const timeline = technical.timeline || [];
+      const movement = buildRespiratoryMotionTimeline(samples, sensor.result?.field);
       const pauses = technical.pauses?.pauses || [];
       const coughs = technical.abrupt?.combined || [];
       const allNoises = technical.abrupt?.audio || [];
       const noises = allNoises.filter(time => !coughs.some(coughTime => Math.abs(coughTime - time) <= 750));
       const snores = technical.snore?.burstTimes || [];
-      const left = 48, right = 620, top = 18, bottom = 184;
+      const left = 58, right = 620;
       const x = seconds => left + Math.max(0, Math.min(durationSec, seconds)) / durationSec * (right - left);
-      const y = bpm => bottom - Math.max(0, Math.min(90, bpm)) / 90 * (bottom - top);
-      const grid = [0, 30, 60, 90].map(value => `<line x1="${left}" y1="${y(value)}" x2="${right}" y2="${y(value)}" stroke="var(--line)"/><text x="40" y="${y(value) + 4}" text-anchor="end" fill="var(--muted)" font-size="11">${value}</text>`).join("");
-      const timeTicks = [0, 15, 30, 45, 60].filter(value => value <= durationSec + 1).map(value => `<text x="${x(value)}" y="274" text-anchor="middle" fill="var(--muted)" font-size="11">${value}s</text>`).join("");
-      const pauseBands = pauses.map(pause => `<rect x="${x(pause.startSec)}" y="${top}" width="${Math.max(3, x(pause.startSec + pause.durationSec) - x(pause.startSec))}" height="${bottom - top}" fill="#f59e0b" opacity=".18"/><rect x="${x(pause.startSec)}" y="202" width="${Math.max(4, x(pause.startSec + pause.durationSec) - x(pause.startSec))}" height="10" rx="3" fill="#f59e0b"/>`).join("");
-      const linePoints = timeline.map(point => `${x(point.timeSec)},${y(point.bpm)}`).join(" ");
-      const line = timeline.length > 1
-        ? `<polyline points="${linePoints}" fill="none" stroke="var(--brand)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${timeline.map(point => `<circle cx="${x(point.timeSec)}" cy="${y(point.bpm)}" r="4" fill="var(--brand)"/>`).join("")}`
-        : `<text x="${(left + right) / 2}" y="100" text-anchor="middle" fill="var(--muted)" font-size="13">Frequência ao longo do tempo indisponível</text>`;
-      const coughMarks = coughs.map(time => { const center = x((time - origin) / 1000); return `<path d="M${center} 216 l7 13 h-14Z" fill="#ef4444"/>`; }).join("");
-      const noiseMarks = noises.map(time => `<circle cx="${x((time - origin) / 1000)}" cy="244" r="5" fill="#64748b"/>`).join("");
-      const snoreMarks = snores.map(time => { const center = x((time - origin) / 1000); return `<path d="M${center} 257 l6 6 -6 6 -6 -6Z" fill="#8b5cf6"/>`; }).join("");
-      respirationTimelinePlot.innerHTML = `<svg viewBox="0 0 640 300" role="img" aria-label="Gráfico temporal da frequência respiratória estimada com pausas, tosses candidatas, outros sons e roncos candidatos">
-        ${grid}${pauseBands}${line}
-        <text x="8" y="209" fill="var(--muted)" font-size="10">Pausa</text>
-        <text x="8" y="228" fill="var(--muted)" font-size="10">Tosse?</text>
-        <text x="8" y="248" fill="var(--muted)" font-size="10">Som</text>
-        <text x="8" y="267" fill="var(--muted)" font-size="10">Ronco</text>
-        ${coughMarks}${noiseMarks}${snoreMarks}${timeTicks.replaceAll('y="274"', 'y="294"')}
+      const amplitudeY = value => 91 - Math.max(-1, Math.min(1, value)) * 55;
+      const speedY = value => 248 - Math.max(0, Math.min(1, value)) * 62;
+      const timeValues = [0, 15, 30, 45, 60].filter(value => value <= durationSec + 1);
+      const verticalGrid = timeValues.map(value => `<line x1="${x(value)}" y1="24" x2="${x(value)}" y2="332" stroke="var(--line)" opacity=".55"/><text x="${x(value)}" y="354" text-anchor="middle" fill="var(--muted)" font-size="11">${value}s</text>`).join("");
+      const panelGrid = `<line x1="${left}" y1="36" x2="${right}" y2="36" stroke="var(--line)"/><line x1="${left}" y1="91" x2="${right}" y2="91" stroke="var(--line)"/><line x1="${left}" y1="146" x2="${right}" y2="146" stroke="var(--line)"/><line x1="${left}" y1="186" x2="${right}" y2="186" stroke="var(--line)"/><line x1="${left}" y1="248" x2="${right}" y2="248" stroke="var(--line)"/>`;
+      const pauseBands = pauses.map(pause => `<rect x="${x(pause.startSec)}" y="24" width="${Math.max(3, x(pause.startSec + pause.durationSec) - x(pause.startSec))}" height="224" fill="#f59e0b" opacity=".16"/>`).join("");
+      const amplitudePoints = movement.map(point => `${x(point.timeSec)},${amplitudeY(point.amplitude)}`).join(" ");
+      const speedPoints = movement.map(point => `${x(point.timeSec)},${speedY(point.speed)}`).join(" ");
+      const traces = movement.length > 1
+        ? `<polyline points="${amplitudePoints}" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><polyline points="${speedPoints}" fill="none" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`
+        : `<text x="${(left + right) / 2}" y="120" text-anchor="middle" fill="var(--muted)" font-size="13">Traçado de movimento indisponível</text>`;
+      const coughMarks = coughs.map(time => { const center = x((time - origin) / 1000); return `<path d="M${center} 270 l7 13 h-14Z" fill="#ef4444"/>`; }).join("");
+      const noiseMarks = noises.map(time => `<circle cx="${x((time - origin) / 1000)}" cy="302" r="5" fill="#64748b"/>`).join("");
+      const snoreMarks = snores.map(time => { const center = x((time - origin) / 1000); return `<path d="M${center} 316 l6 6 -6 6 -6 -6Z" fill="#8b5cf6"/>`; }).join("");
+      respirationTimelinePlot.innerHTML = `<svg viewBox="0 0 640 365" role="img" aria-label="Gráfico temporal da amplitude e velocidade relativas do movimento respiratório, com pausas, tosses candidatas, outros sons e roncos candidatos">
+        ${verticalGrid}${panelGrid}${pauseBands}${traces}
+        <text x="8" y="30" fill="var(--muted)" font-size="11">Amplitude</text>
+        <text x="48" y="40" text-anchor="end" fill="var(--muted)" font-size="10">+100%</text>
+        <text x="48" y="95" text-anchor="end" fill="var(--muted)" font-size="10">0</text>
+        <text x="48" y="150" text-anchor="end" fill="var(--muted)" font-size="10">−100%</text>
+        <text x="8" y="178" fill="var(--muted)" font-size="11">Velocidade</text>
+        <text x="48" y="190" text-anchor="end" fill="var(--muted)" font-size="10">100%</text>
+        <text x="48" y="252" text-anchor="end" fill="var(--muted)" font-size="10">0</text>
+        <text x="8" y="281" fill="var(--muted)" font-size="10">Tosse?</text>
+        <text x="8" y="306" fill="var(--muted)" font-size="10">Som</text>
+        <text x="8" y="326" fill="var(--muted)" font-size="10">Ronco</text>
+        ${coughMarks}${noiseMarks}${snoreMarks}
       </svg>`;
       respirationTimelineLegend.innerHTML = `
-        <span class="chart-key" style="--key-color:var(--brand)">FR estimada</span>
+        <span class="chart-key" style="--key-color:var(--brand)">Amplitude relativa</span>
+        <span class="chart-key" style="--key-color:#0ea5e9">Velocidade relativa</span>
         <span class="chart-key pause" style="--key-color:#f59e0b">Pausas: ${pauses.length}</span>
         <span class="chart-key" style="--key-color:#ef4444">Tosses candidatas: ${coughs.length}</span>
         <span class="chart-key" style="--key-color:#64748b">Outros sons: ${noises.length}</span>
@@ -2973,6 +2983,25 @@
         if (cappedEnd === end) break;
       }
       return points;
+    }
+
+    function buildRespiratoryMotionTimeline(samples, field, frequency = 10) {
+      if (!field) return [];
+      const series = resampleMotion(samples, field, frequency);
+      if (!series || series.values.length < frequency * 5) return [];
+      const smoothed = movingAverage(series.values, Math.max(2, frequency * 0.15));
+      const baseline = movingAverage(smoothed, frequency * 3);
+      const centered = smoothed.map((value, index) => value - baseline[index]);
+      const amplitudeScale = percentile(centered.map(value => Math.abs(value)), 0.95);
+      if (!Number.isFinite(amplitudeScale) || amplitudeScale < 1e-6) return [];
+      const amplitudes = centered.map(value => Math.max(-1, Math.min(1, value / amplitudeScale)));
+      const rawSpeeds = amplitudes.map((value, index) => index ? Math.abs(value - amplitudes[index - 1]) * frequency : 0);
+      const speedScale = percentile(rawSpeeds, 0.95);
+      return amplitudes.map((amplitude, index) => ({
+        timeSec: index / frequency,
+        amplitude,
+        speed: speedScale > 1e-6 ? Math.max(0, Math.min(1, rawSpeeds[index] / speedScale)) : 0
+      }));
     }
 
     async function acquireWakeLock() {

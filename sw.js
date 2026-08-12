@@ -1,4 +1,4 @@
-const CACHE_NAME = "sri-pediatrica-fro-2026-08-11-v24";
+const CACHE_NAME = "sri-pediatrica-fro-2026-08-11-v25";
 const APP_SHELL = [
   "./",
   "./index.html",

@@ -19,7 +19,10 @@ assert.match(html, /data-mode="automatic"\] \.sensor-warning \{ order: 2/);
 assert.match(html, /Nova versão disponível — atualizar agora/);
 assert.match(html, /id="respirationTimelineChart"/);
 assert.match(html, /function buildRespiratoryRateTimeline\(/);
-assert.match(html, /Gráfico temporal da frequência respiratória estimada/);
+assert.match(html, /function buildRespiratoryMotionTimeline\(/);
+assert.match(html, /Amplitude relativa/);
+assert.match(html, /Velocidade relativa/);
+assert.match(html, /Gráfico temporal da amplitude e velocidade relativas do movimento respiratório/);
 assert.match(html, /respirationResultEvents\.hidden = mode === "automatic"/);
 assert.match(html, /const allNoises = technical\.abrupt\?\.audio/);
 assert.match(html, /Tosses candidatas/);
@@ -211,6 +214,12 @@ assert.equal(context.analyzeSnorePattern(nonSnoreAudio, { bpm: 24 }).possible, f
 const timeline24 = context.buildRespiratoryRateTimeline(syntheticBreathing(24));
 assert.ok(timeline24.length >= 5, "O gráfico deveria conter vários pontos temporais");
 assert.ok(timeline24.every(point => Math.abs(point.bpm - 24) <= 3), "A linha temporal deveria acompanhar a frequência sintética");
+
+const movementTimeline24 = context.buildRespiratoryMotionTimeline(syntheticBreathing(24), "z");
+assert.ok(movementTimeline24.length >= 500, "O traçado deve representar quase toda a coleta ao longo do tempo");
+assert.ok(movementTimeline24.every(point => point.amplitude >= -1 && point.amplitude <= 1), "A amplitude relativa deve permanecer normalizada");
+assert.ok(movementTimeline24.every(point => point.speed >= 0 && point.speed <= 1), "A velocidade relativa deve permanecer normalizada");
+assert.ok(Math.max(...movementTimeline24.map(point => point.amplitude)) > 0.7, "O traçado deve preservar os picos respiratórios");
 
 const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
 assert.equal(manifest.display, "standalone");

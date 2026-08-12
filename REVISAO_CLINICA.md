@@ -53,6 +53,16 @@ O algoritmo foi verificado apenas com sinais sintéticos regulares de 18–72 ir
 
 Acesso a acelerômetro/giroscópio depende de HTTPS, permissão e implementação do navegador. A Anvisa informa que software que calcula sinais vitais a partir de sensores para finalidade médica pode exigir regularização e estudos clínicos robustos. Por isso, esta função permanece identificada como experimental e separada dos cálculos de medicamentos.
 
+### Fase respiratória e eventos
+
+A animação ao vivo representa deslocamento do aparelho, não fluxo de ar. O algoritmo escolhe o eixo com maior oscilação recente, remove a linha de base e mostra a tendência do sinal. Como posição e orientação do telefone alteram a polaridade, inspiração e expiração só são nomeadas depois que a médica toca em `Sincronizar` durante uma inspiração visualmente confirmada. Mesmo sincronizada, a fase é descrita como provável e deve ser comparada ao tórax/abdome.
+
+Tosse e espirro não são classificados automaticamente. Estudos que obtiveram classificação de tosse em smartphone usaram modelos treinados e bases rotuladas; um algoritmo especificamente pediátrico teve sensibilidade de 47,6% apesar da alta especificidade. O protótipo atual não contém modelo clínico treinado. Ele apenas agrupa picos acústicos e de movimento próximos como **evento abrupto candidato**, que também pode representar choro, fala, toque, deslocamento ou ruído. A médica pode registrar separadamente tosse e espirro que observou.
+
+Uma redução prolongada da oscilação gera o rótulo **pausa técnica do sinal** a partir de 10 segundos para solicitar conferência imediata da criança e do contato do aparelho. Esse limiar não é critério diagnóstico. O celular não mede fluxo aéreo, esforço respiratório independente, frequência cardíaca ou dessaturação e, portanto, não confirma nem exclui apneia. A duração de uma pausa observada pode ser marcada manualmente pela médica.
+
+Foram acrescentados campos manuais para tiragens/retrações, batimento de asa nasal, gemência, estridor, sibilância, cianose/palidez, gasping e esforço reduzido/fadiga. Esses achados clínicos não são inferidos pelos sensores e prevalecem sobre frequência, fase animada e candidatos técnicos.
+
 ## Fontes principais
 
 1. [AHA/AAP — Pediatric Advanced Life Support 2025](https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support)
@@ -83,6 +93,8 @@ Acesso a acelerômetro/giroscópio depende de HTTPS, permissão e implementaçã
 26. [Lung auscultation using smartphone built-in microphone versus digital stethoscope — estudo pediátrico de viabilidade](https://www.minervamedica.it/en/journals/minerva-pediatrics/article.php?cod=R15Y2026N02A0155)
 27. [W3C — Media Capture and Streams](https://w3c.github.io/mediacapture-main/getusermedia.html)
 28. [Royal Children's Hospital Melbourne — Acceptable ranges for physiological variables](https://www.rch.org.au/clinicalguide/guideline_index/normal_ranges_for_physiological_variables/)
+29. [Development and technical validation of a smartphone-based pediatric cough detection algorithm](https://pmc.ncbi.nlm.nih.gov/articles/PMC9306830/)
+30. [RCH Melbourne — Assessment of severity of respiratory conditions](https://www.rch.org.au/clinicalguide/guideline_index/Assessment_of_severity_of_respiratory_conditions/)
 
 ## Limites que permanecem
 
@@ -92,3 +104,4 @@ Acesso a acelerômetro/giroscópio depende de HTTPS, permissão e implementaçã
 - O programa não realiza diagnóstico, não recomenda automaticamente um agente e não substitui checagem independente do preparo.
 - A frequência respiratória calculada pelo sensor não foi validada em crianças e não pode ser usada como monitor, alarme ou base isolada para decisão clínica.
 - A confirmação acústica não classifica sibilos, estertores, estridor ou qualquer doença; ela verifica apenas concordância rítmica com o movimento.
+- A animação não confirma entrada ou saída de ar. Picos abruptos não distinguem tosse, espirro, choro, fala, manipulação ou ruído; pausas técnicas não diagnosticam nem excluem apneia.

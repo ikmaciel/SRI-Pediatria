@@ -7,7 +7,7 @@ const start = html.indexOf("function median(");
 const end = html.indexOf("async function acquireWakeLock", start);
 assert.ok(start >= 0 && end > start, "Funções de análise respiratória não encontradas");
 
-const context = { RESPIRATION_DURATION_MS: 60000 };
+const context = { RESPIRATION_DURATION_MS: 60000, TECHNICAL_PAUSE_NOTICE_MS: 10000 };
 vm.createContext(context);
 vm.runInContext(html.slice(start, end), context);
 
@@ -104,4 +104,42 @@ for (const [months, min, max] of ageReferences) {
 assert.equal(context.respiratoryReferenceForAge(-1), null);
 assert.equal(context.respiratoryReferenceForAge(217), null);
 
-console.log("Análise respiratória: movimento/áudio verificados e faixas etárias testadas do nascimento aos 18 anos.");
+const liveMotion = context.analyzeRealtimeMotion(syntheticBreathing(30).slice(-300));
+assert.ok(liveMotion, "A animação deveria encontrar movimento respiratório recente");
+assert.ok(Number.isFinite(liveMotion.normalized) && Number.isFinite(liveMotion.trend));
+const smoothEvents = context.analyzeAbruptRespiratoryEvents(syntheticAudio(24), syntheticBreathing(24));
+assert.equal(smoothEvents.combined.length, 0, "Respiração sintética regular não deveria virar evento abrupto combinado");
+assert.equal(context.detectMotionSignalPauses(syntheticBreathing(24), "z").count, 0, "Respiração regular não deveria gerar pausa técnica");
+
+const abruptAudioSamples = syntheticAudio(24);
+const abruptMotionSamples = syntheticBreathing(24);
+for (const sample of abruptAudioSamples) {
+  if (sample.t >= 10000 && sample.t <= 10100) {
+    sample.rms = 0.22;
+    sample.peak = 0.85;
+  }
+}
+for (const sample of abruptMotionSamples) {
+  if (sample.t === 10000) {
+    sample.x += 1.5;
+    sample.y += 1.2;
+    sample.z += 1.8;
+  }
+}
+const abruptEvents = context.analyzeAbruptRespiratoryEvents(abruptAudioSamples, abruptMotionSamples);
+assert.equal(abruptEvents.combined.length, 1, "Pico simultâneo de som e movimento deveria gerar um candidato abrupto");
+
+const pausedMotion = syntheticBreathing(24);
+for (const sample of pausedMotion) {
+  if (sample.t >= 20000 && sample.t <= 34000) {
+    sample.x = 0;
+    sample.y = 0;
+    sample.z = 9.81;
+    sample.magnitude = 9.81;
+  }
+}
+const technicalPauses = context.detectMotionSignalPauses(pausedMotion, "z");
+assert.ok(technicalPauses.count >= 1, "Pausa sintética prolongada deveria ser marcada como pausa técnica");
+assert.ok(technicalPauses.longestSec >= 10);
+
+console.log("Análise respiratória: frequência, áudio, faixa etária, animação, evento abrupto e pausa técnica verificados.");

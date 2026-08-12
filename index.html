@@ -535,6 +535,65 @@
     .audio-signal[data-state="error"] { color: var(--danger); font-weight: 700; }
     .audio-signal[data-state="error"] .audio-dot { background: var(--danger); }
 
+    .breathing-visual {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      min-height: 104px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    .lung-animation { width: 82px; height: 82px; overflow: visible; }
+    .lung-animation .airway { fill: none; stroke: var(--muted); stroke-linecap: round; stroke-width: 2.2; }
+    .lung-animation .lung {
+      fill: var(--brand-soft);
+      stroke: var(--brand);
+      stroke-width: 2;
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: transform .16s ease-out, fill .16s ease-out;
+    }
+
+    .breathing-visual[data-phase="inspiration"] .lung { fill: var(--brand-soft); }
+    .breathing-visual[data-phase="expiration"] .lung { fill: var(--notice-bg); }
+    .breathing-visual[data-phase="pause"] { border-color: var(--warning-line); background: var(--warning-bg); }
+    .breathing-copy span { display: block; color: var(--muted); font-size: .69rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
+    .breathing-copy strong { display: block; margin-top: 2px; font-size: .96rem; }
+    .breathing-copy small { display: block; margin-top: 4px; color: var(--muted); font-size: .73rem; line-height: 1.3; }
+
+    .sync-phase { width: 100%; margin-top: 8px; }
+
+    .observed-events {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .observed-events > strong { display: block; margin-bottom: 7px; font-size: .78rem; }
+    .event-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+    .event-buttons .button { min-width: 0; padding: 9px 7px; font-size: .76rem; }
+    .event-buttons .pause-button { grid-column: 1 / -1; }
+    .event-summary { min-height: 2.5em; margin: 8px 0 0; color: var(--muted); font-size: .76rem; line-height: 1.35; }
+
+    .respiratory-signs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .respiratory-signs .check-option { min-height: 42px; padding: 7px 8px; }
+    .respiratory-signs .check-option span { font-size: .75rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .lung-animation .lung { transition: none; }
+    }
+
     .comparison-box {
       margin-top: 10px;
       padding: 12px;
@@ -1128,6 +1187,28 @@
               </div>
               <div class="quality-meter" aria-hidden="true"><span id="sensorQualityBar"></span></div>
               <p id="audioBreathStatus" class="audio-signal" data-state="idle"><span class="audio-dot" aria-hidden="true"></span><span id="audioBreathStatusText">Áudio não iniciado. Nenhum som é gravado ou armazenado.</span></p>
+              <div id="breathingVisual" class="breathing-visual" data-phase="idle" role="img" aria-label="Animação experimental do movimento respiratório">
+                <svg class="lung-animation" viewBox="0 0 96 96" aria-hidden="true">
+                  <path class="airway" d="M48 12v25M48 31 37 42M48 31l11 11"/>
+                  <path id="leftLung" class="lung" d="M42 38c-8-5-17 3-21 14-5 13-5 29 1 34 5 4 15 0 20-7V38Z"/>
+                  <path id="rightLung" class="lung" d="M54 38c8-5 17 3 21 14 5 13 5 29-1 34-5 4-15 0-20-7V38Z"/>
+                </svg>
+                <div class="breathing-copy">
+                  <span>Movimento ao vivo</span>
+                  <strong id="breathingPhase">Aguardando sensor</strong>
+                  <small id="breathingPhaseHelp">A fase só será nomeada depois de sincronizar com uma inspiração observada.</small>
+                </div>
+              </div>
+              <button id="syncBreathingPhase" class="button secondary sync-phase" type="button" disabled>Sincronizar durante inspiração</button>
+              <div class="observed-events">
+                <strong>Marcar o que a médica observou</strong>
+                <div class="event-buttons">
+                  <button id="markObservedCough" class="button secondary" type="button" disabled>Tosse observada</button>
+                  <button id="markObservedSneeze" class="button secondary" type="button" disabled>Espirro observado</button>
+                  <button id="markObservedPause" class="button secondary pause-button" type="button" disabled>Iniciar pausa observada</button>
+                </div>
+                <p id="respiratoryEventSummary" class="event-summary" role="status" aria-live="polite">Nenhum evento marcado. O celular ainda não analisou candidatos técnicos.</p>
+              </div>
               <div class="measurement-actions">
                 <button id="sensorBreathStart" class="button primary-action" type="button">Iniciar sensor</button>
                 <button id="sensorBreathStop" class="button secondary" type="button" disabled>Interromper</button>
@@ -1147,6 +1228,22 @@
             Informe a idade e complete a contagem manual de 60 segundos. O sensor experimental não gera esta classificação.
             <small>O peso é usado nos cálculos de medicamentos, mas não define a faixa de frequência respiratória.</small>
           </div>
+
+          <section class="vitals-entry" aria-labelledby="respiratory-signs-title">
+            <h3 id="respiratory-signs-title">Achados respiratórios observados</h3>
+            <p class="measurement-help">Marcação clínica manual — não detectada pelo celular. Achados de gravidade prevalecem sobre frequência e animação.</p>
+            <div class="respiratory-signs">
+              <label class="check-option"><input type="checkbox" data-respiratory-sign="retractions"><span>Tiragens/retrações</span></label>
+              <label class="check-option"><input type="checkbox" data-respiratory-sign="nasal-flaring"><span>Batimento de asa nasal</span></label>
+              <label class="check-option"><input type="checkbox" data-respiratory-sign="grunting"><span>Gemência</span></label>
+              <label class="check-option"><input type="checkbox" data-respiratory-sign="stridor"><span>Estridor</span></label>
+              <label class="check-option"><input type="checkbox" data-respiratory-sign="wheeze"><span>Sibilância</span></label>
+              <label class="check-option"><input type="checkbox" data-respiratory-sign="cyanosis"><span>Cianose/palidez</span></label>
+              <label class="check-option"><input type="checkbox" data-respiratory-sign="gasping"><span>Gasping/respiração agônica</span></label>
+              <label class="check-option"><input type="checkbox" data-respiratory-sign="reduced-effort"><span>Esforço reduzido/fadiga</span></label>
+            </div>
+            <p id="respiratorySignsStatus" class="measurement-status" role="status" aria-live="polite">Nenhum achado respiratório marcado.</p>
+          </section>
 
           <section class="vitals-entry" aria-labelledby="manual-vitals-title">
             <h3 id="manual-vitals-title">Sinais vitais informados pela médica</h3>
@@ -1551,6 +1648,18 @@
     const audioBreathStatusText = document.getElementById("audioBreathStatusText");
     const respirationComparison = document.getElementById("respirationComparison");
     const respiratoryAgeAssessment = document.getElementById("respiratoryAgeAssessment");
+    const breathingVisual = document.getElementById("breathingVisual");
+    const breathingPhase = document.getElementById("breathingPhase");
+    const breathingPhaseHelp = document.getElementById("breathingPhaseHelp");
+    const leftLung = document.getElementById("leftLung");
+    const rightLung = document.getElementById("rightLung");
+    const syncBreathingPhaseButton = document.getElementById("syncBreathingPhase");
+    const markObservedCoughButton = document.getElementById("markObservedCough");
+    const markObservedSneezeButton = document.getElementById("markObservedSneeze");
+    const markObservedPauseButton = document.getElementById("markObservedPause");
+    const respiratoryEventSummary = document.getElementById("respiratoryEventSummary");
+    const respiratorySignsStatus = document.getElementById("respiratorySignsStatus");
+    const respiratorySignInputs = [...document.querySelectorAll("[data-respiratory-sign]")];
     const vitalsSummary = document.getElementById("vitals-summary");
     const vitalsStatus = document.getElementById("vitalsStatus");
     const clearVitalsButton = document.getElementById("clearVitals");
@@ -1558,13 +1667,16 @@
 
     const RESPIRATION_DURATION_MS = 60000;
     const SENSOR_POSITIONING_MS = 5000;
+    const TECHNICAL_PAUSE_NOTICE_MS = 10000;
     const respirationState = {
       manual: { running: false, startedAt: null, count: 0, taps: [], timer: null, result: null },
       sensor: {
         phase: "idle", positioningStartedAt: null, measurementStartedAt: null,
         samples: [], timer: null, result: null, wakeLock: null,
         audioStream: null, audioContext: null, audioAnalyser: null, audioTimer: null,
-        audioSamples: [], audioAvailable: false
+        audioSamples: [], audioAvailable: false,
+        phasePolarity: null, lastRealtimePhase: null, lastBreathAt: null,
+        observedEvents: [], observedPauseStartedAt: null, technicalEvents: null
       }
     };
 
@@ -2092,6 +2204,117 @@
       return { threshold: 40, repeat: false };
     }
 
+    function analyzeRealtimeMotion(samples, windowMs = 6000) {
+      if (!Array.isArray(samples) || samples.length < 30) return null;
+      const endTime = samples[samples.length - 1]?.t;
+      if (!Number.isFinite(endTime)) return null;
+      const recent = samples.filter(sample => endTime - sample.t <= windowMs);
+      if (recent.length < 30) return null;
+      const candidates = ["x", "y", "z", "magnitude"].map(field => {
+        const values = recent.map(sample => sample[field]).filter(Number.isFinite);
+        if (values.length < 30) return null;
+        const low = percentile(values, 0.1);
+        const high = percentile(values, 0.9);
+        return { field, amplitude: high - low, baseline: median(values) };
+      }).filter(Boolean).sort((a, b) => b.amplitude - a.amplitude);
+      const best = candidates[0];
+      if (!best || best.amplitude < 1e-5) return null;
+      const current = recent.filter(sample => endTime - sample.t <= 260).map(sample => sample[best.field]).filter(Number.isFinite);
+      const previous = recent.filter(sample => endTime - sample.t > 260 && endTime - sample.t <= 620).map(sample => sample[best.field]).filter(Number.isFinite);
+      if (!current.length || !previous.length) return null;
+      const currentMean = current.reduce((sum, value) => sum + value, 0) / current.length;
+      const previousMean = previous.reduce((sum, value) => sum + value, 0) / previous.length;
+      const halfAmplitude = Math.max(best.amplitude / 2, 1e-5);
+      return {
+        field: best.field,
+        normalized: Math.max(-1, Math.min(1, (currentMean - best.baseline) / halfAmplitude)),
+        trend: Math.max(-2, Math.min(2, (currentMean - previousMean) / halfAmplitude)),
+        amplitude: best.amplitude,
+        time: endTime
+      };
+    }
+
+    function groupEventTimes(times, gapMs = 650) {
+      const sorted = times.filter(Number.isFinite).sort((a, b) => a - b);
+      const groups = [];
+      sorted.forEach(time => {
+        const last = groups[groups.length - 1];
+        if (!last || time - last.end > gapMs) groups.push({ start: time, end: time });
+        else last.end = time;
+      });
+      return groups.map(group => (group.start + group.end) / 2);
+    }
+
+    function analyzeAbruptRespiratoryEvents(audioSamples, motionSamples) {
+      const audioLevels = (audioSamples || []).map(sample => sample.rms).filter(Number.isFinite);
+      const audioCenter = median(audioLevels);
+      const audioMad = median(audioLevels.map(value => Math.abs(value - audioCenter)));
+      const audioThreshold = audioCenter + Math.max(audioMad * 7, audioCenter * 1.8, 0.0015);
+      const audioTimes = groupEventTimes((audioSamples || [])
+        .filter(sample => Number.isFinite(sample.t) && Number.isFinite(sample.rms) && sample.rms > audioThreshold && Number(sample.peak) > Math.max(audioCenter * 3, 0.01))
+        .map(sample => sample.t));
+
+      const jerks = [];
+      for (let index = 1; index < (motionSamples || []).length; index += 1) {
+        const previous = motionSamples[index - 1];
+        const current = motionSamples[index];
+        const elapsed = current.t - previous.t;
+        if (!Number.isFinite(elapsed) || elapsed <= 0 || elapsed > 250) continue;
+        const jerk = Math.hypot(current.x - previous.x, current.y - previous.y, current.z - previous.z);
+        if (Number.isFinite(jerk)) jerks.push({ t: current.t, value: jerk });
+      }
+      const jerkValues = jerks.map(item => item.value);
+      const jerkCenter = median(jerkValues);
+      const jerkMad = median(jerkValues.map(value => Math.abs(value - jerkCenter)));
+      const jerkThreshold = jerkCenter + Math.max(jerkMad * 9, jerkCenter * 5, 0.08);
+      const motionTimes = groupEventTimes(jerks.filter(item => item.value > jerkThreshold).map(item => item.t));
+
+      const combined = [];
+      const usedMotion = new Set();
+      audioTimes.forEach(audioTime => {
+        let bestIndex = -1;
+        let bestDistance = Infinity;
+        motionTimes.forEach((motionTime, index) => {
+          const distance = Math.abs(motionTime - audioTime);
+          if (!usedMotion.has(index) && distance <= 750 && distance < bestDistance) {
+            bestIndex = index;
+            bestDistance = distance;
+          }
+        });
+        if (bestIndex >= 0) {
+          usedMotion.add(bestIndex);
+          combined.push((audioTime + motionTimes[bestIndex]) / 2);
+        }
+      });
+      return { audio: audioTimes, motion: motionTimes, combined };
+    }
+
+    function detectMotionSignalPauses(samples, field) {
+      const series = resampleMotion(samples, field);
+      if (!series || series.values.length < series.frequency * 15) return { count: 0, longestSec: 0, pauses: [] };
+      const windowSize = Math.round(series.frequency * 2);
+      const step = Math.max(1, Math.round(series.frequency * 0.5));
+      const windows = [];
+      for (let start = 0; start + windowSize <= series.values.length; start += step) {
+        const values = series.values.slice(start, start + windowSize);
+        const center = values.reduce((sum, value) => sum + value, 0) / values.length;
+        const deviation = Math.sqrt(values.reduce((sum, value) => sum + (value - center) ** 2, 0) / values.length);
+        windows.push({ timeSec: (start + windowSize / 2) / series.frequency, deviation });
+      }
+      const baseline = percentile(windows.map(item => item.deviation), 0.75);
+      if (!Number.isFinite(baseline) || baseline < 1e-5) return { count: 0, longestSec: 0, pauses: [] };
+      const quiet = windows.filter(item => item.deviation < baseline * 0.16);
+      const grouped = [];
+      quiet.forEach(item => {
+        const last = grouped[grouped.length - 1];
+        if (!last || item.timeSec - last.end > 0.75) grouped.push({ start: item.timeSec, end: item.timeSec });
+        else last.end = item.timeSec;
+      });
+      const pauses = grouped.map(group => ({ startSec: Math.max(0, group.start - 1), durationSec: group.end - group.start + 2 }))
+        .filter(pause => pause.durationSec >= TECHNICAL_PAUSE_NOTICE_MS / 1000);
+      return { count: pauses.length, longestSec: pauses.reduce((max, pause) => Math.max(max, pause.durationSec), 0), pauses };
+    }
+
     async function acquireWakeLock() {
       try {
         if ("wakeLock" in navigator) respirationState.sensor.wakeLock = await navigator.wakeLock.request("screen");
@@ -2106,6 +2329,156 @@
     function setAudioBreathStatus(text, state = "idle") {
       audioBreathStatus.dataset.state = state;
       audioBreathStatusText.textContent = text;
+    }
+
+    function setLungAnimationScale(scale = 1) {
+      const safeScale = Math.max(0.82, Math.min(1.18, scale));
+      leftLung.style.transform = `scale(${safeScale})`;
+      rightLung.style.transform = `scale(${safeScale})`;
+    }
+
+    function resetBreathingVisualization(message = "Aguardando sensor") {
+      breathingVisual.dataset.phase = "idle";
+      breathingPhase.textContent = message;
+      breathingPhaseHelp.textContent = "A fase só será nomeada depois de sincronizar com uma inspiração observada.";
+      setLungAnimationScale(1);
+    }
+
+    function updateBreathingVisualization() {
+      const sensor = respirationState.sensor;
+      if (sensor.phase !== "measuring") return;
+      const live = analyzeRealtimeMotion(sensor.samples);
+      const now = performance.now();
+      if (!live) {
+        setLungAnimationScale(1);
+        const pauseSec = sensor.lastBreathAt ? (now - sensor.lastBreathAt) / 1000 : 0;
+        if (pauseSec >= TECHNICAL_PAUSE_NOTICE_MS / 1000) {
+          breathingVisual.dataset.phase = "pause";
+          breathingPhase.textContent = `Sem movimento detectável há ${Math.floor(pauseSec)} s`;
+          breathingPhaseHelp.textContent = "Confira imediatamente a criança e o contato do aparelho. Isto não confirma apneia.";
+        } else {
+          breathingVisual.dataset.phase = "idle";
+          breathingPhase.textContent = "Estabilizando o sinal";
+        }
+        return;
+      }
+
+      if (!sensor.phasePolarity) {
+        breathingVisual.dataset.phase = "unsynced";
+        breathingPhase.textContent = "Movimento torácico detectado";
+        breathingPhaseHelp.textContent = "Durante uma inspiração visível, toque em “Sincronizar” para orientar a animação.";
+        setLungAnimationScale(1 + live.normalized * 0.08);
+        return;
+      }
+
+      const orientedTrend = live.trend * sensor.phasePolarity;
+      const orientedPosition = live.normalized * sensor.phasePolarity;
+      let phase = "transition";
+      if (orientedTrend > 0.07) phase = "inspiration";
+      else if (orientedTrend < -0.07) phase = "expiration";
+
+      if (phase === "inspiration" && sensor.lastRealtimePhase !== "inspiration") sensor.lastBreathAt = now;
+      sensor.lastRealtimePhase = phase;
+      const pauseSec = sensor.lastBreathAt ? (now - sensor.lastBreathAt) / 1000 : 0;
+      if (pauseSec >= TECHNICAL_PAUSE_NOTICE_MS / 1000) {
+        breathingVisual.dataset.phase = "pause";
+        breathingPhase.textContent = `Pausa do sinal estimada: ${Math.floor(pauseSec)} s`;
+        breathingPhaseHelp.textContent = "Confira criança e sensor. Ausência de movimento no celular não diagnostica apneia.";
+        setLungAnimationScale(1);
+        return;
+      }
+
+      breathingVisual.dataset.phase = phase;
+      breathingPhase.textContent = phase === "inspiration"
+        ? "Inspiração provável"
+        : phase === "expiration"
+          ? "Expiração provável"
+          : "Transição do movimento";
+      breathingPhaseHelp.textContent = "Estimativa sincronizada pela médica; confirme visualmente no tórax/abdome.";
+      setLungAnimationScale(1 + Math.max(-1, Math.min(1, orientedPosition)) * 0.14);
+    }
+
+    function synchronizeBreathingPhase() {
+      const sensor = respirationState.sensor;
+      if (sensor.phase !== "measuring") return;
+      const live = analyzeRealtimeMotion(sensor.samples);
+      if (!live || Math.abs(live.trend) < 0.07) {
+        breathingPhase.textContent = "Movimento pouco definido para sincronizar";
+        breathingPhaseHelp.textContent = "Tente novamente durante uma expansão torácica claramente visível.";
+        return;
+      }
+      sensor.phasePolarity = Math.sign(live.trend);
+      sensor.lastRealtimePhase = "inspiration";
+      sensor.lastBreathAt = performance.now();
+      syncBreathingPhaseButton.textContent = "Ressincronizar durante inspiração";
+      breathingPhase.textContent = "Inspiração sincronizada";
+      breathingPhaseHelp.textContent = "A animação agora estima inspiração e expiração conforme esta orientação.";
+      if (navigator.vibrate) navigator.vibrate(25);
+    }
+
+    function updateRespiratoryEventSummary() {
+      const sensor = respirationState.sensor;
+      const coughs = sensor.observedEvents.filter(event => event.type === "cough").length;
+      const sneezes = sensor.observedEvents.filter(event => event.type === "sneeze").length;
+      const pauses = sensor.observedEvents.filter(event => event.type === "pause");
+      const observedParts = [];
+      if (coughs) observedParts.push(`${coughs} tosse${coughs === 1 ? "" : "s"}`);
+      if (sneezes) observedParts.push(`${sneezes} espirro${sneezes === 1 ? "" : "s"}`);
+      if (pauses.length) {
+        const longestObserved = Math.max(...pauses.map(event => event.durationMs || 0)) / 1000;
+        observedParts.push(`${pauses.length} pausa${pauses.length === 1 ? "" : "s"} observada${pauses.length === 1 ? "" : "s"} (maior ${formatNumber(longestObserved)} s)`);
+      }
+      if (sensor.observedPauseStartedAt) observedParts.push("pausa observada em andamento");
+      const technical = sensor.technicalEvents;
+      const technicalParts = [];
+      if (technical?.abrupt?.combined.length) technicalParts.push(`${technical.abrupt.combined.length} evento${technical.abrupt.combined.length === 1 ? "" : "s"} abrupto${technical.abrupt.combined.length === 1 ? "" : "s"} com som + movimento`);
+      if (technical?.pauses?.count) technicalParts.push(`${technical.pauses.count} pausa${technical.pauses.count === 1 ? "" : "s"} técnica${technical.pauses.count === 1 ? "" : "s"} ≥10 s (maior ${formatNumber(technical.pauses.longestSec)} s)`);
+      const observedText = observedParts.length ? `Observado pela médica: ${observedParts.join(", ")}.` : "Nenhum evento marcado pela médica.";
+      const technicalText = technicalParts.length
+        ? ` Candidatos do celular: ${technicalParts.join("; ")}. Não identificam a causa.`
+        : technical ? " Nenhum candidato técnico robusto encontrado." : " O celular ainda não analisou candidatos técnicos.";
+      respiratoryEventSummary.textContent = observedText + technicalText;
+    }
+
+    function markObservedRespiratoryEvent(type) {
+      const sensor = respirationState.sensor;
+      if (sensor.phase !== "measuring") return;
+      sensor.observedEvents.push({ type, t: performance.now() - sensor.measurementStartedAt });
+      if (navigator.vibrate) navigator.vibrate(20);
+      updateRespiratoryEventSummary();
+    }
+
+    function finishObservedPause() {
+      const sensor = respirationState.sensor;
+      if (!sensor.observedPauseStartedAt) return;
+      sensor.observedEvents.push({ type: "pause", t: sensor.observedPauseStartedAt - sensor.measurementStartedAt, durationMs: performance.now() - sensor.observedPauseStartedAt });
+      sensor.observedPauseStartedAt = null;
+      markObservedPauseButton.textContent = "Iniciar pausa observada";
+      updateRespiratoryEventSummary();
+    }
+
+    function toggleObservedPause() {
+      const sensor = respirationState.sensor;
+      if (sensor.phase !== "measuring") return;
+      if (sensor.observedPauseStartedAt) finishObservedPause();
+      else {
+        sensor.observedPauseStartedAt = performance.now();
+        markObservedPauseButton.textContent = "Encerrar pausa observada";
+        if (navigator.vibrate) navigator.vibrate(25);
+        updateRespiratoryEventSummary();
+      }
+    }
+
+    function updateRespiratorySignsStatus() {
+      const selected = respiratorySignInputs.filter(input => input.checked);
+      if (!selected.length) {
+        setMeasurementStatus(respiratorySignsStatus, "Nenhum achado respiratório marcado.");
+        return;
+      }
+      const labels = selected.map(input => input.nextElementSibling.textContent);
+      const critical = selected.some(input => ["cyanosis", "gasping", "reduced-effort"].includes(input.dataset.respiratorySign));
+      const message = `Achados marcados: ${labels.join(", ")}. ${critical ? "Sinais potencialmente graves: priorize avaliação e suporte imediatos." : "Integre à frequência, oxigenação e estado geral."}`;
+      setMeasurementStatus(respiratorySignsStatus, message, critical ? "error" : "warning");
     }
 
     async function startRespiratoryAudio() {
@@ -2202,9 +2575,18 @@
           sensor.phase = "measuring";
           sensor.samples = [];
           sensor.audioSamples = [];
+          sensor.phasePolarity = null;
+          sensor.lastRealtimePhase = null;
+          sensor.lastBreathAt = null;
+          sensor.technicalEvents = null;
           sensor.measurementStartedAt = performance.now();
           sensorBreathTimeLabel.textContent = "Tempo restante";
           sensorBreathTime.textContent = "60 s";
+          syncBreathingPhaseButton.disabled = false;
+          markObservedCoughButton.disabled = false;
+          markObservedSneezeButton.disabled = false;
+          markObservedPauseButton.disabled = false;
+          resetBreathingVisualization("Estabilizando o sinal");
           setMeasurementStatus(sensorBreathStatus, `Coletando movimento${sensor.audioAvailable ? " e som" : ""}. Mantenha o aparelho imóvel e observe a criança.`, "success");
         }
         return;
@@ -2216,6 +2598,7 @@
       const expectedSamples = Math.max(1, elapsed / 1000 * 15);
       const collection = Math.min(1, sensor.samples.length / expectedSamples);
       sensorQualityBar.style.width = `${Math.round(collection * 45)}%`;
+      updateBreathingVisualization();
       if (elapsed > 3000 && sensor.samples.length < 10) {
         cancelSensorRespiration("O navegador não forneceu dados do sensor. Tente no Safari/Chrome do próprio celular.", "error");
         return;
@@ -2251,6 +2634,11 @@
       sensorBreathTimeLabel.textContent = "Posicionar";
       sensorQualityBar.style.width = "0";
       useRespiratoryAudio.disabled = true;
+      syncBreathingPhaseButton.disabled = true;
+      markObservedCoughButton.disabled = true;
+      markObservedSneezeButton.disabled = true;
+      markObservedPauseButton.disabled = true;
+      resetBreathingVisualization("Posicione o aparelho");
       window.addEventListener("devicemotion", handleDeviceMotion);
       await acquireWakeLock();
       updateSensorProgress();
@@ -2259,6 +2647,7 @@
 
     async function stopSensorCollection() {
       const sensor = respirationState.sensor;
+      if (sensor.observedPauseStartedAt) finishObservedPause();
       if (sensor.timer) window.clearInterval(sensor.timer);
       sensor.timer = null;
       window.removeEventListener("devicemotion", handleDeviceMotion);
@@ -2266,6 +2655,10 @@
       sensorBreathStart.disabled = false;
       sensorBreathStop.disabled = true;
       useRespiratoryAudio.disabled = false;
+      syncBreathingPhaseButton.disabled = true;
+      markObservedCoughButton.disabled = true;
+      markObservedSneezeButton.disabled = true;
+      markObservedPauseButton.disabled = true;
       await stopRespiratoryAudio();
       await releaseWakeLock();
     }
@@ -2286,6 +2679,7 @@
       sensorBreathTime.textContent = `${Math.round(elapsedMs / 1000)} s`;
       if (elapsedMs < 20000) {
         sensor.result = null;
+        resetBreathingVisualization("Coleta curta demais");
         setMeasurementStatus(sensorBreathStatus, "Coleta curta demais. Repita e mantenha o celular estável por 60 segundos.", "error");
         updateRespirationComparison();
         return;
@@ -2293,6 +2687,7 @@
       const result = analyzeRespirationSignal(samples);
       if (!result || result.quality < 0.2) {
         sensor.result = null;
+        resetBreathingVisualization("Sinal de movimento insuficiente");
         sensorBreathRate.textContent = "—";
         sensorQualityBar.style.width = "12%";
         if (audioWasAvailable) setAudioBreathStatus("O áudio não é usado sozinho quando o movimento é insuficiente.", "rejected");
@@ -2309,6 +2704,9 @@
               ? "Áudio indisponível; resultado somente pelo movimento."
               : "Microfone desativado; resultado somente pelo movimento."
           };
+      const abruptEvents = analyzeAbruptRespiratoryEvents(audioWasAvailable ? audioSamples : [], samples);
+      const motionPauses = detectMotionSignalPauses(samples, result.field);
+      sensor.technicalEvents = { abrupt: abruptEvents, pauses: motionPauses };
       const finalBpm = audioResult.confirmed ? audioResult.fusedBpm : result.bpm;
       sensor.result = {
         ...result,
@@ -2324,6 +2722,11 @@
       const source = audioResult.confirmed ? "movimento confirmado pelo áudio" : "somente movimento";
       setAudioBreathStatus(audioResult.reason, audioResult.state);
       setMeasurementStatus(sensorBreathStatus, `${prefix}: ${Math.round(finalBpm)} irpm por ${source}; qualidade do movimento ${result.qualityLabel}. Resultado experimental.`, tone);
+      updateRespiratoryEventSummary();
+      breathingVisual.dataset.phase = "idle";
+      breathingPhase.textContent = "Coleta encerrada";
+      breathingPhaseHelp.textContent = "Revise a frequência, os eventos marcados e os candidatos técnicos abaixo.";
+      setLungAnimationScale(1);
       updateRespirationComparison();
     }
 
@@ -2339,6 +2742,8 @@
       sensorBreathTime.textContent = collectedMs ? `${Math.round(collectedMs / 1000)} s` : "—";
       sensorQualityBar.style.width = "0";
       setAudioBreathStatus("Captura encerrada. Nenhum som foi armazenado.", "rejected");
+      resetBreathingVisualization("Leitura interrompida");
+      updateRespiratoryEventSummary();
       setMeasurementStatus(sensorBreathStatus, message, tone);
       updateRespirationComparison();
     }
@@ -2355,6 +2760,12 @@
       sensor.samples = [];
       sensor.audioSamples = [];
       sensor.result = null;
+      sensor.phasePolarity = null;
+      sensor.lastRealtimePhase = null;
+      sensor.lastBreathAt = null;
+      sensor.observedEvents = [];
+      sensor.observedPauseStartedAt = null;
+      sensor.technicalEvents = null;
       sensor.timer = null;
       sensorBreathStart.disabled = false;
       sensorBreathStop.disabled = true;
@@ -2363,6 +2774,14 @@
       sensorBreathTimeLabel.textContent = "Tempo restante";
       sensorBreathTime.textContent = "60 s";
       sensorQualityBar.style.width = "0";
+      syncBreathingPhaseButton.disabled = true;
+      syncBreathingPhaseButton.textContent = "Sincronizar durante inspiração";
+      markObservedCoughButton.disabled = true;
+      markObservedSneezeButton.disabled = true;
+      markObservedPauseButton.disabled = true;
+      markObservedPauseButton.textContent = "Iniciar pausa observada";
+      resetBreathingVisualization();
+      updateRespiratoryEventSummary();
       setAudioBreathStatus(
         useRespiratoryAudio.checked
           ? "Áudio não iniciado. Nenhum som é gravado ou armazenado."
@@ -3009,6 +3428,10 @@
     sensorBreathStart.addEventListener("click", startSensorRespiration);
     sensorBreathStop.addEventListener("click", () => finishSensorRespiration(false));
     sensorBreathReset.addEventListener("click", resetSensorRespiration);
+    syncBreathingPhaseButton.addEventListener("click", synchronizeBreathingPhase);
+    markObservedCoughButton.addEventListener("click", () => markObservedRespiratoryEvent("cough"));
+    markObservedSneezeButton.addEventListener("click", () => markObservedRespiratoryEvent("sneeze"));
+    markObservedPauseButton.addEventListener("click", toggleObservedPause);
     useRespiratoryAudio.addEventListener("change", () => {
       setAudioBreathStatus(
         useRespiratoryAudio.checked
@@ -3020,6 +3443,7 @@
     manualVitalInputs.forEach(input => {
       input.addEventListener(input.tagName === "SELECT" ? "change" : "input", validateManualVitals);
     });
+    respiratorySignInputs.forEach(input => input.addEventListener("change", updateRespiratorySignsStatus));
     clearVitalsButton.addEventListener("click", clearManualVitals);
     document.getElementById("vitals-check").addEventListener("toggle", event => {
       if (event.target.open) return;
@@ -3045,11 +3469,13 @@
       state.conditions.clear();
       state.planned.clear();
       document.querySelectorAll("[data-condition], [data-planned]").forEach(input => { input.checked = false; });
+      respiratorySignInputs.forEach(input => { input.checked = false; });
       pesoStatus.hidden = true;
       idadeStatus.className = "status-line warning";
       idadeStatus.textContent = "Informe a idade para alertas neonatal e de succinilcolina.";
       idadeStatus.hidden = false;
       resetRespirationMeasurements();
+      updateRespiratorySignsStatus();
       clearManualVitals();
       render();
       pesoInput.focus();
@@ -3076,7 +3502,7 @@
       navigator.serviceWorker.register("./sw.js").catch(() => {});
     }
 
-    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber, respiratoryRate, analyzeRespirationSignal, respiratoryReferenceForAge, assessRespiratoryRate });
+    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber, respiratoryRate, analyzeRespirationSignal, respiratoryReferenceForAge, assessRespiratoryRate, analyzeRealtimeMotion, analyzeAbruptRespiratoryEvents, detectMotionSignalPauses });
     applyTheme(document.documentElement.dataset.theme, false);
     updateConnectionStatus();
     render();

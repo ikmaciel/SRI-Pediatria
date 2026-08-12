@@ -21,6 +21,10 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Inclui contador respiratório manual de 60 segundos e leitura experimental pelo acelerômetro/giroscópio do celular.
 - Classifica somente a contagem manual completa como abaixo, dentro ou acima da faixa respiratória aceitável por idade; peso não altera essa faixa.
 - Pode usar o microfone como confirmação secundária: áudio baixo, saturado, ruidoso ou discordante é descartado e nunca gera resultado sozinho.
+- Mostra animação ao vivo do movimento; a médica sincroniza o sentido durante uma inspiração visível antes de o app nomear inspiração/expiração provável.
+- Permite marcar tosse, espirro e duração de pausa observados pela médica e mantém esses registros separados de candidatos técnicos do celular.
+- Procura apenas picos abruptos simultâneos de som/movimento e pausas técnicas de sinal; não diagnostica tosse, espirro ou apneia.
+- Inclui marcação manual de tiragens, batimento de asa nasal, gemência, estridor, sibilância, cianose/palidez, gasping e fadiga respiratória.
 - Compara a leitura por movimento/áudio com a contagem manual e rejeita coleta curta, ausência de sensor ou sinal matematicamente insuficiente.
 - Permite anotar FC, SpO₂, temperatura, pressão arterial, enchimento capilar, consciência e suporte de oxigênio sem armazenar os dados.
 - Funciona offline após o primeiro acesso bem-sucedido.
@@ -49,6 +53,10 @@ O contador manual usa uma janela padrão de 60 segundos: com a criança em repou
 Depois de uma contagem manual completa, o app mostra se o valor está abaixo, dentro ou acima da faixa aceitável por idade publicada pelo Royal Children's Hospital Melbourne. A faixa é apenas contexto para crianças doentes: não diagnostica normalidade, não substitui tendência nem sinais de esforço respiratório. O peso informado aparece na observação, mas não muda o intervalo. Para menores de 5 anos, quando a frequência atinge o corte da OMS, o app exibe uma observação condicional aplicável somente se houver tosse ou dificuldade respiratória. O sensor experimental jamais produz essa classificação.
 
 O modo `Movimento + som — experimental` solicita acesso ao acelerômetro/giroscópio e, opcionalmente, ao microfone; oferece 5 segundos para posicionar o aparelho e coleta até 60 segundos. O algoritmo procura periodicidade entre 8 e 100 irpm nos eixos do sensor. O áudio é analisado localmente como envelope de intensidade e só participa do resultado quando encontra ritmo compatível com o movimento. Som baixo, saturação, falta de periodicidade, discordância ou permissão negada fazem o app usar somente o movimento. Nenhum arquivo de áudio é criado, salvo ou enviado.
+
+Durante a coleta, a animação responde ao movimento captado. Como a orientação do telefone pode inverter o sinal, a médica deve tocar em `Sincronizar durante inspiração` enquanto observa uma expansão torácica real. Só então aparecem os rótulos `inspiração provável` e `expiração provável`. A animação não mede fluxo de ar, volume corrente ou ventilação.
+
+Os botões de eventos registram observações da médica. Separadamente, ao final da coleta, o app informa candidatos abruptos quando encontra picos próximos no som e no movimento e pausas técnicas quando o sinal respiratório fica muito reduzido por pelo menos 10 segundos. Tosse, espirro, choro, fala, manipulação, deslocamento do aparelho e ruído podem produzir sinais semelhantes. Uma pausa técnica pode ser falha de contato e **não confirma apneia**.
 
 O telefone deve permanecer sob supervisão, nunca sobre face ou pescoço, e o resultado não substitui a contagem clínica nem equipamento médico validado.
 

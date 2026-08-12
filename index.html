@@ -547,6 +547,34 @@
 
     .comparison-box strong { display: block; margin-bottom: 3px; }
 
+    .respiratory-assessment {
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--brand);
+      border-radius: 12px;
+      background: var(--surface-soft);
+      color: var(--ink);
+      font-size: .86rem;
+    }
+
+    .respiratory-assessment[data-state="within"] {
+      border-left-color: var(--brand);
+      background: var(--brand-soft);
+      color: var(--brand-ink);
+    }
+
+    .respiratory-assessment[data-state="outside"] {
+      border-left-color: var(--warning-line);
+      background: var(--warning-bg);
+      color: var(--warning-ink);
+    }
+
+    .respiratory-assessment strong { display: block; margin-bottom: 3px; }
+    .respiratory-assessment p { margin: 5px 0 0; }
+    .respiratory-assessment small { display: block; margin-top: 7px; line-height: 1.35; }
+    .respiratory-assessment a { color: inherit; font-weight: 750; }
+
     .vitals-entry {
       margin-top: 12px;
       padding-top: 13px;
@@ -1072,7 +1100,7 @@
           <div class="respiration-grid">
             <section class="measurement-card" aria-labelledby="manual-resp-title">
               <h3 id="manual-resp-title">Contagem manual — referência</h3>
-              <p class="measurement-help">Inicie e toque uma vez a cada ciclo respiratório completo durante 60 segundos.</p>
+              <p class="measurement-help">Com a criança em repouso e sem choro, toque uma vez a cada ciclo respiratório completo durante 60 segundos.</p>
               <div class="measurement-readout">
                 <div class="measurement-value"><span>Contagem</span><strong id="manualBreathCount">0</strong></div>
                 <div class="measurement-value"><span id="manualBreathTimeLabel">Tempo restante</span><strong id="manualBreathTime">60 s</strong></div>
@@ -1112,6 +1140,12 @@
           <div id="respirationComparison" class="comparison-box" role="status" aria-live="polite">
             <strong>Comparação</strong>
             Faça as duas medições para ver a diferença. A contagem manual continua sendo a referência.
+          </div>
+
+          <div id="respiratoryAgeAssessment" class="respiratory-assessment" data-state="pending" role="status" aria-live="polite">
+            <strong>Avaliação pela idade</strong>
+            Informe a idade e complete a contagem manual de 60 segundos. O sensor experimental não gera esta classificação.
+            <small>O peso é usado nos cálculos de medicamentos, mas não define a faixa de frequência respiratória.</small>
           </div>
 
           <section class="vitals-entry" aria-labelledby="manual-vitals-title">
@@ -1516,6 +1550,7 @@
     const audioBreathStatus = document.getElementById("audioBreathStatus");
     const audioBreathStatusText = document.getElementById("audioBreathStatusText");
     const respirationComparison = document.getElementById("respirationComparison");
+    const respiratoryAgeAssessment = document.getElementById("respiratoryAgeAssessment");
     const vitalsSummary = document.getElementById("vitals-summary");
     const vitalsStatus = document.getElementById("vitalsStatus");
     const clearVitalsButton = document.getElementById("clearVitals");
@@ -2031,6 +2066,32 @@
       };
     }
 
+    function respiratoryReferenceForAge(ageMonths) {
+      if (!Number.isFinite(ageMonths) || ageMonths < 0 || ageMonths > 216) return null;
+      if (ageMonths < 6) return { min: 25, max: 60, ageLabel: "nascimento a menos de 6 meses" };
+      if (ageMonths < 12) return { min: 20, max: 55, ageLabel: "6 a menos de 12 meses" };
+      if (ageMonths < 24) return { min: 20, max: 45, ageLabel: "1 a menos de 2 anos" };
+      if (ageMonths < 48) return { min: 20, max: 40, ageLabel: "2 a menos de 4 anos" };
+      if (ageMonths < 72) return { min: 17, max: 30, ageLabel: "4 a menos de 6 anos" };
+      if (ageMonths < 120) return { min: 16, max: 30, ageLabel: "6 a menos de 10 anos" };
+      if (ageMonths < 168) return { min: 15, max: 25, ageLabel: "10 a menos de 14 anos" };
+      return { min: 14, max: 25, ageLabel: "14 a 18 anos" };
+    }
+
+    function assessRespiratoryRate(rate, ageMonths) {
+      const reference = respiratoryReferenceForAge(ageMonths);
+      if (!reference || !Number.isFinite(rate) || rate < 0) return null;
+      const classification = rate < reference.min ? "below" : rate > reference.max ? "above" : "within";
+      return { ...reference, rate, classification };
+    }
+
+    function whoFastBreathingThreshold(ageMonths) {
+      if (!Number.isFinite(ageMonths) || ageMonths < 0 || ageMonths >= 60) return null;
+      if (ageMonths < 2) return { threshold: 60, repeat: true };
+      if (ageMonths < 12) return { threshold: 50, repeat: false };
+      return { threshold: 40, repeat: false };
+    }
+
     async function acquireWakeLock() {
       try {
         if ("wakeLock" in navigator) respirationState.sensor.wakeLock = await navigator.wakeLock.request("screen");
@@ -2339,6 +2400,46 @@
       vitalsSummary.textContent = manual
         ? `${manual.complete ? "FR manual" : "FR est."} ${Math.round(manual.bpm)} irpm`
         : "manual + experimental";
+      updateRespiratoryAgeAssessment();
+    }
+
+    function updateRespiratoryAgeAssessment() {
+      const ageMonths = state.ageMonths;
+      const manual = respirationState.manual.result;
+      respiratoryAgeAssessment.dataset.state = "pending";
+
+      if (!Number.isFinite(ageMonths)) {
+        respiratoryAgeAssessment.innerHTML = `<strong>Avaliação pela idade</strong>Informe a idade da criança para exibir a faixa respiratória de referência.<small>O peso é usado nos cálculos de medicamentos, mas não define a faixa de frequência respiratória.</small>`;
+        return;
+      }
+
+      const reference = respiratoryReferenceForAge(ageMonths);
+      const weightNote = Number.isFinite(state.weight)
+        ? `Peso informado: ${formatNumber(state.weight)} kg — não altera esta faixa.`
+        : "O peso não define esta faixa; ele é usado nos cálculos de medicamentos.";
+
+      if (!manual || !manual.complete) {
+        const countNote = manual
+          ? "A estimativa parcial não é classificada. Repita e complete 60 segundos."
+          : "Complete a contagem manual de 60 segundos para classificar.";
+        respiratoryAgeAssessment.innerHTML = `<strong>Faixa pela idade: ${reference.min}–${reference.max} irpm</strong>${countNote}<small>Referência aproximada para ${reference.ageLabel}. ${weightNote}</small>`;
+        return;
+      }
+
+      const assessment = assessRespiratoryRate(manual.bpm, ageMonths);
+      const wording = assessment.classification === "below"
+        ? "abaixo da faixa de referência"
+        : assessment.classification === "above"
+          ? "acima da faixa de referência"
+          : "dentro da faixa de referência";
+      respiratoryAgeAssessment.dataset.state = assessment.classification === "within" ? "within" : "outside";
+
+      const who = whoFastBreathingThreshold(ageMonths);
+      const whoNote = who && manual.bpm >= who.threshold
+        ? `<p><strong>Observação OMS:</strong> se houver tosse ou dificuldade respiratória, esta contagem atinge o corte de respiração rápida (≥${who.threshold} irpm).${who.repeat ? " Em menores de 2 meses, repita a contagem de um minuto para confirmar." : ""}</p>`
+        : "";
+
+      respiratoryAgeAssessment.innerHTML = `<strong>${Math.round(manual.bpm)} irpm — ${wording}</strong>Faixa aceitável aproximada para ${assessment.ageLabel}: ${assessment.min}–${assessment.max} irpm.${whoNote}<small>Válido apenas com a criança em repouso e sem choro. Tendência, esforço respiratório, tiragens, gemência, apneia, cor, consciência e oxigenação prevalecem sobre esta faixa. Estar dentro dela não exclui deterioração. ${weightNote} Fonte: <a href="https://www.rch.org.au/clinicalguide/guideline_index/normal_ranges_for_physiological_variables/" target="_blank" rel="noopener">RCH</a>; corte condicional: <a href="https://cdn.who.int/media/docs/default-source/mca-documents/child/imci-integrated-management-of-childhood-illness/imci-in-service-training/imci_in-servicetraining_module_01.pdf" target="_blank" rel="noopener">OMS/IMCI</a>.</small>`;
     }
 
     function validateManualVitals() {
@@ -2736,6 +2837,7 @@
         : '<div class="panel empty-state">Nenhum medicamento encontrado.</div>';
       bindExactCalculators();
       renderClinicalAlerts();
+      updateRespiratoryAgeAssessment();
     }
 
     function validateWeight() {
@@ -2974,7 +3076,7 @@
       navigator.serviceWorker.register("./sw.js").catch(() => {});
     }
 
-    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber, respiratoryRate, analyzeRespirationSignal });
+    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber, respiratoryRate, analyzeRespirationSignal, respiratoryReferenceForAge, assessRespiratoryRate });
     applyTheme(document.documentElement.dataset.theme, false);
     updateConnectionStatus();
     render();

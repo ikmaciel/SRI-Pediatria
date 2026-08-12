@@ -7,7 +7,7 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Mostra separadamente dose total, volume retirado da ampola e volume após diluição.
 - Exibe a faixa completa quando a prescrição admite mais de uma dose.
 - Não recomenda automaticamente um indutor ou bloqueador.
-- Usa a idade somente para alertas que realmente mudam segurança, como contexto neonatal e succinilcolina.
+- Usa a idade para alertas clínicos específicos e para contextualizar a frequência respiratória manual.
 - Analisa combinações apenas entre medicamentos explicitamente marcados como planejados.
 - Sinaliza contraindicações importantes da succinilcolina e cautela hemodinâmica.
 - Não armazena peso ou condições do paciente.
@@ -19,6 +19,7 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Inclui uma área simples de diluições para ajustar proporções e volumes finais de reconstituição no aparelho em uso.
 - Uma alteração só passa a valer depois da confirmação da médica e pode ser restaurada aos valores padrão a qualquer momento.
 - Inclui contador respiratório manual de 60 segundos e leitura experimental pelo acelerômetro/giroscópio do celular.
+- Classifica somente a contagem manual completa como abaixo, dentro ou acima da faixa respiratória aceitável por idade; peso não altera essa faixa.
 - Pode usar o microfone como confirmação secundária: áudio baixo, saturado, ruidoso ou discordante é descartado e nunca gera resultado sozinho.
 - Compara a leitura por movimento/áudio com a contagem manual e rejeita coleta curta, ausência de sensor ou sinal matematicamente insuficiente.
 - Permite anotar FC, SpO₂, temperatura, pressão arterial, enchimento capilar, consciência e suporte de oxigênio sem armazenar os dados.
@@ -43,7 +44,9 @@ A matriz completa de evidências, decisões e limitações está em [`REVISAO_CL
 
 ## Respiração e sinais vitais
 
-O contador manual usa uma janela padrão de 60 segundos: inicie o cronômetro e toque uma vez por ciclo respiratório completo. Uma finalização antes de 15 segundos é rejeitada; medições entre 15 e 59 segundos aparecem explicitamente como estimativa incompleta.
+O contador manual usa uma janela padrão de 60 segundos: com a criança em repouso e sem choro, inicie o cronômetro e toque uma vez por ciclo respiratório completo. Uma finalização antes de 15 segundos é rejeitada; medições entre 15 e 59 segundos aparecem explicitamente como estimativa incompleta.
+
+Depois de uma contagem manual completa, o app mostra se o valor está abaixo, dentro ou acima da faixa aceitável por idade publicada pelo Royal Children's Hospital Melbourne. A faixa é apenas contexto para crianças doentes: não diagnostica normalidade, não substitui tendência nem sinais de esforço respiratório. O peso informado aparece na observação, mas não muda o intervalo. Para menores de 5 anos, quando a frequência atinge o corte da OMS, o app exibe uma observação condicional aplicável somente se houver tosse ou dificuldade respiratória. O sensor experimental jamais produz essa classificação.
 
 O modo `Movimento + som — experimental` solicita acesso ao acelerômetro/giroscópio e, opcionalmente, ao microfone; oferece 5 segundos para posicionar o aparelho e coleta até 60 segundos. O algoritmo procura periodicidade entre 8 e 100 irpm nos eixos do sensor. O áudio é analisado localmente como envelope de intensidade e só participa do resultado quando encontra ritmo compatível com o movimento. Som baixo, saturação, falta de periodicidade, discordância ou permissão negada fazem o app usar somente o movimento. Nenhum arquivo de áudio é criado, salvo ou enviado.
 
@@ -64,6 +67,8 @@ O botão `Diluições`, no rodapé, permite editar diretamente a proporção de 
 - [Brain Trauma Foundation — Pediatric Severe TBI](https://braintrauma.org/coma/guidelines/pediatric)
 - [DailyMed — succinilcolina](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f55dd1c0-c259-219a-5bca-f139e9515d07)
 - [World Allergy Organization Anaphylaxis Guidance 2020](https://www.worldallergyorganizationjournal.org/article/S1939-4551%2820%2930375-6/fulltext)
+- [RCH Melbourne — faixas aceitáveis de variáveis fisiológicas](https://www.rch.org.au/clinicalguide/guideline_index/normal_ranges_for_physiological_variables/)
+- [OMS — IMCI, avaliação de tosse ou dificuldade respiratória](https://cdn.who.int/media/docs/default-source/mca-documents/child/imci-integrated-management-of-childhood-illness/imci-in-service-training/imci_in-servicetraining_module_01.pdf)
 
 ## Tecnologia
 

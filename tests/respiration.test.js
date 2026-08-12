@@ -81,4 +81,27 @@ const lowAudio = context.analyzeAudioRespiration(syntheticAudio(24, 0.00005, 0.0
 assert.equal(lowAudio.confirmed, false, "Som muito baixo não deveria confirmar o movimento");
 assert.match(lowAudio.reason, /baixo/i);
 
-console.log("Análise respiratória: movimento 18–72 irpm; áudio concordante confirmado; ruído, discordância e som baixo rejeitados.");
+const ageReferences = [
+  [0, 25, 60],
+  [5.9, 25, 60],
+  [6, 20, 55],
+  [12, 20, 45],
+  [24, 20, 40],
+  [48, 17, 30],
+  [72, 16, 30],
+  [120, 15, 25],
+  [168, 14, 25],
+  [216, 14, 25]
+];
+for (const [months, min, max] of ageReferences) {
+  const reference = context.respiratoryReferenceForAge(months);
+  assert.deepEqual([reference.min, reference.max], [min, max], `Faixa incorreta para ${months} meses`);
+  assert.equal(context.assessRespiratoryRate(min, months).classification, "within");
+  assert.equal(context.assessRespiratoryRate(max, months).classification, "within");
+  assert.equal(context.assessRespiratoryRate(min - 1, months).classification, "below");
+  assert.equal(context.assessRespiratoryRate(max + 1, months).classification, "above");
+}
+assert.equal(context.respiratoryReferenceForAge(-1), null);
+assert.equal(context.respiratoryReferenceForAge(217), null);
+
+console.log("Análise respiratória: movimento/áudio verificados e faixas etárias testadas do nascimento aos 18 anos.");

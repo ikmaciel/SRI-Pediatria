@@ -14,6 +14,7 @@ Foram priorizadas diretrizes publicadas por sociedades médicas, algoritmos ofic
 |---|---|---|
 | Faixa neonatal | AHA/AAP 2025 separa reanimação ao nascimento do PALS; em menores de 28 dias o protocolo depende da fisiologia e prática institucional | Alerta crítico em <28 dias, sem conversão automática das doses |
 | Peso | AHA/AAP 2025 mantém cálculo por peso e reconhece incerteza em obesidade/estimativas | Exige peso em kg; não aplica correção automática por peso ideal |
+| Frequência respiratória por idade | RCH publica faixas aceitáveis para crianças doentes e ressalta tendência, repetição e contexto; OMS/IMCI define cortes de respiração rápida em tosse/dificuldade respiratória | Classifica apenas a contagem manual completa de 60 s como abaixo/dentro/acima da faixa etária; o peso não altera a faixa; sensor não classifica; corte OMS aparece somente como observação condicional |
 | Atropina na intubação | AHA/AAP 2025: pode ser considerada em pacientes selecionados; 0,02 mg/kg, sem mínimo de 0,1 mg | Cartão separado da atropina para bradicardia |
 | Atropina na bradicardia | AHA/AAP 2025: 0,02 mg/kg, mínimo 0,1 mg, máximo 0,5 mg; repetir uma vez; apenas aumento vagal/bloqueio AV primário | Mantidos limites e indicação explícita |
 | Adrenalina em PCR/bradicardia | AHA/AAP 2025: 0,01 mg/kg da solução 0,1 mg/mL, máximo 1 mg; repetir a cada 3–5 min na PCR | Mostra volume da ampola 1 mg/mL, diluente e volume final 0,1 mg/mL; indicação ampliada para PCR/bradicardia |
@@ -37,6 +38,10 @@ Foram priorizadas diretrizes publicadas por sociedades médicas, algoritmos ofic
 ## Frequência respiratória e sensores do celular
 
 A contagem manual por 60 segundos é a referência do módulo. O botão registra um ciclo respiratório por toque, permite desfazer o último toque e identifica como incompleta qualquer medição encerrada antes de 60 segundos. Contagens menores que 15 segundos são rejeitadas. A recomendação de observar tórax/abdome e contar por um minuto completo foi baseada em material clínico da OMS.
+
+A interpretação etária usa as faixas aceitáveis do RCH para crianças doentes: 25–60 irpm do nascimento a <6 meses; 20–55 de 6 a <12 meses; 20–45 de 1 a <2 anos; 20–40 de 2 a <4 anos; 17–30 de 4 a <6 anos; 16–30 de 6 a <10 anos; 15–25 de 10 a <14 anos; e 14–25 de 14 a 18 anos. Os pontos publicados pelo RCH foram transformados em faixas por piso etário, sem interpolação artificial. O resultado é descrito como abaixo, dentro ou acima da referência — nunca como diagnóstico de normalidade. Peso não é usado para alterar o intervalo respiratório.
+
+Somente uma contagem manual completa recebe essa interpretação. Contagem parcial e sensor permanecem sem classificação. A interface exige interpretação em repouso e sem choro e lembra que tendência, esforço respiratório, tiragens, gemência, apneia, cor, consciência e oxigenação prevalecem. Quando um menor de 5 anos atinge o corte etário da OMS, é exibida uma observação explicitamente condicional à presença de tosse ou dificuldade respiratória; em menores de 2 meses, a OMS recomenda repetir a contagem elevada.
 
 A leitura pelo celular é um protótipo comparativo, não um monitor. Após 5 segundos para posicionamento, o navegador coleta aceleração nos três eixos e no vetor de magnitude. O processamento remove tendência lenta, limita artefatos extremos e procura autocorrelação periódica entre 8 e 100 irpm. A frequência só é mostrada após pelo menos 20 segundos e quando a qualidade matemática mínima é atingida; ausência de eventos, saída da tela, coleta curta e sinal insuficiente encerram ou rejeitam a leitura.
 
@@ -70,13 +75,14 @@ Acesso a acelerômetro/giroscópio depende de HTTPS, permissão e implementaçã
 18. [DailyMed — fentanil](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c5d40297-b769-48cc-9f84-f98b7a333507)
 19. [DailyMed — midazolam](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=affecd4d-1f78-4bbe-5a8d-86849bbdc520)
 20. [DailyMed — manitol](https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=d12cc802-b538-4065-a264-f474ff3b3043)
-21. [OMS — avaliação de tosse ou dificuldade respiratória em crianças](https://www.ncbi.nlm.nih.gov/books/NBK143752/)
+21. [OMS — IMCI: avaliação de tosse ou dificuldade respiratória em crianças](https://cdn.who.int/media/docs/default-source/mca-documents/child/imci-integrated-management-of-childhood-illness/imci-in-service-training/imci_in-servicetraining_module_01.pdf)
 22. [Respiratory signal derived from the smartphone built-in accelerometer](https://pubmed.ncbi.nlm.nih.gov/26737847/)
 23. [W3C — Device Orientation and Motion](https://www.w3.org/TR/orientation-event/)
 24. [FDA — riscos de monitores infantis não autorizados](https://www.fda.gov/medical-devices/safety-communications/do-not-use-unauthorized-infant-devices-monitoring-vital-signs-fda-safety-communication)
 25. [Anvisa — perguntas e respostas sobre a RDC 657/2022](https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/software-como-dispositivo-medico-perguntas-e-respostas/perguntas-respostas-rdc-657-de-2022-v1-01-09-2022.pdf)
 26. [Lung auscultation using smartphone built-in microphone versus digital stethoscope — estudo pediátrico de viabilidade](https://www.minervamedica.it/en/journals/minerva-pediatrics/article.php?cod=R15Y2026N02A0155)
 27. [W3C — Media Capture and Streams](https://w3c.github.io/mediacapture-main/getusermedia.html)
+28. [Royal Children's Hospital Melbourne — Acceptable ranges for physiological variables](https://www.rch.org.au/clinicalguide/guideline_index/normal_ranges_for_physiological_variables/)
 
 ## Limites que permanecem
 

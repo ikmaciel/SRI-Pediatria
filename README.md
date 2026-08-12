@@ -57,11 +57,11 @@ O contador manual usa uma janela padrão de 60 segundos: com a criança em repou
 
 Depois de uma contagem manual completa, o app mostra se o valor está abaixo, dentro ou acima da faixa aceitável por idade publicada pelo Royal Children's Hospital Melbourne. A faixa é apenas contexto para crianças doentes: não diagnostica normalidade, não substitui tendência nem sinais de esforço respiratório. O peso informado aparece na observação, mas não muda o intervalo. Para menores de 5 anos, quando a frequência atinge o corte da OMS, o app exibe uma observação condicional aplicável somente se houver tosse ou dificuldade respiratória. O sensor experimental jamais produz essa classificação.
 
-O modo `Movimento + som — experimental` solicita acesso ao acelerômetro/giroscópio e, opcionalmente, ao microfone; oferece 5 segundos para posicionar o aparelho e coleta até 60 segundos. O algoritmo procura periodicidade entre 8 e 100 irpm nos eixos do sensor. O áudio é analisado localmente como envelope de intensidade e só participa do resultado quando encontra ritmo compatível com o movimento. Som baixo, saturação, falta de periodicidade, discordância ou permissão negada fazem o app usar somente o movimento. Nenhum arquivo de áudio é criado, salvo ou enviado.
+O modo `Movimento + som — experimental` solicita acesso ao acelerômetro/giroscópio e, opcionalmente, ao microfone; oferece 5 segundos para posicionar o aparelho e coleta até 60 segundos. O algoritmo procura periodicidade entre 8 e 90 irpm nos eixos do sensor. Um pico no limite superior ou sem máximo periódico local confiável é rejeitado como sinal insuficiente, em vez de virar um resultado artificial. O áudio é analisado localmente como envelope de intensidade e só participa do resultado quando encontra ritmo compatível com o movimento. Som baixo, saturação, falta de periodicidade, discordância ou permissão negada fazem o app usar somente o movimento. Nenhum arquivo de áudio é criado, salvo ou enviado.
 
 Para ronco, o app procura episódios acústicos repetitivos com predominância de baixa frequência e concordância aproximada com o movimento respiratório. O resultado aparece como `possível ronco` e nunca como diagnóstico. A médica também pode marcar `Ronco observado` ou `Ronco/ruído de via aérea superior` manualmente.
 
-Durante a coleta, a animação responde à amplitude relativa do movimento captado, sem exigir sincronização manual. Ela não nomeia inspiração ou expiração porque a posição e a orientação do telefone podem inverter o sinal. A animação não mede fluxo de ar, volume corrente ou ventilação.
+Durante a coleta, os pulmões animados e uma barra mostram a intensidade relativa do movimento captado (`não detectado`, `baixo`, `moderado` ou `intenso`), sem exigir sincronização manual. A interface não nomeia inspiração ou expiração porque a posição e a orientação do telefone podem inverter o sinal. A animação não mede fluxo de ar, volume corrente ou ventilação.
 
 Os botões de eventos registram observações da médica. Separadamente, ao final da coleta, o app informa candidatos abruptos quando encontra picos próximos no som e no movimento e pausas técnicas quando o sinal respiratório fica muito reduzido por pelo menos 10 segundos. Tosse, espirro, choro, fala, manipulação, deslocamento do aparelho e ruído podem produzir sinais semelhantes. Uma pausa técnica pode ser falha de contato e **não confirma apneia**.
 
@@ -76,6 +76,8 @@ O botão `Histórico / evolução` cria registros somente após a médica inform
 ## Instalação
 
 O botão `Instalar aplicativo` abre a confirmação nativa quando disponível no Chrome/Android e mostra as instruções para `Adicionar à Tela de Início` no Safari/iPhone. O manifesto inclui ícones de 192 e 512 px, execução independente, atalho respiratório e cache offline. A instalação não altera o caráter experimental dos sensores.
+
+Quando uma nova versão termina de baixar, aparece o botão `Nova versão disponível — atualizar agora`. A atualização só é aplicada depois do toque, para não recarregar a tela durante uma medição. Ao confirmar, o aplicativo ativa a nova versão e recarrega automaticamente. Ele também verifica atualizações ao abrir/focar a página e a cada 30 minutos enquanto estiver aberto e conectado.
 
 ## Diluições
 

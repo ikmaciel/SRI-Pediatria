@@ -9,6 +9,8 @@ assert.match(html, /id="respirationSessionDialog"/);
 assert.match(html, /id="chooseManualRespiration"/);
 assert.match(html, /id="chooseAutomaticRespiration"/);
 assert.match(html, /Salvar paciente para acompanhamento/);
+assert.match(html, /id="movementAmplitudeBar"/);
+assert.match(html, /Nova versão disponível — atualizar agora/);
 const start = html.indexOf("function median(");
 const end = html.indexOf("async function acquireWakeLock", start);
 assert.ok(start >= 0 && end > start, "Funções de análise respiratória não encontradas");
@@ -78,6 +80,9 @@ for (const expected of [18, 24, 36, 48, 72]) {
 
 const tooShort = context.analyzeRespirationSignal(syntheticBreathing(30, 0.004, 10000));
 assert.equal(tooShort, null, "Uma coleta de 10 segundos deveria ser rejeitada");
+
+const aboveSensorRange = context.analyzeRespirationSignal(syntheticBreathing(100));
+assert.equal(aboveSensorRange, null, "O limite de busca de 100 irpm não pode aparecer como resultado automático");
 
 const randomMotion = [];
 let randomSeed = 98765;

@@ -1,4 +1,4 @@
-const CACHE_NAME = "sri-pediatrica-fro-2026-08-11-v15";
+const CACHE_NAME = "sri-pediatrica-fro-2026-08-11-v16";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -11,7 +11,10 @@ const APP_SHELL = [
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
-  self.skipWaiting();
+});
+
+self.addEventListener("message", event => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", event => {

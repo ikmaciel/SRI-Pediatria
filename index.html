@@ -218,6 +218,8 @@
       margin: -4px 0 12px;
     }
 
+    .utility-button.update-available { grid-column: 1 / -1; border-color: var(--brand); background: var(--brand-soft); color: var(--brand-ink); }
+
     .utility-button {
       display: flex;
       min-height: 52px;
@@ -699,7 +701,7 @@
       stroke-width: 2;
       transform-box: fill-box;
       transform-origin: center;
-      transition: transform .16s ease-out, fill .16s ease-out;
+      transition: transform .1s ease-out, fill .1s ease-out;
     }
 
     .breathing-visual[data-phase="movement"] .lung { fill: var(--brand-soft); }
@@ -707,6 +709,9 @@
     .breathing-copy span { display: block; color: var(--muted); font-size: .69rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
     .breathing-copy strong { display: block; margin-top: 2px; font-size: .96rem; }
     .breathing-copy small { display: block; margin-top: 4px; color: var(--muted); font-size: .73rem; line-height: 1.3; }
+    .movement-meter { height: 12px; margin-top: 9px; overflow: hidden; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-soft); }
+    .movement-meter span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--brand); transition: width .1s linear; }
+    .movement-amplitude { font-weight: 750; }
 
 
     .observed-events {
@@ -1273,6 +1278,10 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
         <span>Instalar aplicativo</span>
       </button>
+      <button id="updateApp" class="utility-button update-available" type="button" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
+        <span>Nova versão disponível — atualizar agora</span>
+      </button>
     </div>
 
     <section class="panel patient-panel" aria-labelledby="dados-paciente">
@@ -1360,6 +1369,8 @@
                   <span>Movimento ao vivo</span>
                   <strong id="breathingPhase">Aguardando sensor</strong>
                   <small id="breathingPhaseHelp">A animação acompanha apenas a amplitude relativa do movimento captado.</small>
+                  <div class="movement-meter" aria-hidden="true"><span id="movementAmplitudeBar"></span></div>
+                  <small id="movementAmplitudeText" class="movement-amplitude">Movimento: aguardando coleta</small>
                 </div>
               </div>
               <div class="observed-events">
@@ -1942,6 +1953,8 @@
     const breathingVisual = document.getElementById("breathingVisual");
     const breathingPhase = document.getElementById("breathingPhase");
     const breathingPhaseHelp = document.getElementById("breathingPhaseHelp");
+    const movementAmplitudeBar = document.getElementById("movementAmplitudeBar");
+    const movementAmplitudeText = document.getElementById("movementAmplitudeText");
     const leftLung = document.getElementById("leftLung");
     const rightLung = document.getElementById("rightLung");
     const markObservedCoughButton = document.getElementById("markObservedCough");
@@ -1972,12 +1985,15 @@
     const installCloseButton = document.getElementById("installClose");
     const triggerInstallButton = document.getElementById("triggerInstall");
     const installStatus = document.getElementById("installStatus");
+    const updateAppButton = document.getElementById("updateApp");
 
     const RESPIRATION_DURATION_MS = 60000;
     const SENSOR_POSITIONING_MS = 5000;
     const TECHNICAL_PAUSE_NOTICE_MS = 10000;
     const HISTORY_STORAGE_KEY = "sri-pediatric-history-v1";
     let deferredInstallPrompt = null;
+    let pendingServiceWorkerRegistration = null;
+    let serviceWorkerReloading = false;
     let respirationFlowMode = null;
     let respirationFlowHasMeasurement = false;
     let historyOpenedFromRespiration = false;
@@ -2491,12 +2507,13 @@
       const energy = signal.reduce((sum, value) => sum + value * value, 0) / signal.length;
       if (!Number.isFinite(energy) || energy < 1e-8) return null;
 
-      const minLag = Math.floor(series.frequency * 60 / 100);
+      const minLag = Math.floor(series.frequency * 60 / 90);
+      const scanMinLag = Math.max(2, Math.floor(series.frequency * 60 / 180));
       const maxLag = Math.min(Math.ceil(series.frequency * 60 / 8), Math.floor(signal.length / 3));
       let bestLag = null;
       let bestCorrelation = -1;
       const correlations = new Map();
-      for (let lag = minLag; lag <= maxLag; lag += 1) {
+      for (let lag = scanMinLag; lag <= maxLag; lag += 1) {
         let product = 0;
         let firstEnergy = 0;
         let secondEnergy = 0;
@@ -2509,12 +2526,16 @@
         }
         const correlation = product / Math.sqrt(Math.max(firstEnergy * secondEnergy, 1e-12));
         correlations.set(lag, correlation);
-        if (correlation > bestCorrelation) {
+        if (lag >= minLag && correlation > bestCorrelation) {
           bestCorrelation = correlation;
           bestLag = lag;
         }
       }
       if (!bestLag || !Number.isFinite(bestCorrelation)) return null;
+      for (let lag = scanMinLag + 1; lag < minLag; lag += 1) {
+        const value = correlations.get(lag);
+        if (value > correlations.get(lag - 1) && value >= correlations.get(lag + 1) && value >= Math.max(0.5, bestCorrelation * 0.85)) return null;
+      }
       const strongLocalPeaks = [];
       for (let lag = minLag + 1; lag < maxLag; lag += 1) {
         const value = correlations.get(lag);
@@ -2522,10 +2543,9 @@
           strongLocalPeaks.push({ lag, correlation: value });
         }
       }
-      if (strongLocalPeaks.length) {
-        bestLag = strongLocalPeaks[0].lag;
-        bestCorrelation = strongLocalPeaks[0].correlation;
-      }
+      if (!strongLocalPeaks.length) return null;
+      bestLag = strongLocalPeaks[0].lag;
+      bestCorrelation = strongLocalPeaks[0].correlation;
       const bpm = 60 * series.frequency / bestLag;
       const coverage = Math.min(1, series.durationMs / RESPIRATION_DURATION_MS);
       const sampling = Math.min(1, series.sourceRate / 15);
@@ -2538,7 +2558,7 @@
       const candidates = ["x", "y", "z", "magnitude"]
         .map(field => scoreRespiratoryAxis(samples, field))
         .filter(Boolean)
-        .filter(candidate => candidate.bpm >= 8 && candidate.bpm <= 100)
+        .filter(candidate => candidate.bpm >= 8 && candidate.bpm <= 90)
         .sort((a, b) => b.quality - a.quality);
       if (!candidates.length) return null;
       const best = candidates[0];
@@ -2802,9 +2822,17 @@
     }
 
     function setLungAnimationScale(scale = 1) {
-      const safeScale = Math.max(0.82, Math.min(1.18, scale));
+      const safeScale = Math.max(0.82, Math.min(1.3, scale));
       leftLung.style.transform = `scale(${safeScale})`;
       rightLung.style.transform = `scale(${safeScale})`;
+    }
+
+    function setMovementAmplitude(level = 0) {
+      const safeLevel = Math.max(0, Math.min(1, Number(level) || 0));
+      const percent = Math.round(safeLevel * 100);
+      movementAmplitudeBar.style.width = `${percent}%`;
+      const label = safeLevel < 0.12 ? "não detectado" : safeLevel < 0.35 ? "baixo" : safeLevel < 0.7 ? "moderado" : "intenso";
+      movementAmplitudeText.textContent = `Movimento detectado: ${label}`;
     }
 
     function resetBreathingVisualization(message = "Aguardando sensor") {
@@ -2812,6 +2840,7 @@
       breathingPhase.textContent = message;
       breathingPhaseHelp.textContent = "A animação acompanha apenas a amplitude relativa do movimento captado.";
       setLungAnimationScale(1);
+      setMovementAmplitude(0);
     }
 
     function updateBreathingVisualization() {
@@ -2821,6 +2850,7 @@
       const now = performance.now();
       if (!live) {
         setLungAnimationScale(1);
+        setMovementAmplitude(0);
         const pauseSec = sensor.lastMovementAt ? (now - sensor.lastMovementAt) / 1000 : 0;
         if (pauseSec >= TECHNICAL_PAUSE_NOTICE_MS / 1000) {
           breathingVisual.dataset.phase = "pause";
@@ -2841,13 +2871,15 @@
         breathingPhase.textContent = `Sem movimento detectável há ${Math.floor(pauseSec)} s`;
         breathingPhaseHelp.textContent = "Confira criança e sensor. Ausência de movimento no celular não diagnostica apneia.";
         setLungAnimationScale(1);
+        setMovementAmplitude(0);
         return;
       }
 
       breathingVisual.dataset.phase = "movement";
       breathingPhase.textContent = movement >= 0.12 ? "Movimento detectado" : "Movimento discreto";
       breathingPhaseHelp.textContent = "Amplitude relativa do sensor; não identifica inspiração, expiração ou ventilação.";
-      setLungAnimationScale(1 + movement * 0.14);
+      setMovementAmplitude(movement);
+      setLungAnimationScale(1 + movement * 0.28);
     }
 
     function updateRespiratoryEventSummary() {
@@ -3219,6 +3251,7 @@
       breathingPhase.textContent = "Coleta encerrada";
       breathingPhaseHelp.textContent = "Revise a frequência, os eventos marcados e os candidatos técnicos abaixo.";
       setLungAnimationScale(1);
+      setMovementAmplitude(0);
       updateRespirationComparison();
       if (respirationSessionDialog.open && respirationFlowMode === "automatic") showRespirationFlowResult("automatic");
     }
@@ -4283,9 +4316,46 @@
     savePreparationSettingsButton.addEventListener("click", saveAndApplyPreparationSettings);
     resetPreparationSettingsButton.addEventListener("click", restoreDefaultPreparationSettings);
 
-    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
+    async function registerAppServiceWorker() {
+      if (!("serviceWorker" in navigator) || !location.protocol.startsWith("http")) return;
+      try {
+        const registration = await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
+        pendingServiceWorkerRegistration = registration;
+        const offerUpdate = () => {
+          if (!registration.waiting || !navigator.serviceWorker.controller) return;
+          updateAppButton.hidden = false;
+        };
+        offerUpdate();
+        registration.addEventListener("updatefound", () => {
+          const worker = registration.installing;
+          worker?.addEventListener("statechange", () => {
+            if (worker.state === "installed") offerUpdate();
+          });
+        });
+        window.addEventListener("focus", () => registration.update().catch(() => {}));
+        window.setInterval(() => registration.update().catch(() => {}), 30 * 60 * 1000);
+      } catch {}
     }
+
+    updateAppButton.addEventListener("click", async () => {
+      const registration = pendingServiceWorkerRegistration;
+      if (!registration) return;
+      if (!registration.waiting) {
+        await registration.update().catch(() => {});
+      }
+      if (!registration.waiting) return;
+      serviceWorkerReloading = true;
+      updateAppButton.querySelector("span").textContent = "Atualizando…";
+      registration.waiting.postMessage({ type: "SKIP_WAITING" });
+    });
+
+    navigator.serviceWorker?.addEventListener("controllerchange", () => {
+      if (!serviceWorkerReloading) return;
+      serviceWorkerReloading = false;
+      location.reload();
+    });
+
+    registerAppServiceWorker();
 
     window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber, respiratoryRate, analyzeRespirationSignal, respiratoryReferenceForAge, assessRespiratoryRate, analyzeRealtimeMotion, analyzeAbruptRespiratoryEvents, analyzeSnorePattern, detectMotionSignalPauses });
     applyTheme(document.documentElement.dataset.theme, false);

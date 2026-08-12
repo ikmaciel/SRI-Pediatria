@@ -1,0 +1,8 @@
+{
+  "name": "sri-pediatrica-fro",
+  "version": "0.26.0",
+  "private": true,
+  "scripts": {
+    "test": "node tests/medications.test.js && node tests/respiration.test.js && node tests/service-worker.test.js"
+  }
+}

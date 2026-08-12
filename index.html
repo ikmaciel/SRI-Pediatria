@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f7fafc">
   <meta name="description" content="Calculadora pediátrica de dose e volume a partir da apresentação disponível.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
-  <title>SRI Pediátrica - FRO (Ferramenta de Recomendação e Otimização)</title>
+  <title>SRI Pediátrica - FRO (Ferramenta de Redução de Riscos e Otimização)</title>
   <script>
     try {
       const savedTheme = localStorage.getItem("sri-theme");
@@ -194,22 +195,23 @@
       gap: 12px;
       margin: 0 0 12px;
       padding: 13px 15px;
-      border: 2px solid var(--brand);
+      border: 1px solid var(--line);
       border-radius: var(--radius);
-      background: var(--brand);
-      color: var(--on-brand);
-      box-shadow: 0 8px 22px color-mix(in srgb, var(--brand) 28%, transparent);
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: var(--card-shadow);
       text-align: left;
       cursor: pointer;
     }
 
-    .respiration-launch:hover { background: var(--brand-dark); }
-    .respiration-launch-icon { display: grid; width: 54px; height: 54px; place-items: center; border-radius: 14px; background: rgba(255, 255, 255, .14); }
+    .respiration-launch:hover { background: var(--surface-soft); }
+    .respiration-launch-icon { display: grid; width: 54px; height: 54px; place-items: center; border-radius: 14px; background: var(--brand-soft); color: var(--brand-ink); }
     .respiration-launch-icon svg { width: 40px; height: 40px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
     .respiration-launch-copy { min-width: 0; }
     .respiration-launch-copy strong { display: block; font-size: 1.05rem; letter-spacing: .01em; }
     .respiration-launch-copy small { display: block; margin-top: 2px; font-size: .78rem; font-weight: 650; opacity: .9; }
     .respiration-launch-arrow { font-size: 1.45rem; font-weight: 500; line-height: 1; }
+    .respiration-mode-button:disabled { opacity: .62; cursor: not-allowed; }
 
     .top-utilities {
       display: grid;
@@ -369,6 +371,23 @@
     .snore-observation[data-state="possible"] { border-left-color: var(--warning-line); background: var(--warning-bg); color: var(--warning-ink); font-weight: 700; }
 
     .patient-panel { padding: 16px; }
+
+    .patient-context-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .patient-context-grid select {
+      width: 100%;
+      min-height: 48px;
+      padding: 9px 11px;
+      border: 1px solid var(--input-line);
+      border-radius: 10px;
+      background: var(--input-bg);
+      color: var(--ink);
+    }
 
     .weight-row {
       display: grid;
@@ -862,12 +881,34 @@
     }
 
     .checklist-list li {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 8px;
       padding-bottom: 8px;
       border-bottom: 1px solid var(--line);
       font-size: .88rem;
+    }
+
+    .checklist-item {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 9px;
+      align-items: start;
+      margin: 0;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .checklist-item input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--brand); }
+    .checklist-progress { margin: 10px 0 0; color: var(--muted); font-size: .82rem; font-weight: 750; }
+
+    .plan-summary { margin: 14px 0; padding: 14px; }
+    .plan-summary h2 { margin: 0; font-size: 1rem; }
+    .plan-summary p { margin: 6px 0 0; color: var(--muted); font-size: .84rem; }
+    .plan-summary-list { display: grid; gap: 8px; margin-top: 10px; }
+    .plan-summary-item { padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); font-size: .84rem; }
+    .plan-selector { display: flex; align-items: center; gap: 8px; margin: 0 0 10px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); font-size: .82rem; }
+    .plan-selector input { width: 19px; height: 19px; margin: 0; accent-color: var(--brand); }
+
+    @media (max-width: 520px) {
+      .patient-context-grid { grid-template-columns: 1fr; }
     }
 
     .checklist-list li:last-child { padding-bottom: 0; border-bottom: 0; }
@@ -1289,37 +1330,11 @@
         <img class="brand-logo" src="./assets/icon-192.png" width="64" height="64" alt="">
         <div class="brand-copy">
           <h1>SRI Pediátrica — FRO</h1>
-          <p class="subtitle"><strong>Ferramenta de Recomendação e Otimização</strong><br>Dose, apresentação e volume — sem tabela horizontal.</p>
+          <p class="subtitle"><strong>Ferramenta de Redução de Riscos e Otimização</strong><br>Dose, apresentação e volume — sem tabela horizontal.</p>
           <span class="review-badge">Versão em validação clínica</span>
         </div>
       </div>
     </header>
-
-    <button id="openRespirationAnalysis" class="respiration-launch" type="button" aria-controls="respirationSessionDialog" aria-expanded="false">
-      <span class="respiration-launch-icon" aria-hidden="true">
-        <svg viewBox="0 0 48 48"><path d="M23 13v22M21 19c-3-6-7-8-10-5-4 4-6 12-6 20 0 4 3 6 7 5 6-1 9-6 9-12M27 19c3-6 7-8 10-5 4 4 6 12 6 20 0 4-3 6-7 5-6-1-9-6-9-12"/></svg>
-      </span>
-      <span class="respiration-launch-copy">
-        <strong>Analisar respiração</strong>
-        <small>Contagem, animação e eventos respiratórios</small>
-      </span>
-      <span class="respiration-launch-arrow" aria-hidden="true">›</span>
-    </button>
-
-    <div class="top-utilities" aria-label="Ações do aplicativo">
-      <button id="openHistory" class="utility-button" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10M8 7V5h8v2M8 12h8M8 16h5"/></svg>
-        <span>Histórico / evolução</span>
-      </button>
-      <button id="installApp" class="utility-button" type="button">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
-        <span>Instalar aplicativo</span>
-      </button>
-      <button id="updateApp" class="utility-button update-available" type="button" hidden>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
-        <span>Nova versão disponível — atualizar agora</span>
-      </button>
-    </div>
 
     <section class="panel patient-panel" aria-labelledby="dados-paciente">
       <h2 id="dados-paciente">Peso do paciente</h2>
@@ -1344,6 +1359,22 @@
         </div>
         <button id="novoPaciente" class="button secondary" type="button">Novo paciente</button>
       </div>
+      <div class="patient-context-grid">
+        <label for="weightSource">Origem do peso
+          <select id="weightSource">
+            <option value="">Não informado</option>
+            <option value="measured">Peso medido</option>
+            <option value="estimated">Peso estimado</option>
+          </select>
+        </label>
+        <label for="protocolContext">Protocolo aplicável
+          <select id="protocolContext">
+            <option value="">Confirmar se necessário</option>
+            <option value="pediatric">Pediátrico / PALS</option>
+            <option value="neonatal">Neonatal / NRP</option>
+          </select>
+        </label>
+      </div>
       <p id="peso-ajuda" class="field-help">Não armazena automaticamente. Peso aceita vírgula.</p>
       <p id="peso-status" class="status-line" role="status" aria-live="polite" hidden></p>
       <p id="idade-status" class="status-line warning" role="status" aria-live="polite">Informe a idade para alertas neonatal e de succinilcolina.</p>
@@ -1353,11 +1384,37 @@
       </div>
     </section>
 
+    <button id="openRespirationAnalysis" class="respiration-launch" type="button" aria-controls="respirationSessionDialog" aria-expanded="false">
+      <span class="respiration-launch-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48"><path d="M23 13v22M21 19c-3-6-7-8-10-5-4 4-6 12-6 20 0 4 3 6 7 5 6-1 9-6 9-12M27 19c3-6 7-8 10-5 4 4 6 12 6 20 0 4-3 6-7 5-6-1-9-6-9-12"/></svg>
+      </span>
+      <span class="respiration-launch-copy">
+        <strong>Contagem respiratória</strong>
+        <small>Manual como referência; sensor somente experimental</small>
+      </span>
+      <span class="respiration-launch-arrow" aria-hidden="true">›</span>
+    </button>
+
+    <div class="top-utilities" aria-label="Ações do aplicativo">
+      <button id="openHistory" class="utility-button" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10M8 7V5h8v2M8 12h8M8 16h5"/></svg>
+        <span>Histórico / evolução</span>
+      </button>
+      <button id="installApp" class="utility-button" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+        <span>Instalar aplicativo</span>
+      </button>
+      <button id="updateApp" class="utility-button update-available" type="button" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg>
+        <span>Nova versão disponível — atualizar quando não houver atendimento em curso</span>
+      </button>
+    </div>
+
     <section id="respiracao" class="panel vitals-panel" aria-label="Respiração e sinais vitais">
       <details id="vitals-check">
         <summary>
           <span>Respiração e sinais vitais</span>
-          <span id="vitals-summary" class="summary-note">manual + experimental</span>
+          <span id="vitals-summary" class="summary-note">manual; sensor suspenso</span>
         </summary>
         <div class="vitals-body">
           <div class="sensor-warning">
@@ -1460,7 +1517,7 @@
 
           <section class="vitals-entry" aria-labelledby="manual-vitals-title">
             <h3 id="manual-vitals-title">Sinais vitais informados pela médica</h3>
-            <p class="measurement-help">Digite somente valores obtidos por avaliação clínica ou equipamento apropriado. Só serão armazenados se você salvar no Histórico.</p>
+            <p class="measurement-help">Digite somente valores obtidos por avaliação clínica ou equipamento apropriado. Só serão mantidos nesta sessão se você salvar no Histórico.</p>
             <div class="vitals-grid">
               <div class="vital-field"><label for="vitalHeartRate">FC (bpm)</label><input id="vitalHeartRate" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 120"></div>
               <div class="vital-field"><label for="vitalSpo2">SpO₂ (%)</label><input id="vitalSpo2" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 97"></div>
@@ -1501,22 +1558,7 @@
               <label class="check-option"><input type="checkbox" data-condition="flumazenil-risk"><span>Epilepsia, uso crônico de benzodiazepínico ou intoxicação mista</span></label>
             </div>
           </fieldset>
-          <fieldset>
-            <legend>Medicamentos planejados — somente para checar combinações</legend>
-            <div class="option-grid">
-              <label class="check-option"><input type="checkbox" data-planned="fentanil"><span>Fentanil</span></label>
-              <label class="check-option"><input type="checkbox" data-planned="midazolam"><span>Midazolam</span></label>
-              <label class="check-option"><input type="checkbox" data-planned="propofol"><span>Propofol</span></label>
-              <label class="check-option"><input type="checkbox" data-planned="cetamina"><span>Cetamina</span></label>
-              <label class="check-option"><input type="checkbox" data-planned="tiopental"><span>Tiopental</span></label>
-              <label class="check-option"><input type="checkbox" data-planned="rocuronio"><span>Rocurônio</span></label>
-              <label class="check-option"><input type="checkbox" data-planned="succinilcolina"><span>Succinilcolina</span></label>
-              <label class="check-option"><input type="checkbox" data-planned="pancuronio"><span>Pancurônio</span></label>
-              <label class="check-option"><input type="checkbox" data-planned="lidocaina"><span>Lidocaína</span></label>
-              <label class="check-option"><input type="checkbox" data-planned="morfina"><span>Morfina</span></label>
-              <label class="check-option"><input type="checkbox" data-planned="amiodarona"><span>Amiodarona</span></label>
-            </div>
-          </fieldset>
+          <p class="measurement-help"><strong>Medicamentos planejados:</strong> selecione diretamente nos cartões. A indicação específica passa a fazer parte da seleção e evita confundir medicamentos de mesmo nome.</p>
           <div id="clinical-alerts" class="clinical-alerts" role="status" aria-live="polite">
             <div class="clinical-alert">Marque apenas condições presentes e medicamentos realmente planejados.</div>
           </div>
@@ -1526,21 +1568,28 @@
 
     <section class="panel checklist-panel" aria-label="Checklist essencial de SRI">
       <details>
-        <summary><span>Checklist essencial de SRI</span><span class="summary-note">9 itens</span></summary>
+        <summary><span>Checklist essencial de SRI</span><span id="checklistSummaryCount" class="summary-note">0/9</span></summary>
         <div class="checklist-body">
           <ul class="checklist-list">
-            <li><span aria-hidden="true">✓</span><span>Paciente, peso, idade, alergias e reação anestésica prévia conferidos.</span></li>
-            <li><span aria-hidden="true">✓</span><span>Líder, intubador e responsáveis por medicamentos/monitorização definidos; ajuda chamada quando necessária.</span></li>
-            <li><span aria-hidden="true">✓</span><span>Monitorização, pressão arterial e capnografia disponíveis.</span></li>
-            <li><span aria-hidden="true">✓</span><span>Oxigênio, pré-oxigenação e bolsa-válvula-máscara testados.</span></li>
-            <li><span aria-hidden="true">✓</span><span>Aspirador funcionando e material de via aérea difícil acessível.</span></li>
-            <li><span aria-hidden="true">✓</span><span>Tubo, dispositivo de resgate e plano alternativo definidos.</span></li>
-            <li><span aria-hidden="true">✓</span><span>Acesso EV/IO; seringas rotuladas; concentração conferida por duas pessoas quando possível.</span></li>
-            <li><span aria-hidden="true">✓</span><span>Indução/sedação antes do bloqueador e analgesia/sedação pós-intubação preparadas.</span></li>
-            <li><span aria-hidden="true">✓</span><span>Confirmar tubo com capnografia com onda; após falha, reoxigenar e mudar o plano antes de nova tentativa.</span></li>
+            <li><label class="checklist-item"><input type="checkbox" data-checklist><span>Paciente, peso, idade, alergias e reação anestésica prévia conferidos.</span></label></li>
+            <li><label class="checklist-item"><input type="checkbox" data-checklist><span>Líder, intubador e responsáveis por medicamentos/monitorização definidos; ajuda chamada quando necessária.</span></label></li>
+            <li><label class="checklist-item"><input type="checkbox" data-checklist><span>Monitorização, pressão arterial e capnografia disponíveis.</span></label></li>
+            <li><label class="checklist-item"><input type="checkbox" data-checklist><span>Oxigênio, pré-oxigenação e bolsa-válvula-máscara testados.</span></label></li>
+            <li><label class="checklist-item"><input type="checkbox" data-checklist><span>Aspirador funcionando e material de via aérea difícil acessível.</span></label></li>
+            <li><label class="checklist-item"><input type="checkbox" data-checklist><span>Tubo, dispositivo de resgate e plano alternativo definidos.</span></label></li>
+            <li><label class="checklist-item"><input type="checkbox" data-checklist><span>Acesso EV/IO; seringas rotuladas; concentração conferida por duas pessoas quando possível.</span></label></li>
+            <li><label class="checklist-item"><input type="checkbox" data-checklist><span>Indução/sedação antes do bloqueador e analgesia/sedação pós-intubação preparadas.</span></label></li>
+            <li><label class="checklist-item"><input type="checkbox" data-checklist><span>Confirmar tubo com capnografia com onda; após falha, reoxigenar e mudar o plano antes de nova tentativa.</span></label></li>
           </ul>
+          <p id="checklistProgress" class="checklist-progress" role="status" aria-live="polite">0 de 9 itens confirmados.</p>
         </div>
       </details>
+    </section>
+
+    <section id="planSummary" class="panel plan-summary" aria-labelledby="plan-summary-title">
+      <h2 id="plan-summary-title">Plano selecionado</h2>
+      <p id="planSummaryStatus">Nenhum medicamento selecionado. Use “Incluir no plano” no cartão da indicação correta.</p>
+      <div id="planSummaryList" class="plan-summary-list"></div>
     </section>
 
     <section class="toolbar" aria-label="Filtros de medicamentos">
@@ -1569,7 +1618,7 @@
       <p>Adrenalina foi separada por via e indicação: PCR/bradicardia usa solução final 0,1 mg/mL EV/IO; anafilaxia usa 1 mg/mL IM sem diluição.</p>
       <p><a href="https://cpr.heart.org/en/resuscitation-science/cpr-and-ecc-guidelines/pediatric-advanced-life-support" target="_blank" rel="noreferrer">AHA/AAP PALS 2025</a> · <a href="https://www.erc.edu/media/03xnpjmj/gl2025-09-pls-e.pdf" target="_blank" rel="noreferrer">ERC pediátrico 2025</a> · <a href="REVISAO_CLINICA.md">Revisão bibliográfica completa</a></p>
       <p><strong>Versão clínica:</strong> rascunho 2026-08-07. Exige aprovação do serviço antes do uso assistencial.</p>
-      <p id="preparationModeSummary" class="profile-summary"><strong>Diluições neste aparelho:</strong> usando os valores padrão da planilha.</p>
+      <p id="preparationModeSummary" class="profile-summary"><strong>Perfil de preparos:</strong> versão publicada; alterações locais bloqueadas.</p>
       <span id="connection-status" class="offline-indicator" role="status"></span>
       <div class="footer-actions">
         <button class="button secondary" type="button" onclick="window.print()">Imprimir</button>
@@ -1597,8 +1646,8 @@
               <small>Toque uma vez por ciclo respiratório durante 60 segundos.</small>
             </button>
             <button id="chooseAutomaticRespiration" class="respiration-mode-button" type="button">
-              <strong>Contagem automática — experimental</strong>
-              <small>Usa o movimento do celular e, se permitido, o microfone como confirmação secundária.</small>
+              <strong>Sensor automático — pesquisa suspensa</strong>
+              <small>Indisponível na versão clínica até validação prospectiva e definição regulatória.</small>
             </button>
           </div>
         </section>
@@ -1624,9 +1673,9 @@
         </section>
         <section id="respirationSavePrompt" class="respiration-save-prompt" aria-labelledby="respiration-save-title" hidden>
           <h3 id="respiration-save-title">Salvar para acompanhamento?</h3>
-          <p>A medição pode ser guardada somente neste aparelho usando um código local não identificável.</p>
+          <p>A medição pode ser mantida somente durante esta sessão usando um código local não identificável.</p>
           <div class="respiration-flow-actions">
-            <button id="saveRespirationFollowup" class="button" type="button">Salvar paciente para acompanhamento</button>
+            <button id="saveRespirationFollowup" class="button" type="button">Manter paciente nesta sessão</button>
             <button id="discardRespirationFollowup" class="button secondary" type="button">Não salvar e voltar à calculadora</button>
           </div>
         </section>
@@ -1639,20 +1688,20 @@
       <header class="config-header">
         <div>
           <h2 id="config-title">Diluições</h2>
-          <span class="count">Valores usados neste aparelho</span>
+          <span class="count">Perfil clínico homologado</span>
         </div>
         <button id="configClose" class="icon-button" type="button" aria-label="Fechar configurações">×</button>
       </header>
       <div class="config-scroll">
-        <div class="config-banner"><strong>Atenção:</strong> salvar aqui muda imediatamente os volumes calculados neste aparelho. Confira a apresentação e o diluente antes de usar.</div>
+        <div class="config-banner"><strong>Configuração bloqueada:</strong> preparos clínicos não podem ser alterados localmente. Mudanças exigem revisão médico-farmacêutica, testes e publicação de nova versão clínica.</div>
 
         <section class="config-section" aria-labelledby="preparos-title">
           <h3 id="preparos-title">Preparo das soluções</h3>
-          <p>Para diluição, informe quantos mL de diluente são adicionados a cada 1 mL do medicamento. Para reconstituição, informe o volume final.</p>
+          <p>Os valores abaixo são somente para conferência. O perfil ativo é o publicado e versionado com o aplicativo.</p>
           <div id="preparationEditor" class="prep-config-list"></div>
           <div class="config-actions">
-            <button id="savePreparationSettings" class="button" type="button">Salvar e aplicar</button>
-            <button id="resetPreparationSettings" class="button secondary" type="button">Restaurar padrão</button>
+            <button id="savePreparationSettings" class="button" type="button" disabled>Alteração local indisponível</button>
+            <button id="resetPreparationSettings" class="button secondary" type="button" disabled>Perfil publicado ativo</button>
           </div>
           <p id="configStatus" class="config-status" role="status" aria-live="polite"></p>
         </section>
@@ -1665,12 +1714,12 @@
       <header class="config-header">
         <div>
           <h2 id="history-title">Histórico de evolução</h2>
-          <span class="count">Somente neste aparelho</span>
+          <span class="count">Somente durante esta sessão</span>
         </div>
         <button id="historyClose" class="icon-button" type="button" aria-label="Fechar histórico">×</button>
       </header>
       <div class="config-scroll">
-        <div class="config-banner"><strong>Dados sensíveis:</strong> não use nome, CPF, registro hospitalar ou data de nascimento. Quem acessar este aparelho poderá ler os registros. Nenhum dado é enviado pelo aplicativo.</div>
+        <div class="config-banner"><strong>Dados sensíveis:</strong> não use nome, CPF, registro hospitalar ou data de nascimento. Novos registros não persistem após fechar a aba/aplicativo. Nenhum dado é enviado pelo aplicativo.</div>
         <div class="history-form">
           <label for="historyPatientCode">Código local não identificável
             <input id="historyPatientCode" type="text" maxlength="30" autocomplete="off" placeholder="Ex.: caso-A17">
@@ -1679,9 +1728,9 @@
             <textarea id="historyNote" maxlength="500" placeholder="Ex.: após broncodilatador; em ar ambiente"></textarea>
           </label>
         </div>
-        <label class="history-consent"><input id="historyConsent" type="checkbox"><span>Confirmo que estou autorizada a registrar estes dados de saúde neste aparelho e que usei um código não identificável.</span></label>
+        <label class="history-consent"><input id="historyConsent" type="checkbox"><span>Confirmo que estou autorizada a manter estes dados de saúde nesta sessão e que usei um código não identificável.</span></label>
         <div class="history-toolbar">
-          <button id="saveHistorySnapshot" class="button" type="button">Salvar medição atual</button>
+          <button id="saveHistorySnapshot" class="button" type="button">Manter medição nesta sessão</button>
           <button id="exportHistory" class="button secondary" type="button">Exportar JSON</button>
           <button id="clearHistory" class="button secondary" type="button">Apagar tudo</button>
         </div>
@@ -1901,6 +1950,7 @@
     ];
 
     const PREPARATION_SETTINGS_KEY = "sri-preparation-settings-v2";
+    const LOCAL_PREPARATION_EDITING_ENABLED = false;
     const DEFAULT_PREPARATION_SETTINGS = MEDICATIONS
       .filter(med => med.dilution || med.reconstitution)
       .map(med => ({
@@ -1925,10 +1975,13 @@
       category: "sri",
       search: "",
       weight: null,
+      weightSource: "",
       ageDays: null,
       ageMonths: null,
+      protocolContext: "",
       conditions: new Set(),
-      planned: new Set()
+      planned: new Set(),
+      prescribedDoses: new Map()
     };
 
     const pesoInput = document.getElementById("peso");
@@ -1936,6 +1989,8 @@
     const idadeInput = document.getElementById("idadeNumero");
     const idadeUnidade = document.getElementById("idadeUnidade");
     const idadeStatus = document.getElementById("idade-status");
+    const weightSource = document.getElementById("weightSource");
+    const protocolContext = document.getElementById("protocolContext");
     const buscaInput = document.getElementById("busca");
     const themeToggle = document.getElementById("themeToggle");
     const themeIcon = document.getElementById("themeIcon");
@@ -1944,6 +1999,11 @@
     const resultsTitle = document.getElementById("resultados-titulo");
     const clinicalAlertsBox = document.getElementById("clinical-alerts");
     const clinicalSummaryCount = document.getElementById("clinical-summary-count");
+    const checklistInputs = [...document.querySelectorAll("[data-checklist]")];
+    const checklistProgress = document.getElementById("checklistProgress");
+    const checklistSummaryCount = document.getElementById("checklistSummaryCount");
+    const planSummaryStatus = document.getElementById("planSummaryStatus");
+    const planSummaryList = document.getElementById("planSummaryList");
     const configButton = document.getElementById("configButton");
     const configDialog = document.getElementById("configDialog");
     const configClose = document.getElementById("configClose");
@@ -2037,7 +2097,9 @@
     const RESPIRATION_DURATION_MS = 60000;
     const SENSOR_POSITIONING_MS = 5000;
     const TECHNICAL_PAUSE_NOTICE_MS = 10000;
-    const HISTORY_STORAGE_KEY = "sri-pediatric-history-v1";
+    const RESPIRATORY_RESEARCH_MODE_ENABLED = false;
+    const HISTORY_STORAGE_KEY = "sri-pediatric-session-history-v2";
+    const LEGACY_HISTORY_STORAGE_KEY = "sri-pediatric-history-v1";
     let deferredInstallPrompt = null;
     let pendingServiceWorkerRegistration = null;
     let serviceWorkerReloading = false;
@@ -2094,6 +2156,9 @@
     }
 
     function loadPreparationSettings() {
+      if (!LOCAL_PREPARATION_EDITING_ENABLED) {
+        return { custom: false, items: cloneDefaultPreparationSettings() };
+      }
       try {
         const saved = JSON.parse(localStorage.getItem(PREPARATION_SETTINGS_KEY));
         return {
@@ -2133,9 +2198,9 @@
         }
       });
       preparationSettingsState = { custom, items: settings };
-      preparationModeSummary.innerHTML = custom
-        ? "<strong>Diluições neste aparelho:</strong> usando valores personalizados. Confira antes de administrar."
-        : "<strong>Diluições neste aparelho:</strong> usando os valores padrão da planilha.";
+      preparationModeSummary.innerHTML = custom && LOCAL_PREPARATION_EDITING_ENABLED
+        ? "<strong>Perfil de preparos:</strong> valores personalizados ativos; confira antes de administrar."
+        : "<strong>Perfil de preparos:</strong> versão publicada; alterações locais bloqueadas.";
     }
 
     function preparationEditorCard(setting) {
@@ -2164,6 +2229,9 @@
 
     function renderPreparationSettings() {
       preparationEditor.innerHTML = preparationSettingsState.items.map(preparationEditorCard).join("");
+      if (!LOCAL_PREPARATION_EDITING_ENABLED) {
+        preparationEditor.querySelectorAll("input").forEach(input => { input.disabled = true; });
+      }
       updatePreparationPreviews();
     }
 
@@ -2216,14 +2284,18 @@
 
     function openPreparationSettings() {
       clearPreparationConfirmation();
-      configStatus.textContent = preparationSettingsState.custom
-        ? "Valores personalizados estão ativos neste aparelho."
-        : "Valores padrão da planilha estão ativos.";
+      configStatus.textContent = LOCAL_PREPARATION_EDITING_ENABLED
+        ? (preparationSettingsState.custom ? "Valores personalizados estão ativos neste aparelho." : "Valores padrão da planilha estão ativos.")
+        : "Perfil publicado ativo. Alterações locais estão bloqueadas por segurança.";
       renderPreparationSettings();
       configDialog.showModal();
     }
 
     function saveAndApplyPreparationSettings() {
+      if (!LOCAL_PREPARATION_EDITING_ENABLED) {
+        configStatus.textContent = "Alteração local bloqueada. Atualize o catálogo clínico, os testes e a versão publicada.";
+        return;
+      }
       const { items, errors } = readPreparationEditor();
       if (errors.length) {
         configStatus.textContent = `Revise os campos de ${errors.map(error => error.medication).join(", ")}.`;
@@ -2252,6 +2324,10 @@
     }
 
     function restoreDefaultPreparationSettings() {
+      if (!LOCAL_PREPARATION_EDITING_ENABLED) {
+        configStatus.textContent = "O perfil publicado já está ativo.";
+        return;
+      }
       if (pendingPreparationAction !== "reset") {
         clearPreparationConfirmation();
         pendingPreparationAction = "reset";
@@ -2324,6 +2400,7 @@
     }
 
     function selectRespirationMode(mode) {
+      if (mode === "automatic" && !RESPIRATORY_RESEARCH_MODE_ENABLED) return;
       resetRespirationMeasurements();
       respirationFlowMode = mode;
       respirationSessionDialog.dataset.mode = mode;
@@ -3580,7 +3657,7 @@
       }
       vitalsSummary.textContent = manual
         ? `${manual.complete ? "FR manual" : "FR est."} ${Math.round(manual.bpm)} irpm`
-        : "manual + experimental";
+        : "manual; sensor suspenso";
       updateRespiratoryAgeAssessment();
     }
 
@@ -3672,7 +3749,7 @@
 
     function readHistoryStore() {
       try {
-        const parsed = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY));
+        const parsed = JSON.parse(sessionStorage.getItem(HISTORY_STORAGE_KEY));
         if (!parsed || parsed.schemaVersion !== 1 || !Array.isArray(parsed.patients)) return emptyHistoryStore();
         return {
           schemaVersion: 1,
@@ -3688,7 +3765,7 @@
     }
 
     function writeHistoryStore(store) {
-      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(store));
+      sessionStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(store));
     }
 
     function currentVitalsSnapshot() {
@@ -3709,6 +3786,8 @@
         id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
         recordedAt: new Date().toISOString(),
         weightKg: Number.isFinite(state.weight) ? state.weight : null,
+        weightSource: state.weightSource || null,
+        protocolContext: state.protocolContext || null,
         age: state.ageMonths === null ? null : {
           input: String(idadeInput.value || "").slice(0, 12),
           unit: idadeUnidade.value,
@@ -3782,7 +3861,7 @@
         writeHistoryStore(store);
         historyNote.value = "";
         historyConsent.checked = false;
-        historyStatus.textContent = `Medição salva localmente para ${code}. Nenhum áudio foi armazenado.`;
+        historyStatus.textContent = `Medição mantida somente nesta sessão para ${code}. Nenhum áudio foi armazenado.`;
         renderHistory();
       } catch {
         historyStatus.textContent = "Não foi possível salvar neste navegador. Verifique armazenamento privado ou espaço disponível.";
@@ -3799,10 +3878,12 @@
 
     function renderHistory() {
       const store = readHistoryStore();
+      let hasLegacyHistory = false;
+      try { hasLegacyHistory = Boolean(localStorage.getItem(LEGACY_HISTORY_STORAGE_KEY)); } catch {}
       exportHistoryButton.disabled = !store.patients.length;
-      clearHistoryButton.disabled = !store.patients.length;
+      clearHistoryButton.disabled = !store.patients.length && !hasLegacyHistory;
       if (!store.patients.length) {
-        historyList.innerHTML = '<div class="history-empty">Nenhuma evolução salva neste aparelho.</div>';
+        historyList.innerHTML = `<div class="history-empty">Nenhuma evolução nesta sessão.${hasLegacyHistory ? " Há histórico persistente de uma versão anterior; use Apagar tudo para removê-lo deste aparelho." : ""}</div>`;
         return;
       }
       const sortedPatients = [...store.patients].sort((a, b) => String(b.records.at(-1)?.recordedAt || "").localeCompare(String(a.records.at(-1)?.recordedAt || "")));
@@ -3860,9 +3941,10 @@
     }
 
     function clearHistory() {
-      if (!window.confirm("Apagar definitivamente todo o histórico salvo neste aparelho?")) return;
-      localStorage.removeItem(HISTORY_STORAGE_KEY);
-      historyStatus.textContent = "Todo o histórico local foi apagado.";
+      if (!window.confirm("Apagar definitivamente o histórico desta sessão e qualquer histórico persistente de versões anteriores?")) return;
+      sessionStorage.removeItem(HISTORY_STORAGE_KEY);
+      localStorage.removeItem(LEGACY_HISTORY_STORAGE_KEY);
+      historyStatus.textContent = "Histórico da sessão e registros persistentes legados foram apagados.";
       renderHistory();
     }
 
@@ -3946,6 +4028,13 @@
       if (Number.isFinite(med.minTotal)) result = Math.max(result, med.minTotal);
       if (Number.isFinite(med.maxTotal)) result = Math.min(result, med.maxTotal);
       return result;
+    }
+
+    function calculationGateMessage() {
+      if (state.ageDays === null) return "Informe a idade para liberar os cálculos e aplicar as barreiras de segurança.";
+      if (state.ageDays < 28 && state.protocolContext === "") return "Recém-nascido: selecione explicitamente o protocolo aplicável antes de calcular.";
+      if (state.ageDays < 28 && state.protocolContext === "neonatal") return "Catálogo neonatal não homologado neste aplicativo. Use o protocolo neonatal institucional; estes cálculos permanecem bloqueados.";
+      return "";
     }
 
     function calculateMedication(med, weight, selectedDose = null) {
@@ -4046,7 +4135,12 @@
       const depressants = ["fentanil", "morfina", "midazolam", "propofol"].filter(id => planned.has(id));
 
       if (state.ageDays !== null && state.ageDays < 28) {
-        alerts.push({ severity: "critical", title: "Faixa neonatal", text: "Recém-nascido identificado. Confirme se o protocolo neonatal ou o PALS é o aplicável; não use esta calculadora isoladamente para decidir doses." });
+        const protocolText = state.protocolContext === "pediatric"
+          ? "Aplicação do protocolo pediátrico/PALS foi explicitamente marcada. Confirme que essa decisão está de acordo com a fisiologia e a prática institucional."
+          : state.protocolContext === "neonatal"
+            ? "Protocolo neonatal marcado; o catálogo farmacológico desta versão não está homologado para NRP e os cálculos ficam bloqueados."
+            : "Selecione explicitamente se o protocolo neonatal ou o PALS é o aplicável; os cálculos ficam bloqueados até essa confirmação.";
+        alerts.push({ severity: "critical", title: "Faixa neonatal", text: protocolText });
       }
 
       if (planned.has("succinilcolina")) {
@@ -4078,10 +4172,10 @@
         alerts.push({ severity: "caution", title: "Depressores do sistema nervoso central", text: `${depressants.map(id => MEDICATIONS.find(med => med.id === id)?.name || id).join(" + ")}: efeitos sedativos, respiratórios e hemodinâmicos podem se somar. Ajustar e monitorizar.` });
       }
 
-      if (planned.has("succinilcolina") && planned.has("lidocaina")) {
+      if (planned.has("succinilcolina") && planned.has("lidocaina-sri")) {
         alerts.push({ severity: "caution", title: "Lidocaína + succinilcolina", text: "A bula informa que anestésicos locais podem intensificar o bloqueio neuromuscular. Monitorizar e confirmar a necessidade da lidocaína." });
       }
-      if (planned.has("amiodarona") && planned.has("lidocaina")) {
+      if (planned.has("amiodarona") && planned.has("lidocaina-arritmia")) {
         alerts.push({ severity: "critical", title: "Amiodarona + lidocaína", text: "No algoritmo de PCR por FV/TV sem pulso, são alternativas. Não administrar como combinação rotineira sem indicação especializada." });
       }
 
@@ -4112,6 +4206,9 @@
       if (!calculation) {
         return '<div class="awaiting">Informe o peso para calcular.</div>';
       }
+
+      const gateMessage = calculationGateMessage();
+      if (gateMessage) return `<div class="warning danger"><strong>Cálculo bloqueado:</strong> ${gateMessage}</div>`;
 
       if (med.directVolume) {
         return `
@@ -4145,6 +4242,18 @@
       return html;
     }
 
+    function measurementPrecisionMarkup(med, calculation) {
+      if (!calculation || med.directVolume || calculationGateMessage()) return "";
+      if (!Number.isFinite(calculation.stockMin) || !Number.isFinite(calculation.stockMax)) return "";
+      if (calculation.stockMax < 0.1) {
+        return '<div class="warning danger"><strong>Microvolume:</strong> todo o volume a aspirar está abaixo de 0,1 mL. Não arredonde nem improvise; confirme seringa, limite mensurável e diluição padronizada pelo serviço.</div>';
+      }
+      if (calculation.stockMin < 0.1) {
+        return '<div class="warning"><strong>Microvolume:</strong> parte da faixa fica abaixo de 0,1 mL. Confirme a dose prescrita, a seringa e a diluição institucional antes do preparo.</div>';
+      }
+      return "";
+    }
+
     function detailsMarkup(med) {
       const hasRange = med.doseMin !== med.doseMax;
       const dilution = med.dilution
@@ -4163,7 +4272,7 @@
       const exact = hasRange ? `
         <div class="exact-calc">
           <label for="dose-${med.id}">Dose exata prescrita (${med.doseUnit})
-            <input class="dose-input" id="dose-${med.id}" data-med-id="${med.id}" type="text" inputmode="decimal" placeholder="${formatNumber(med.doseMin)} a ${formatNumber(med.doseMax)}">
+            <input class="dose-input" id="dose-${med.id}" data-med-id="${med.id}" type="text" inputmode="decimal" value="${state.prescribedDoses.has(med.id) ? escapeHtml(formatNumber(state.prescribedDoses.get(med.id))) : ""}" placeholder="${formatNumber(med.doseMin)} a ${formatNumber(med.doseMax)}">
           </label>
           <button type="button" class="button secondary exact-clear" data-med-id="${med.id}">Limpar</button>
           <p class="exact-result" id="exact-${med.id}" role="status" aria-live="polite">Preencha apenas se já houver uma dose prescrita.</p>
@@ -4194,6 +4303,7 @@
       return `
         <article class="med-card" data-med-card="${med.id}">
           <div class="med-main">
+            <label class="plan-selector"><input type="checkbox" data-med-plan="${med.id}" ${state.planned.has(med.id) ? "checked" : ""}><span>Incluir no plano: ${med.name} — ${med.stage}</span></label>
             <header class="med-header">
               <div>
                 <h3 class="med-title">${med.name}</h3>
@@ -4203,6 +4313,7 @@
             </header>
             ${preparationFlag}
             <div class="result-box" data-result="${med.id}">${calculationMarkup(med, calculation)}</div>
+            ${measurementPrecisionMarkup(med, calculation)}
             ${preparationNotice}
             ${contextualWarningsMarkup(med)}
             ${med.danger ? `<div class="warning danger"><strong>Atenção:</strong> ${med.danger}</div>` : ""}
@@ -4239,8 +4350,49 @@
         ? meds.map(medicationCard).join("")
         : '<div class="panel empty-state">Nenhum medicamento encontrado.</div>';
       bindExactCalculators();
+      bindPlanSelectors();
       renderClinicalAlerts();
+      renderPlanSummary();
       updateRespiratoryAgeAssessment();
+    }
+
+    function bindPlanSelectors() {
+      document.querySelectorAll("[data-med-plan]").forEach(input => {
+        input.addEventListener("change", () => {
+          input.checked ? state.planned.add(input.dataset.medPlan) : state.planned.delete(input.dataset.medPlan);
+          render();
+        });
+      });
+    }
+
+    function renderPlanSummary() {
+      const selected = MEDICATIONS.filter(med => state.planned.has(med.id));
+      planSummaryStatus.textContent = selected.length
+        ? `${selected.length} medicamento${selected.length === 1 ? "" : "s"} selecionado${selected.length === 1 ? "" : "s"}. A seleção identifica indicação e etapa; não substitui prescrição.`
+        : "Nenhum medicamento selecionado. Use “Incluir no plano” no cartão da indicação correta.";
+      planSummaryList.innerHTML = selected.map(med => {
+        const hasRange = med.doseMin !== med.doseMax;
+        const prescribedDose = state.prescribedDoses.get(med.id);
+        const calculation = calculateMedication(med, state.weight, hasRange ? prescribedDose : null);
+        const gateMessage = calculationGateMessage();
+        if (!calculation) return `<div class="plan-summary-item"><strong>${escapeHtml(med.name)} — ${escapeHtml(med.stage)}</strong><br>Informe o peso para calcular.</div>`;
+        if (gateMessage) return `<div class="plan-summary-item"><strong>${escapeHtml(med.name)} — ${escapeHtml(med.stage)}</strong><br>Cálculo bloqueado: ${escapeHtml(gateMessage)}</div>`;
+        if (hasRange && !Number.isFinite(prescribedDose)) return `<div class="plan-summary-item"><strong>${escapeHtml(med.name)} — ${escapeHtml(med.stage)}</strong><br>Dose exata prescrita pendente; abra “Conferir preparo e calcular dose exata”.</div>`;
+        const aspiration = med.directVolume
+          ? formatRange(calculation.stockMin, calculation.stockMax, "mL")
+          : `${formatRange(calculation.totalMin, calculation.totalMax, med.totalUnit)} · aspirar ${formatRange(calculation.stockMin, calculation.stockMax, "mL")}`;
+        const prepared = med.dilution ? ` · administrar ${formatRange(calculation.preparedMin, calculation.preparedMax, "mL")} após preparo` : "";
+        const precision = !med.directVolume && calculation.stockMin < 0.1
+          ? " · MICROVOLUME: confirmar seringa, mensurabilidade e preparo institucional"
+          : "";
+        return `<div class="plan-summary-item"><strong>${escapeHtml(med.name)} — ${escapeHtml(med.stage)}</strong><br>${escapeHtml(aspiration)}${escapeHtml(prepared)} · ${escapeHtml(med.route)}${escapeHtml(precision)}</div>`;
+      }).join("");
+    }
+
+    function updateChecklistProgress() {
+      const completed = checklistInputs.filter(input => input.checked).length;
+      checklistProgress.textContent = `${completed} de ${checklistInputs.length} itens confirmados.${completed === checklistInputs.length ? " Checklist completo para esta sessão." : " Confirmações não são presumidas."}`;
+      checklistSummaryCount.textContent = `${completed}/${checklistInputs.length}`;
     }
 
     function validateWeight() {
@@ -4263,8 +4415,12 @@
       }
 
       state.weight = parsed;
-      if (parsed > 50) {
-        pesoStatus.textContent = "Peso acima de 50 kg: confirme se o fármaco exige peso total, ideal ou ajustado.";
+      const weightWarnings = [];
+      if (state.weightSource === "estimated") weightWarnings.push("Peso estimado: confirme assim que houver medida confiável");
+      if (!state.weightSource) weightWarnings.push("informe se o peso foi medido ou estimado");
+      if (parsed > 50) weightWarnings.push("confirme se o fármaco exige peso total, ideal ou ajustado");
+      if (weightWarnings.length) {
+        pesoStatus.textContent = `${weightWarnings.join("; ")}.`;
         pesoStatus.classList.add("warning");
         pesoStatus.hidden = false;
       }
@@ -4314,6 +4470,7 @@
     function bindExactCalculators() {
       document.querySelectorAll(".dose-input").forEach(input => {
         input.addEventListener("input", () => updateExact(input.dataset.medId, input.value));
+        if (input.value) updateExact(input.dataset.medId, input.value);
       });
       document.querySelectorAll(".exact-clear").forEach(button => {
         button.addEventListener("click", () => {
@@ -4332,26 +4489,53 @@
         output.textContent = "Informe primeiro o peso do paciente.";
         return;
       }
+      const gateMessage = calculationGateMessage();
+      if (gateMessage) {
+        output.textContent = `Cálculo bloqueado: ${gateMessage}`;
+        return;
+      }
       const selected = parseNumber(rawValue);
       if (selected === null) {
+        state.prescribedDoses.delete(id);
         output.textContent = "Preencha apenas se já houver uma dose prescrita.";
+        renderPlanSummary();
         return;
       }
       if (!Number.isFinite(selected) || selected < med.doseMin || selected > med.doseMax) {
+        state.prescribedDoses.delete(id);
         output.textContent = `Dose fora da faixa exibida (${doseDescription(med)}).`;
+        renderPlanSummary();
         return;
       }
+      state.prescribedDoses.set(id, selected);
       const result = calculateMedication(med, state.weight, selected);
       const finalPart = med.dilution
         ? `; administrar volume final após diluição: ${formatRange(result.preparedMin, result.preparedMax, "mL")}`
         : "";
       const aspiration = med.reconstitution ? "aspirar da solução reconstituída" : "aspirar";
-      output.textContent = `Dose total: ${formatRange(result.totalMin, result.totalMax, med.totalUnit)}; ${aspiration}: ${formatRange(result.stockMin, result.stockMax, "mL")}${finalPart}.`;
+      const microvolume = !med.directVolume && result.stockMax < 0.1
+        ? " Microvolume abaixo de 0,1 mL: confirme diluição institucional e limite mensurável."
+        : !med.directVolume && result.stockMin < 0.1
+          ? " Parte da faixa fica abaixo de 0,1 mL; confirme o preparo institucional."
+          : "";
+      output.textContent = `Dose total: ${formatRange(result.totalMin, result.totalMax, med.totalUnit)}; ${aspiration}: ${formatRange(result.stockMin, result.stockMax, "mL")}${finalPart}.${microvolume}`;
+      renderPlanSummary();
     }
 
-    function updateConnectionStatus() {
+    async function updateConnectionStatus() {
       const el = document.getElementById("connection-status");
-      el.textContent = navigator.onLine ? "Online" : "Offline — usando a versão armazenada neste aparelho";
+      if (!navigator.onLine) {
+        el.textContent = "Offline — usando a versão armazenada neste aparelho";
+        return;
+      }
+      el.textContent = "Verificando conectividade…";
+      try {
+        const response = await fetch(`./manifest.webmanifest?__health=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) throw new Error("health-check-failed");
+        el.textContent = "Servidor acessível";
+      } catch {
+        el.textContent = "Sem acesso ao servidor — usando a versão armazenada neste aparelho";
+      }
     }
 
     function applyTheme(theme, persist = true) {
@@ -4378,6 +4562,14 @@
       ageTimer = window.setTimeout(validateAge, 120);
     });
     idadeUnidade.addEventListener("change", validateAge);
+    weightSource.addEventListener("change", () => {
+      state.weightSource = weightSource.value;
+      validateWeight();
+    });
+    protocolContext.addEventListener("change", () => {
+      state.protocolContext = protocolContext.value;
+      render();
+    });
 
     buscaInput.addEventListener("input", () => {
       state.search = buscaInput.value;
@@ -4393,17 +4585,15 @@
       });
     });
 
-    document.querySelectorAll("[data-condition], [data-planned]").forEach(input => {
+    document.querySelectorAll("[data-condition]").forEach(input => {
       input.addEventListener("change", () => {
         if (input.dataset.condition) {
           input.checked ? state.conditions.add(input.dataset.condition) : state.conditions.delete(input.dataset.condition);
         }
-        if (input.dataset.planned) {
-          input.checked ? state.planned.add(input.dataset.planned) : state.planned.delete(input.dataset.planned);
-        }
         render();
       });
     });
+    checklistInputs.forEach(input => input.addEventListener("change", updateChecklistProgress));
 
     manualBreathStart.addEventListener("click", startManualRespiration);
     manualBreathTap.addEventListener("click", registerManualBreath);
@@ -4474,7 +4664,7 @@
       respirationSessionDialog.close();
       openRespirationAnalysisButton.setAttribute("aria-expanded", "false");
       historyOpenedFromRespiration = true;
-      historyStatus.textContent = "Informe um código local e confirme a autorização para salvar esta medição.";
+      historyStatus.textContent = "Informe um código local e confirme a autorização para manter esta medição somente na sessão atual.";
       renderHistory();
       historyDialog.showModal();
       window.requestAnimationFrame(() => historyPatientCode.focus());
@@ -4499,15 +4689,21 @@
       pesoInput.value = "";
       idadeInput.value = "";
       idadeUnidade.value = "meses";
+      weightSource.value = "";
+      protocolContext.value = "";
       buscaInput.value = "";
       state.weight = null;
+      state.weightSource = "";
       state.ageDays = null;
       state.ageMonths = null;
+      state.protocolContext = "";
       state.category = "sri";
       state.search = "";
       state.conditions.clear();
       state.planned.clear();
-      document.querySelectorAll("[data-condition], [data-planned]").forEach(input => { input.checked = false; });
+      state.prescribedDoses.clear();
+      document.querySelectorAll("[data-condition]").forEach(input => { input.checked = false; });
+      checklistInputs.forEach(input => { input.checked = false; });
       respiratorySignInputs.forEach(input => { input.checked = false; });
       pesoStatus.hidden = true;
       idadeStatus.className = "status-line warning";
@@ -4516,6 +4712,7 @@
       resetRespirationMeasurements();
       updateRespiratorySignsStatus();
       clearManualVitals();
+      updateChecklistProgress();
       render();
       pesoInput.focus();
     });
@@ -4588,10 +4785,12 @@
 
     registerAppServiceWorker();
 
-    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber, respiratoryRate, analyzeRespirationSignal, respiratoryReferenceForAge, assessRespiratoryRate, analyzeRealtimeMotion, analyzeAbruptRespiratoryEvents, analyzeSnorePattern, detectMotionSignalPauses });
+    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber, respiratoryRate, analyzeRespirationSignal, respiratoryReferenceForAge, assessRespiratoryRate, analyzeRealtimeMotion, analyzeAbruptRespiratoryEvents, analyzeSnorePattern, detectMotionSignalPauses, measurementPrecisionMarkup, calculationGateMessage });
     applyTheme(document.documentElement.dataset.theme, false);
     updateConnectionStatus();
     if (appIsInstalled()) installAppButton.hidden = true;
+    chooseAutomaticRespirationButton.disabled = !RESPIRATORY_RESEARCH_MODE_ENABLED;
+    updateChecklistProgress();
     render();
     if (location.hash === "#respiracao") {
       resetRespirationMeasurements();

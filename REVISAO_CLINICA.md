@@ -75,7 +75,11 @@ Estudos com desempenho superior utilizaram redes neurais treinadas em dezenas de
 
 ### Histórico, privacidade e instalação
 
-O histórico é opcional e fica em `localStorage` no aparelho. Exige código local, confirmação de autorização e ação explícita de salvar. Guarda somente resultados resumidos e observações; áudio e séries brutas de movimento não são persistidos. O sistema limita 25 códigos e 50 registros por código, permite excluir registros, apagar tudo e exportar JSON. Não há autenticação nem criptografia própria: qualquer pessoa com acesso ao navegador e ao perfil do aparelho poderá ler os dados. A instituição deve definir base legal, governança, retenção, segurança e política de uso antes da adoção assistencial, pois informações de saúde vinculadas a pessoa identificada ou identificável são dados pessoais sensíveis segundo a LGPD.
+Novos registros de evolução ficam apenas em `sessionStorage` e desaparecem ao encerrar a sessão. Exigem código local, confirmação de autorização e ação explícita de salvar; áudio e séries brutas não são persistidos. Histórico em `localStorage` criado por versões anteriores não é carregado e pode ser removido por ação explícita. Persistência institucional futura exige base legal, governança, autenticação, criptografia, retenção, auditoria e política de incidentes, pois informações de saúde vinculadas a pessoa identificada ou identificável são dados pessoais sensíveis segundo a LGPD.
+
+### Barreiras adicionadas em 12/08/2026
+
+A interface passou a exigir idade para liberar cálculos, bloquear o catálogo neonatal não homologado, registrar se o peso foi medido ou estimado, alertar para volumes aspirados abaixo de 0,1 mL, selecionar medicamentos diretamente no cartão da indicação e usar checklist de SRI interativo. Preparos locais passaram a somente leitura e o sensor respiratório automático foi suspenso da versão clínica. Essas barreiras reduzem risco, mas ainda requerem homologação institucional e validação de usabilidade.
 
 O projeto já utilizava manifesto, ícones e `service worker`. Foram adicionados botão de instalação, tratamento de `beforeinstallprompt`, instruções específicas para iOS, modo `standalone`, atalho para respiração e atualização de cache. A instalação oferece conveniência e uso offline; não constitui validação como dispositivo médico.
 

@@ -1,4 +1,4 @@
-# SRI Pediátrica - FRO (Ferramenta de Recomendação e Otimização)
+# SRI Pediátrica - FRO (Ferramenta de Redução de Riscos e Otimização)
 
 Calculadora móvel de dose e volume baseada na apresentação disponível no serviço.
 
@@ -10,18 +10,17 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Usa a idade para alertas clínicos específicos e para contextualizar a frequência respiratória manual.
 - Analisa combinações apenas entre medicamentos explicitamente marcados como planejados.
 - Sinaliza contraindicações importantes da succinilcolina e cautela hemodinâmica.
-- Não armazena dados do paciente automaticamente; o histórico local só é criado por ação explícita da médica.
+- Não armazena dados do paciente automaticamente; a evolução da sessão só é criada por ação explícita da médica.
 - Separa adrenalina para parada cardíaca de outros usos.
 - Separa adrenalina EV/IO para PCR/bradicardia da adrenalina IM para anafilaxia.
 - Separa doses sequenciais de adenosina e naloxona, evitando interpretar etapas como uma faixa livre.
 - Exibe a fonte clínica de cada regra revisada dentro do cartão do medicamento.
 - Oferece modo claro e escuro, inicia pela preferência do aparelho e memoriza somente a escolha visual.
-- Inclui uma área simples de diluições para ajustar proporções e volumes finais de reconstituição no aparelho em uso.
-- Uma alteração só passa a valer depois da confirmação da médica e pode ser restaurada aos valores padrão a qualquer momento.
+- Exibe o perfil publicado de diluições e reconstituições em modo somente leitura; mudanças clínicas exigem revisão, testes e nova versão.
 - Inclui contador respiratório manual de 60 segundos e leitura experimental pelo acelerômetro/giroscópio do celular.
-- Mantém um botão grande `Analisar respiração` no topo, independente da navegação de medicamentos.
+- Mantém a contagem respiratória manual como função auxiliar após a identificação do paciente.
 - Ao abrir, pergunta se a médica deseja contagem manual ou automática; ao terminar, mostra frequência, interpretação disponível e ocorrências registradas antes de oferecer salvamento local para acompanhamento.
-- No modo automático, mostra somente sensor, áudio, movimento, qualidade e candidatos técnicos; entradas e classificações manuais ficam ocultas.
+- O sensor automático permanece no código como protótipo técnico, mas está suspenso na interface clínica até validação prospectiva e definição regulatória.
 - A área principal do automático prioriza contagem, tempo, animação e controles; orientações, estado do áudio e avisos aparecem depois. O microfone não tem chave manual: quando disponível e autorizado, é usado apenas como confirmação secundária.
 - Classifica somente a contagem manual completa como abaixo, dentro ou acima da faixa respiratória aceitável por idade; peso não altera essa faixa.
 - Pode usar o microfone como confirmação secundária: áudio baixo, saturado, ruidoso ou discordante é descartado e nunca gera resultado sozinho.
@@ -32,7 +31,10 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Inclui marcação manual de tiragens, batimento de asa nasal, gemência, estridor, sibilância, cianose/palidez, gasping e fadiga respiratória.
 - Compara a leitura por movimento/áudio com a contagem manual e rejeita coleta curta, ausência de sensor ou sinal matematicamente insuficiente.
 - Permite anotar FC, SpO₂, temperatura, pressão arterial, enchimento capilar, consciência e suporte de oxigênio; só salva quando a médica usa `Histórico / evolução`.
-- Oferece histórico local opcional por código não identificável, com exportação e exclusão, sem armazenar áudio bruto.
+- Oferece evolução opcional por código não identificável somente durante a sessão atual, com exportação e exclusão, sem armazenar áudio bruto.
+- Exige idade antes de liberar cálculos e bloqueia o catálogo neonatal não homologado.
+- Identifica peso medido ou estimado e alerta para volumes aspirados abaixo de 0,1 mL.
+- Seleciona medicamentos planejados no cartão da indicação e usa checklist de SRI realmente interativo.
 - Pode ser instalado como aplicativo pelo botão `Instalar aplicativo`.
 - Funciona offline após o primeiro acesso bem-sucedido.
 
@@ -45,13 +47,14 @@ A matriz completa de evidências, decisões e limitações está em [`REVISAO_CL
 ## Uso
 
 1. Abra <https://ikmaciel.github.io/SRI-Pediatria/>.
-2. Informe o peso e a idade.
-3. Abra `Checagem de segurança` quando houver comorbidades relevantes ou mais de um medicamento planejado.
-4. Toque no botão destacado `Analisar respiração` para abrir diretamente a contagem, a animação e os eventos respiratórios.
-5. Selecione `SRI`, `Reanimação` ou `Outros`.
-6. Confira dose total e volume calculado.
-7. Quando houver diluição, confira separadamente o volume da ampola, o diluente e o volume final.
-8. Confirme no rótulo a concentração e siga o protocolo institucional antes da administração.
+2. Informe peso, origem do peso e idade.
+3. Em recém-nascido, selecione explicitamente o protocolo; o catálogo neonatal permanece bloqueado.
+4. Abra `Checagem de segurança` quando houver condições relevantes.
+5. Selecione `SRI`, `Reanimação` ou `Outros` e marque `Incluir no plano` somente na indicação correta.
+6. Informe a dose exata prescrita quando o cartão apresentar uma faixa.
+7. Confira dose total, volume aspirado, diluente, volume final e eventual alerta de microvolume.
+8. Complete o checklist real de SRI e faça dupla conferência independente.
+9. Use a contagem respiratória manual quando necessário; o sensor automático está suspenso.
 
 ## Respiração e sinais vitais
 
@@ -59,7 +62,7 @@ O contador manual usa uma janela padrão de 60 segundos: com a criança em repou
 
 Depois de uma contagem manual completa, o app mostra se o valor está abaixo, dentro ou acima da faixa aceitável por idade publicada pelo Royal Children's Hospital Melbourne. A faixa é apenas contexto para crianças doentes: não diagnostica normalidade, não substitui tendência nem sinais de esforço respiratório. O peso informado aparece na observação, mas não muda o intervalo. Para menores de 5 anos, quando a frequência atinge o corte da OMS, o app exibe uma observação condicional aplicável somente se houver tosse ou dificuldade respiratória. O sensor experimental jamais produz essa classificação.
 
-O modo `Movimento + som — experimental` solicita acesso ao acelerômetro/giroscópio e, opcionalmente, ao microfone; oferece 5 segundos para posicionar o aparelho e coleta até 60 segundos. O algoritmo procura periodicidade entre 8 e 90 irpm nos eixos do sensor. Um pico no limite superior ou sem máximo periódico local confiável é rejeitado como sinal insuficiente, em vez de virar um resultado artificial. O áudio é analisado localmente como envelope de intensidade e só participa do resultado quando encontra ritmo compatível com o movimento. Som baixo, saturação, falta de periodicidade, discordância ou permissão negada fazem o app usar somente o movimento. Nenhum arquivo de áudio é criado, salvo ou enviado.
+O protótipo `Movimento + som — experimental` está suspenso na interface clínica. Seu código e testes sintéticos permanecem para pesquisa e revisão técnica, sem autorização de uso assistencial. Quando reativado em ambiente de pesquisa controlado, solicita acelerômetro/giroscópio e microfone, processa tudo localmente e não cria arquivos de áudio.
 
 Para ronco, o app procura episódios acústicos repetitivos com predominância de baixa frequência e concordância aproximada com o movimento respiratório. O resultado aparece como `possível ronco` e nunca como diagnóstico. A médica também pode marcar `Ronco observado` ou `Ronco/ruído de via aérea superior` manualmente.
 
@@ -73,21 +76,21 @@ Os botões de eventos registram observações da médica. Separadamente, ao fina
 
 O telefone deve permanecer sob supervisão, nunca sobre face ou pescoço, e o resultado não substitui a contagem clínica nem equipamento médico validado.
 
-Os sinais vitais digitados e as duas medições respiratórias permanecem somente na memória da página atual, exceto quando a médica escolhe explicitamente `Salvar medição atual` no histórico. `Novo paciente` limpa os campos ativos, mas não apaga o histórico já autorizado.
+Os sinais vitais digitados e a contagem respiratória permanecem na memória da página atual. A ação `Manter medição nesta sessão` cria uma evolução temporária; `Novo paciente` limpa os campos ativos e as confirmações, mas não apaga outras evoluções da mesma sessão.
 
-## Histórico local e evolução
+## Evolução durante a sessão
 
-O botão `Histórico / evolução` cria registros somente após a médica informar um código local, confirmar autorização e tocar em `Salvar medição atual`. São salvos resultados estruturados — idade, peso, frequências, eventos, achados, sinais vitais e observação — sem áudio ou amostras brutas dos sensores. Não use nome, CPF, registro hospitalar ou data de nascimento. Os dados ficam no armazenamento do navegador daquele aparelho, podem ser exportados como JSON e apagados integralmente.
+O botão `Histórico / evolução` mantém registros somente na sessão atual, após código local, confirmação de autorização e ação explícita. Fechar a aba/aplicativo encerra esse armazenamento. Não use nome, CPF, registro hospitalar ou data de nascimento. Histórico persistente criado por versões anteriores não é carregado e pode ser removido com `Apagar tudo`.
 
 ## Instalação
 
 O botão `Instalar aplicativo` abre a confirmação nativa quando disponível no Chrome/Android e mostra as instruções para `Adicionar à Tela de Início` no Safari/iPhone. O manifesto inclui ícones de 192 e 512 px, execução independente, atalho respiratório e cache offline. A instalação não altera o caráter experimental dos sensores.
 
-Quando uma nova versão termina de baixar, aparece o botão `Nova versão disponível — atualizar agora`. A atualização só é aplicada depois do toque, para não recarregar a tela durante uma medição. Ao confirmar, o aplicativo ativa a nova versão e recarrega automaticamente. Ele também verifica atualizações ao abrir/focar a página e a cada 30 minutos enquanto estiver aberto e conectado.
+Quando uma nova versão termina de baixar, aparece o botão `Nova versão disponível — atualizar quando não houver atendimento em curso`. A atualização só é aplicada depois do toque, para não recarregar a tela durante uma medição. Ao confirmar, o aplicativo ativa a nova versão e recarrega automaticamente. Ele também verifica atualizações ao abrir/focar a página e a cada 30 minutos enquanto estiver aberto e conectado.
 
 ## Diluições
 
-O botão `Diluições`, no rodapé, permite editar diretamente a proporção de diluente ou o volume final da reconstituição. Ao tocar em `Salvar e aplicar`, os volumes calculados passam a usar esses valores naquele navegador e aparelho. A opção `Restaurar padrão` retorna às definições publicadas no programa. Essas preferências ficam apenas no dispositivo; dados do paciente não são gravados.
+O botão `Diluições`, no rodapé, exibe o perfil publicado em modo somente leitura. Alterar apresentação, concentração, diluente ou volume final exige revisão médico-farmacêutica, atualização dos testes e publicação de nova versão clínica.
 
 ## Fontes clínicas complementares
 
@@ -110,3 +113,11 @@ Teste do algoritmo respiratório:
 ```powershell
 node .\tests\respiration.test.js
 ```
+
+Suíte completa:
+
+```powershell
+npm test
+```
+
+Governança e releases clínicos: [`VALIDACAO_E_GOVERNANCA.md`](VALIDACAO_E_GOVERNANCA.md) e [`CHANGELOG_CLINICO.md`](CHANGELOG_CLINICO.md).

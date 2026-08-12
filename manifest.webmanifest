@@ -1,7 +1,7 @@
 {
-  "name": "SRI Pediátrica - FRO (Ferramenta de Recomendação e Otimização)",
+  "name": "SRI Pediátrica - FRO (Ferramenta de Redução de Riscos e Otimização)",
   "short_name": "SRI Pediátrica",
-  "description": "Ferramenta de Recomendação e Otimização para SRI e cálculo pediátrico de dose e volume a partir da apresentação disponível.",
+  "description": "Ferramenta de Redução de Riscos e Otimização para SRI e cálculo pediátrico de dose e volume a partir da apresentação disponível.",
   "lang": "pt-BR",
   "id": "./",
   "start_url": "./",

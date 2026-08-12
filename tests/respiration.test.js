@@ -17,9 +17,11 @@ assert.match(html, /min-height: min\(52dvh, 480px\)/);
 assert.doesNotMatch(html, /id="useRespiratoryAudio"|useRespiratoryAudio\.checked/);
 assert.match(html, /data-mode="automatic"\] \.sensor-warning \{ order: 2/);
 assert.match(html, /Nova versão disponível — atualizar agora/);
-assert.match(html, /id="respirationPauseCount"/);
-assert.match(html, /id="respirationNoiseCount"/);
-assert.match(html, /id="respirationSnoreCount"/);
+assert.match(html, /id="respirationTimelineChart"/);
+assert.match(html, /function buildRespiratoryRateTimeline\(/);
+assert.match(html, /Gráfico temporal da frequência respiratória estimada/);
+assert.match(html, /respirationResultEvents\.hidden = mode === "automatic"/);
+assert.match(html, /const noises = technical\.abrupt\?\.audio/);
 assert.match(html, /function playMeasurementCompleteTone\(\)/);
 const start = html.indexOf("function median(");
 const end = html.indexOf("async function acquireWakeLock", start);
@@ -183,8 +185,13 @@ assert.ok(technicalPauses.longestSec >= 10);
 
 const possibleSnore = context.analyzeSnorePattern(syntheticSnoreAudio(24), { bpm: 24 });
 assert.equal(possibleSnore.possible, true, "Padrão acústico repetitivo de baixa frequência deveria gerar observação de possível ronco");
+assert.ok(possibleSnore.burstTimes.length >= 3, "Os episódios candidatos de ronco devem manter sua posição temporal");
 const nonSnoreAudio = syntheticSnoreAudio(24).map(sample => ({ ...sample, lowBand: 0.08, midBand: 0.27, highBand: 0.65 }));
 assert.equal(context.analyzeSnorePattern(nonSnoreAudio, { bpm: 24 }).possible, false, "Som sem predominância de baixa frequência não deveria sugerir ronco");
+
+const timeline24 = context.buildRespiratoryRateTimeline(syntheticBreathing(24));
+assert.ok(timeline24.length >= 5, "O gráfico deveria conter vários pontos temporais");
+assert.ok(timeline24.every(point => Math.abs(point.bpm - 24) <= 3), "A linha temporal deveria acompanhar a frequência sintética");
 
 const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
 assert.equal(manifest.display, "standalone");

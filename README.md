@@ -65,6 +65,8 @@ Para ronco, o app procura episódios acústicos repetitivos com predominância d
 
 Durante a coleta automática, a animação ocupa uma área ampla da tela: os pulmões animados e uma barra mostram a intensidade relativa do movimento captado (`não detectado`, `baixo`, `moderado` ou `intenso`). Depois de pelo menos 15 segundos e somente se houver periodicidade suficiente, aparecem ciclos estimados e frequência provisória, atualizados aproximadamente uma vez por segundo. A interface não nomeia inspiração ou expiração porque a posição e a orientação do telefone podem inverter o sinal. A animação não mede fluxo de ar, volume corrente ou ventilação.
 
+Ao final dos 60 segundos, o app reproduz dois tons curtos, quando o navegador permite áudio, e mostra cartões numéricos para pausas técnicas ≥10 segundos, eventos abruptos simultâneos de som + movimento e episódios acústicos candidatos de ronco. Esses números não identificam causa nem constituem diagnóstico.
+
 Os botões de eventos registram observações da médica. Separadamente, ao final da coleta, o app informa candidatos abruptos quando encontra picos próximos no som e no movimento e pausas técnicas quando o sinal respiratório fica muito reduzido por pelo menos 10 segundos. Tosse, espirro, choro, fala, manipulação, deslocamento do aparelho e ruído podem produzir sinais semelhantes. Uma pausa técnica pode ser falha de contato e **não confirma apneia**.
 
 O telefone deve permanecer sob supervisão, nunca sobre face ou pescoço, e o resultado não substitui a contagem clínica nem equipamento médico validado.

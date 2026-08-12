@@ -345,6 +345,11 @@
     .respiration-result-card strong { display: block; font-size: 1.45rem; }
     .respiration-result-card span { display: block; margin-top: 5px; font-size: .84rem; line-height: 1.4; }
     .respiration-result-detail { margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); font-size: .84rem; line-height: 1.45; }
+    .respiration-result-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .respiration-result-metric { min-width: 0; padding: 11px 7px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); text-align: center; }
+    .respiration-result-metric span { display: block; color: var(--muted); font-size: .65rem; font-weight: 800; line-height: 1.2; text-transform: uppercase; }
+    .respiration-result-metric strong { display: block; margin-top: 4px; font-size: 1.65rem; line-height: 1; }
+    .respiration-result-metric small { display: block; min-height: 2.3em; margin-top: 5px; color: var(--muted); font-size: .62rem; line-height: 1.2; }
     .respiration-flow-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
     [hidden] { display: none !important; }
 
@@ -1601,6 +1606,11 @@
             <strong id="respirationResultValue">—</strong>
             <span id="respirationResultAssessment">Resultado indisponível.</span>
           </div>
+          <div id="respirationAutomaticMetrics" class="respiration-result-metrics" aria-label="Achados técnicos automáticos" hidden>
+            <div class="respiration-result-metric"><span>Pausas</span><strong id="respirationPauseCount">0</strong><small id="respirationPauseDetail">técnicas ≥10 s</small></div>
+            <div class="respiration-result-metric"><span>Barulhos</span><strong id="respirationNoiseCount">0</strong><small>som + movimento abruptos</small></div>
+            <div class="respiration-result-metric"><span>Roncos</span><strong id="respirationSnoreCount">0</strong><small>episódios candidatos</small></div>
+          </div>
           <p id="respirationResultEvents" class="respiration-result-detail">Nenhum evento registrado.</p>
           <p id="respirationResultSafety" class="respiration-result-detail">Interprete junto com esforço respiratório, cor, consciência e oxigenação.</p>
           <div class="respiration-flow-actions">
@@ -1978,6 +1988,11 @@
     const discardRespirationFollowupButton = document.getElementById("discardRespirationFollowup");
     const respirationResultValue = document.getElementById("respirationResultValue");
     const respirationResultAssessment = document.getElementById("respirationResultAssessment");
+    const respirationAutomaticMetrics = document.getElementById("respirationAutomaticMetrics");
+    const respirationPauseCount = document.getElementById("respirationPauseCount");
+    const respirationPauseDetail = document.getElementById("respirationPauseDetail");
+    const respirationNoiseCount = document.getElementById("respirationNoiseCount");
+    const respirationSnoreCount = document.getElementById("respirationSnoreCount");
     const respirationResultEvents = document.getElementById("respirationResultEvents");
     const respirationResultSafety = document.getElementById("respirationResultSafety");
     const breathingVisual = document.getElementById("breathingVisual");
@@ -2024,6 +2039,7 @@
     let deferredInstallPrompt = null;
     let pendingServiceWorkerRegistration = null;
     let serviceWorkerReloading = false;
+    let completionAudioContext = null;
     let respirationFlowMode = null;
     let respirationFlowHasMeasurement = false;
     let historyOpenedFromRespiration = false;
@@ -2333,6 +2349,17 @@
       respirationSavePrompt.hidden = true;
       respirationFlowResult.hidden = false;
 
+      respirationAutomaticMetrics.hidden = mode !== "automatic";
+      if (mode === "automatic") {
+        const technical = respirationState.sensor.technicalEvents;
+        const pauseCount = technical?.pauses?.count || 0;
+        const longestPause = technical?.pauses?.longestSec || 0;
+        respirationPauseCount.textContent = String(pauseCount);
+        respirationPauseDetail.textContent = pauseCount ? `maior: ${formatNumber(longestPause)} s` : "técnicas ≥10 s";
+        respirationNoiseCount.textContent = String(technical?.abrupt?.combined?.length || 0);
+        respirationSnoreCount.textContent = String(technical?.snore?.bursts || 0);
+      }
+
       if (!result) {
         respirationResultValue.textContent = "Sem resultado confiável";
         respirationResultAssessment.textContent = mode === "manual"
@@ -2360,7 +2387,7 @@
       }
       respirationResultSafety.textContent = mode === "manual"
         ? "A frequência isolada não exclui gravidade. Considere esforço respiratório, cor, consciência, oxigenação e evolução clínica."
-        : "Resultado experimental: não classifica normalidade pela idade e não deve orientar conduta sem contagem manual e avaliação clínica.";
+        : "Pausas, barulhos e roncos são candidatos técnicos, não diagnósticos. O resultado experimental não deve orientar conduta sem contagem manual e avaliação clínica.";
       respirationFlowResult.scrollIntoView({ block: "start" });
     }
 
@@ -2388,6 +2415,37 @@
       window.requestAnimationFrame(() => document.querySelector(".patient-panel").scrollIntoView({ block: "start" }));
     }
 
+    async function unlockMeasurementCompleteTone() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return false;
+      try {
+        if (!completionAudioContext || completionAudioContext.state === "closed") completionAudioContext = new AudioContextClass();
+        if (completionAudioContext.state === "suspended") await completionAudioContext.resume();
+        return completionAudioContext.state === "running";
+      } catch {
+        completionAudioContext = null;
+        return false;
+      }
+    }
+
+    async function playMeasurementCompleteTone() {
+      if (!await unlockMeasurementCompleteTone()) return;
+      const context = completionAudioContext;
+      const startAt = context.currentTime + 0.02;
+      [0, 0.2].forEach((delay, index) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.value = index ? 880 : 740;
+        gain.gain.setValueAtTime(0.0001, startAt + delay);
+        gain.gain.exponentialRampToValueAtTime(0.045, startAt + delay + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, startAt + delay + 0.14);
+        oscillator.connect(gain).connect(context.destination);
+        oscillator.start(startAt + delay);
+        oscillator.stop(startAt + delay + 0.15);
+      });
+    }
+
     function updateManualRespirationDisplay(remainingMs = RESPIRATION_DURATION_MS) {
       manualBreathCount.textContent = String(respirationState.manual.count);
       manualBreathTime.textContent = `${Math.max(0, Math.ceil(remainingMs / 1000))} s`;
@@ -2395,6 +2453,7 @@
     }
 
     function startManualRespiration() {
+      unlockMeasurementCompleteTone();
       const manual = respirationState.manual;
       if (manual.timer) window.clearInterval(manual.timer);
       manual.running = true;
@@ -2457,6 +2516,7 @@
       manualBreathCount.textContent = String(manual.count);
       manualBreathTimeLabel.textContent = "Tempo contado";
       manualBreathTime.textContent = `${Math.round(elapsedMs / 1000)} s`;
+      if (completed) playMeasurementCompleteTone();
 
       if (elapsedMs < 15000 || manual.count < 2) {
         manual.result = null;
@@ -3171,6 +3231,7 @@
     }
 
     async function startSensorRespiration() {
+      unlockMeasurementCompleteTone();
       resetSensorRespiration();
       if (!("DeviceMotionEvent" in window)) {
         setMeasurementStatus(sensorBreathStatus, "Este navegador não disponibiliza o sensor de movimento.", "error");
@@ -3239,6 +3300,7 @@
       const audioSamples = [...sensor.audioSamples];
       const audioWasAvailable = sensor.audioAvailable;
       await stopSensorCollection();
+      if (completed) playMeasurementCompleteTone();
       sensorBreathTimeLabel.textContent = "Tempo coletado";
       sensorBreathTime.textContent = `${Math.round(elapsedMs / 1000)} s`;
       if (elapsedMs < 20000) {

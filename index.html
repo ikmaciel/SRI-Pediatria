@@ -292,6 +292,11 @@
     .respiration-session-dialog[data-mode="manual"] .sensor-warning { display: none; }
     .respiration-session-dialog[data-mode="manual"] #sensorMeasurementCard > :not(.observed-events) { display: none; }
     .respiration-session-dialog[data-mode="automatic"] #manualMeasurementCard { display: none; }
+    .respiration-session-dialog[data-mode="automatic"] .observed-events > strong,
+    .respiration-session-dialog[data-mode="automatic"] .event-buttons,
+    .respiration-session-dialog[data-mode="automatic"] .comparison-box,
+    .respiration-session-dialog[data-mode="automatic"] .respiratory-assessment,
+    .respiration-session-dialog[data-mode="automatic"] .vitals-entry { display: none; }
 
     .respiration-mode-choice { display: grid; gap: 12px; }
     .respiration-mode-choice h3, .respiration-result h3, .respiration-save-prompt h3 { margin: 0; font-size: 1.18rem; }
@@ -2901,14 +2906,16 @@
       const technicalParts = [];
       if (technical?.abrupt?.combined.length) technicalParts.push(`${technical.abrupt.combined.length} evento${technical.abrupt.combined.length === 1 ? "" : "s"} abrupto${technical.abrupt.combined.length === 1 ? "" : "s"} com som + movimento`);
       if (technical?.pauses?.count) technicalParts.push(`${technical.pauses.count} pausa${technical.pauses.count === 1 ? "" : "s"} técnica${technical.pauses.count === 1 ? "" : "s"} ≥10 s (maior ${formatNumber(technical.pauses.longestSec)} s)`);
-      const observedText = observedParts.length ? `Observado pela médica: ${observedParts.join(", ")}.` : "Nenhum evento marcado pela médica.";
+      const observedText = respirationFlowMode === "automatic"
+        ? "Análise automática:"
+        : observedParts.length ? `Observado pela médica: ${observedParts.join(", ")}.` : "Nenhum evento marcado pela médica.";
       const technicalText = technicalParts.length
-        ? ` Candidatos do celular: ${technicalParts.join("; ")}. Não identificam a causa.`
+        ? ` Candidatos técnicos: ${technicalParts.join("; ")}. Não identificam a causa.`
         : technical
           ? " Nenhum candidato técnico robusto encontrado."
           : respirationFlowMode === "manual"
             ? " Na contagem manual, eventos dependem da marcação da médica."
-            : " O celular ainda não analisou candidatos técnicos.";
+            : " aguardando o término da coleta para analisar eventos técnicos.";
       respiratoryEventSummary.textContent = observedText + technicalText;
     }
 
@@ -3100,10 +3107,7 @@
           sensor.measurementStartedAt = performance.now();
           sensorBreathTimeLabel.textContent = "Tempo restante";
           sensorBreathTime.textContent = "60 s";
-          markObservedCoughButton.disabled = false;
-          markObservedSneezeButton.disabled = false;
-          markObservedSnoreButton.disabled = false;
-          markObservedPauseButton.disabled = false;
+          setObservedEventButtonsEnabled(false);
           resetBreathingVisualization("Estabilizando o sinal");
           updateSnoreObservation();
           setMeasurementStatus(sensorBreathStatus, `Coletando movimento${sensor.audioAvailable ? " e som" : ""}. Mantenha o aparelho imóvel e observe a criança.`, "success");

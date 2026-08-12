@@ -21,6 +21,7 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Inclui contador respiratório manual de 60 segundos e leitura experimental pelo acelerômetro/giroscópio do celular.
 - Mantém um botão grande `Analisar respiração` no topo, independente da navegação de medicamentos.
 - Ao abrir, pergunta se a médica deseja contagem manual ou automática; ao terminar, mostra frequência, interpretação disponível e ocorrências registradas antes de oferecer salvamento local para acompanhamento.
+- No modo automático, mostra somente sensor, áudio, movimento, qualidade e candidatos técnicos; entradas e classificações manuais ficam ocultas.
 - Classifica somente a contagem manual completa como abaixo, dentro ou acima da faixa respiratória aceitável por idade; peso não altera essa faixa.
 - Pode usar o microfone como confirmação secundária: áudio baixo, saturado, ruidoso ou discordante é descartado e nunca gera resultado sozinho.
 - Mostra uma animação ao vivo da amplitude relativa do movimento, sem classificar inspiração ou expiração.

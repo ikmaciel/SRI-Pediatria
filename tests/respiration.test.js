@@ -8,6 +8,7 @@ assert.match(html, /Amplitude relativa do sensor; não identifica inspiração, 
 assert.match(html, /id="respirationSessionDialog"/);
 assert.match(html, /id="chooseManualRespiration"/);
 assert.match(html, /id="chooseAutomaticRespiration"/);
+assert.match(html, /data-mode="automatic"\] \.vitals-entry \{ display: none; \}/);
 assert.match(html, /Salvar paciente para acompanhamento/);
 assert.match(html, /id="movementAmplitudeBar"/);
 assert.match(html, /Nova versão disponível — atualizar agora/);

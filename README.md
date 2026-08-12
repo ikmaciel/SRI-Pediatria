@@ -67,6 +67,8 @@ Durante a coleta automática, a animação ocupa uma área ampla da tela: os pul
 
 Ao final dos 60 segundos, o app reproduz dois tons curtos, quando o navegador permite áudio, e mostra um gráfico temporal da frequência respiratória estimada. Faixas e marcadores posicionam pausas técnicas ≥10 segundos, **tosses candidatas** (som abrupto junto com movimento), outros picos acústicos e episódios de baixa frequência candidatos de ronco. Tosse aparece antes de ronco na leitura. O algoritmo não confirma que um evento abrupto seja tosse: choro, fala, toque ou deslocamento podem produzir o mesmo marcador.
 
+Antes de usar qualquer informação acústica, o app verifica nível de fundo, faixa dinâmica e saturação. Se o ambiente estiver muito ruidoso, todo o áudio é descartado: frequência, tosse candidata e ronco passam a depender somente do que pode ser obtido pelo movimento (tosse e ronco não são classificados nessa coleta). O resultado informa que foi calculado somente pelo movimento.
+
 Os botões de eventos registram observações da médica. Separadamente, ao final da coleta, o app informa candidatos abruptos quando encontra picos próximos no som e no movimento e pausas técnicas quando o sinal respiratório fica muito reduzido por pelo menos 10 segundos. Tosse, espirro, choro, fala, manipulação, deslocamento do aparelho e ruído podem produzir sinais semelhantes. Uma pausa técnica pode ser falha de contato e **não confirma apneia**.
 
 O telefone deve permanecer sob supervisão, nunca sobre face ou pescoço, e o resultado não substitui a contagem clínica nem equipamento médico validado.

@@ -2699,7 +2699,34 @@
       return sorted[index];
     }
 
-    function analyzeAudioRespiration(samples, motionResult) {
+    function assessRespiratoryAudioEnvironment(samples) {
+      if (!Array.isArray(samples) || samples.length < 200) {
+        return { usable: false, state: "insufficient", reason: "Áudio insuficiente" };
+      }
+      const levels = samples.map(sample => sample.rms).filter(Number.isFinite);
+      const peaks = samples.map(sample => sample.peak).filter(Number.isFinite);
+      if (!levels.length) return { usable: false, state: "insufficient", reason: "Áudio indisponível" };
+      const lowerLevel = percentile(levels, 0.1);
+      const medianLevel = percentile(levels, 0.5);
+      const upperLevel = percentile(levels, 0.9);
+      const clippingFraction = peaks.length ? peaks.filter(value => value >= 0.98).length / peaks.length : 0;
+      const dynamicRatio = upperLevel / Math.max(lowerLevel, 0.00001);
+      if (upperLevel < 0.0008 || upperLevel - lowerLevel < 0.00015) {
+        return { usable: false, state: "low", reason: "Som muito baixo", lowerLevel, medianLevel, upperLevel, clippingFraction };
+      }
+      if (clippingFraction > 0.08 || lowerLevel > 0.04 || (medianLevel > 0.025 && dynamicRatio < 1.35)) {
+        return { usable: false, state: "noisy", reason: "Ambiente muito ruidoso ou áudio saturado", lowerLevel, medianLevel, upperLevel, clippingFraction };
+      }
+      return { usable: true, state: "usable", reason: "Áudio com faixa dinâmica utilizável", lowerLevel, medianLevel, upperLevel, clippingFraction };
+    }
+
+    function analyzeAudioRespiration(samples, motionResult, environment = assessRespiratoryAudioEnvironment(samples)) {
+      if (!environment.usable) {
+        const reason = environment.state === "noisy"
+          ? "Ambiente muito ruidoso; áudio descartado e resultado mantido apenas pelo movimento."
+          : `${environment.reason}; resultado mantido apenas pelo movimento.`;
+        return { confirmed: false, state: "rejected", environment, reason };
+      }
       if (!Array.isArray(samples) || samples.length < 200) {
         return { confirmed: false, state: "rejected", reason: "Áudio insuficiente; resultado mantido apenas pelo movimento." };
       }
@@ -2710,12 +2737,9 @@
       }
       const upperLevel = percentile(levels, 0.9);
       const lowerLevel = percentile(levels, 0.1);
-      const clippingFraction = peaks.length ? peaks.filter(value => value >= 0.98).length / peaks.length : 0;
+      const clippingFraction = environment.clippingFraction;
       if (upperLevel < 0.0008 || upperLevel - lowerLevel < 0.00015) {
         return { confirmed: false, state: "rejected", reason: "Som muito baixo; resultado mantido apenas pelo movimento." };
-      }
-      if (clippingFraction > 0.08) {
-        return { confirmed: false, state: "rejected", reason: "Áudio saturado ou muito ruidoso; resultado mantido apenas pelo movimento." };
       }
       const acoustic = scoreRespiratoryAxis(samples, "rms");
       if (!acoustic || acoustic.quality < 0.3) {
@@ -3381,20 +3405,31 @@
         if (respirationSessionDialog.open && respirationFlowMode === "automatic") showRespirationFlowResult("automatic");
         return;
       }
+      const audioEnvironment = audioWasAvailable
+        ? assessRespiratoryAudioEnvironment(audioSamples)
+        : { usable: false, state: "unavailable", reason: "Áudio indisponível" };
+      const useAudio = audioWasAvailable && audioEnvironment.usable;
       const audioResult = audioWasAvailable
-        ? analyzeAudioRespiration(audioSamples, result)
+        ? analyzeAudioRespiration(audioSamples, result, audioEnvironment)
         : {
             confirmed: false,
             state: "rejected",
             reason: "Áudio indisponível; resultado somente pelo movimento."
           };
-      const abruptEvents = analyzeAbruptRespiratoryEvents(audioWasAvailable ? audioSamples : [], samples);
+      const abruptEvents = analyzeAbruptRespiratoryEvents(useAudio ? audioSamples : [], samples);
       const motionPauses = detectMotionSignalPauses(samples, result.field);
-      const snoreResult = audioWasAvailable
+      const snoreResult = useAudio
         ? analyzeSnorePattern(audioSamples, result)
-        : { possible: false, state: "insufficient", reason: "Microfone indisponível ou desativado; ronco não avaliado." };
+        : {
+            possible: false,
+            state: "insufficient",
+            burstTimes: [],
+            reason: audioEnvironment.state === "noisy"
+              ? "Ambiente muito ruidoso; áudio descartado e ronco não avaliado."
+              : "Microfone ou áudio utilizável indisponível; ronco não avaliado."
+          };
       const rateTimeline = buildRespiratoryRateTimeline(samples);
-      sensor.technicalEvents = { abrupt: abruptEvents, pauses: motionPauses, snore: snoreResult, timeline: rateTimeline };
+      sensor.technicalEvents = { abrupt: abruptEvents, pauses: motionPauses, snore: snoreResult, timeline: rateTimeline, audioEnvironment };
       const finalBpm = audioResult.confirmed ? audioResult.fusedBpm : result.bpm;
       sensor.result = {
         ...result,

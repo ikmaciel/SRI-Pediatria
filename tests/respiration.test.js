@@ -24,6 +24,8 @@ assert.match(html, /respirationResultEvents\.hidden = mode === "automatic"/);
 assert.match(html, /const allNoises = technical\.abrupt\?\.audio/);
 assert.match(html, /Tosses candidatas/);
 assert.match(html, /const coughs = technical\.abrupt\?\.combined/);
+assert.match(html, /function assessRespiratoryAudioEnvironment\(/);
+assert.match(html, /const useAudio = audioWasAvailable && audioEnvironment\.usable/);
 assert.match(html, /function playMeasurementCompleteTone\(\)/);
 const start = html.indexOf("function median(");
 const end = html.indexOf("async function acquireWakeLock", start);
@@ -116,6 +118,19 @@ const motion24 = context.analyzeRespirationSignal(syntheticBreathing(24));
 const audio24 = context.analyzeAudioRespiration(syntheticAudio(24), motion24);
 assert.equal(audio24.confirmed, true, "Áudio periódico concordante deveria confirmar o movimento");
 assert.ok(Math.abs(audio24.fusedBpm - 24) <= 2, `Fusão esperada próxima de 24, obtida ${audio24.fusedBpm}`);
+
+const noisyAudio = Array.from({ length: 1200 }, (_, index) => ({
+  t: index * 50,
+  rms: 0.06 + (index % 3) * 0.001,
+  peak: index % 5 === 0 ? 0.99 : 0.8,
+  lowBand: 1,
+  midBand: 1,
+  highBand: 1
+}));
+const noisyEnvironment = context.assessRespiratoryAudioEnvironment(noisyAudio);
+assert.equal(noisyEnvironment.usable, false, "Ambiente muito ruidoso não deve fornecer áudio utilizável");
+assert.equal(noisyEnvironment.state, "noisy", "Ruído alto deve ser identificado como ambiente ruidoso");
+assert.equal(context.analyzeAudioRespiration(noisyAudio, motion24, noisyEnvironment).confirmed, false, "Áudio ruidoso não deve confirmar o movimento");
 
 const discordantAudio = context.analyzeAudioRespiration(syntheticAudio(35), motion24);
 assert.equal(discordantAudio.confirmed, false, "Áudio discordante não deveria alterar o movimento");

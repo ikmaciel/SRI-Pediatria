@@ -45,11 +45,11 @@ Somente uma contagem manual completa recebe essa interpretação. Contagem parci
 
 A leitura pelo celular é um protótipo comparativo, não um monitor. Após 5 segundos para posicionamento, o navegador coleta aceleração nos três eixos e no vetor de magnitude. O processamento remove tendência lenta, limita artefatos extremos e procura autocorrelação periódica entre 8 e 100 irpm. A frequência só é mostrada após pelo menos 20 segundos e quando a qualidade matemática mínima é atingida; ausência de eventos, saída da tela, coleta curta e sinal insuficiente encerram ou rejeitam a leitura.
 
-Quando autorizado, o microfone funciona somente como confirmação secundária. O app processa blocos de áudio em memória, entre aproximadamente 80 e 2.000 Hz, e guarda apenas valores transitórios de intensidade e pico; não usa `MediaRecorder`, não cria arquivo e não envia som. A periodicidade acústica precisa concordar em até 20% com o movimento. O áudio recebe peso menor na combinação e é descartado se estiver baixo, saturado, sem periodicidade ou discordante. Sem movimento suficiente, nenhum resultado é produzido, mesmo que exista áudio.
+Quando autorizado, o microfone funciona somente como confirmação secundária. O app processa blocos de áudio em memória, entre aproximadamente 80 e 2.000 Hz, e guarda apenas valores transitórios de intensidade, pico e energia em três bandas; não usa `MediaRecorder`, não cria arquivo e não envia som. A periodicidade acústica precisa concordar em até 20% com o movimento. O áudio recebe peso menor na combinação e é descartado se estiver baixo, saturado, sem periodicidade ou discordante. Sem movimento suficiente, nenhum resultado é produzido, mesmo que exista áudio.
 
 Microfones, posição física, capas, ganho automático, choro, fala, tosse e ruído ambiental variam muito. O navegador é solicitado a desabilitar cancelamento de eco, supressão de ruído e ganho automático, mas pode ignorar essas preferências. Estudos pediátricos recentes indicam viabilidade de ausculta com microfone de smartphone, sem validar este algoritmo ou seu uso em emergência.
 
-O algoritmo foi verificado apenas com sinais sintéticos regulares de 18–72 irpm, áudio concordante, áudio discordante, som baixo e ruído aleatório. Isso testa a implementação, mas **não constitui validação clínica**. Ainda faltam comparação prospectiva simultânea com contagem manual e monitor respiratório validado, diferentes modelos de celular, microfones, posições, roupas, faixas etárias, movimentos, choro e doenças respiratórias. Nenhum alerta ou conduta do programa depende do sensor.
+O algoritmo foi verificado apenas com sinais sintéticos regulares de 18–72 irpm, áudio concordante, áudio discordante, som baixo, ruído aleatório, pausa técnica, pico abrupto e padrão artificial de ronco. Isso testa a implementação, mas **não constitui validação clínica**. Ainda faltam comparação prospectiva simultânea com contagem manual e monitor respiratório validado, diferentes modelos de celular, microfones, posições, roupas, faixas etárias, movimentos, choro e doenças respiratórias. Nenhum alerta ou conduta do programa depende do sensor.
 
 Acesso a acelerômetro/giroscópio depende de HTTPS, permissão e implementação do navegador. A Anvisa informa que software que calcula sinais vitais a partir de sensores para finalidade médica pode exigir regularização e estudos clínicos robustos. Por isso, esta função permanece identificada como experimental e separada dos cálculos de medicamentos.
 
@@ -62,6 +62,18 @@ Tosse e espirro não são classificados automaticamente. Estudos que obtiveram c
 Uma redução prolongada da oscilação gera o rótulo **pausa técnica do sinal** a partir de 10 segundos para solicitar conferência imediata da criança e do contato do aparelho. Esse limiar não é critério diagnóstico. O celular não mede fluxo aéreo, esforço respiratório independente, frequência cardíaca ou dessaturação e, portanto, não confirma nem exclui apneia. A duração de uma pausa observada pode ser marcada manualmente pela médica.
 
 Foram acrescentados campos manuais para tiragens/retrações, batimento de asa nasal, gemência, estridor, sibilância, cianose/palidez, gasping e esforço reduzido/fadiga. Esses achados clínicos não são inferidos pelos sensores e prevalecem sobre frequência, fase animada e candidatos técnicos.
+
+### Ronco
+
+O algoritmo de ronco procura pelo menos três episódios acústicos repetitivos com predominância aproximada de 80–300 Hz, regularidade temporal e concordância ampla com a frequência estimada pelo movimento. O resultado é sempre `possível ronco`. Ele não identifica a origem do som, obstrução de via aérea, síndrome de apneia obstrutiva ou gravidade. A médica pode registrar ronco observado separadamente.
+
+Estudos com desempenho superior utilizaram redes neurais treinadas em dezenas de milhares de sons rotulados. Um estudo de 2025 relatou boa acurácia em cenário simulado, mas usou 36 arquivos de ronco derivados de apenas 18 participantes e um modelo treinado com mais de 60 mil eventos. Isso não valida a heurística deste aplicativo, especialmente em emergência pediátrica, com choro, fala e múltiplas pessoas no ambiente.
+
+### Histórico, privacidade e instalação
+
+O histórico é opcional e fica em `localStorage` no aparelho. Exige código local, confirmação de autorização e ação explícita de salvar. Guarda somente resultados resumidos e observações; áudio e séries brutas de movimento não são persistidos. O sistema limita 25 códigos e 50 registros por código, permite excluir registros, apagar tudo e exportar JSON. Não há autenticação nem criptografia própria: qualquer pessoa com acesso ao navegador e ao perfil do aparelho poderá ler os dados. A instituição deve definir base legal, governança, retenção, segurança e política de uso antes da adoção assistencial, pois informações de saúde vinculadas a pessoa identificada ou identificável são dados pessoais sensíveis segundo a LGPD.
+
+O projeto já utilizava manifesto, ícones e `service worker`. Foram adicionados botão de instalação, tratamento de `beforeinstallprompt`, instruções específicas para iOS, modo `standalone`, atalho para respiração e atualização de cache. A instalação oferece conveniência e uso offline; não constitui validação como dispositivo médico.
 
 ## Fontes principais
 
@@ -95,6 +107,9 @@ Foram acrescentados campos manuais para tiragens/retrações, batimento de asa n
 28. [Royal Children's Hospital Melbourne — Acceptable ranges for physiological variables](https://www.rch.org.au/clinicalguide/guideline_index/normal_ranges_for_physiological_variables/)
 29. [Development and technical validation of a smartphone-based pediatric cough detection algorithm](https://pmc.ncbi.nlm.nih.gov/articles/PMC9306830/)
 30. [RCH Melbourne — Assessment of severity of respiratory conditions](https://www.rch.org.au/clinicalguide/guideline_index/Assessment_of_severity_of_respiratory_conditions/)
+31. [Accuracy of Smartphone-Mediated Snore Detection in a Simulated Real-World Setting](https://pmc.ncbi.nlm.nih.gov/articles/PMC11970566/)
+32. [ANPD — Perguntas frequentes sobre dados pessoais e dados sensíveis](https://www.gov.br/anpd/pt-br/acesso-a-informacao/perguntas-frequentes/perguntas-frequentes)
+33. [MDN — Making PWAs installable](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable)
 
 ## Limites que permanecem
 

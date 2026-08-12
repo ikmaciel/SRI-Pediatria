@@ -3,9 +3,12 @@
   "short_name": "SRI Pediátrica",
   "description": "Ferramenta de Recomendação e Otimização para SRI e cálculo pediátrico de dose e volume a partir da apresentação disponível.",
   "lang": "pt-BR",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait-primary",
+  "categories": ["medical", "productivity"],
   "background_color": "#eef3f6",
   "theme_color": "#006b70",
   "icons": [
@@ -20,6 +23,14 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Analisar respiração",
+      "short_name": "Respiração",
+      "url": "./#respiracao",
+      "icons": [{ "src": "./assets/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

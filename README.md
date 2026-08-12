@@ -10,7 +10,7 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Usa a idade para alertas clínicos específicos e para contextualizar a frequência respiratória manual.
 - Analisa combinações apenas entre medicamentos explicitamente marcados como planejados.
 - Sinaliza contraindicações importantes da succinilcolina e cautela hemodinâmica.
-- Não armazena peso ou condições do paciente.
+- Não armazena dados do paciente automaticamente; o histórico local só é criado por ação explícita da médica.
 - Separa adrenalina para parada cardíaca de outros usos.
 - Separa adrenalina EV/IO para PCR/bradicardia da adrenalina IM para anafilaxia.
 - Separa doses sequenciais de adenosina e naloxona, evitando interpretar etapas como uma faixa livre.
@@ -24,10 +24,13 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Pode usar o microfone como confirmação secundária: áudio baixo, saturado, ruidoso ou discordante é descartado e nunca gera resultado sozinho.
 - Mostra animação ao vivo do movimento; a médica sincroniza o sentido durante uma inspiração visível antes de o app nomear inspiração/expiração provável.
 - Permite marcar tosse, espirro e duração de pausa observados pela médica e mantém esses registros separados de candidatos técnicos do celular.
+- Procura um padrão acústico repetitivo de baixa frequência compatível com ronco e exige confirmação clínica; não diagnostica obstrução ou apneia.
 - Procura apenas picos abruptos simultâneos de som/movimento e pausas técnicas de sinal; não diagnostica tosse, espirro ou apneia.
 - Inclui marcação manual de tiragens, batimento de asa nasal, gemência, estridor, sibilância, cianose/palidez, gasping e fadiga respiratória.
 - Compara a leitura por movimento/áudio com a contagem manual e rejeita coleta curta, ausência de sensor ou sinal matematicamente insuficiente.
-- Permite anotar FC, SpO₂, temperatura, pressão arterial, enchimento capilar, consciência e suporte de oxigênio sem armazenar os dados.
+- Permite anotar FC, SpO₂, temperatura, pressão arterial, enchimento capilar, consciência e suporte de oxigênio; só salva quando a médica usa `Histórico / evolução`.
+- Oferece histórico local opcional por código não identificável, com exportação e exclusão, sem armazenar áudio bruto.
+- Pode ser instalado como aplicativo pelo botão `Instalar aplicativo`.
 - Funciona offline após o primeiro acesso bem-sucedido.
 
 ## Fonte institucional
@@ -55,13 +58,23 @@ Depois de uma contagem manual completa, o app mostra se o valor está abaixo, de
 
 O modo `Movimento + som — experimental` solicita acesso ao acelerômetro/giroscópio e, opcionalmente, ao microfone; oferece 5 segundos para posicionar o aparelho e coleta até 60 segundos. O algoritmo procura periodicidade entre 8 e 100 irpm nos eixos do sensor. O áudio é analisado localmente como envelope de intensidade e só participa do resultado quando encontra ritmo compatível com o movimento. Som baixo, saturação, falta de periodicidade, discordância ou permissão negada fazem o app usar somente o movimento. Nenhum arquivo de áudio é criado, salvo ou enviado.
 
+Para ronco, o app procura episódios acústicos repetitivos com predominância de baixa frequência e concordância aproximada com o movimento respiratório. O resultado aparece como `possível ronco` e nunca como diagnóstico. A médica também pode marcar `Ronco observado` ou `Ronco/ruído de via aérea superior` manualmente.
+
 Durante a coleta, a animação responde ao movimento captado. Como a orientação do telefone pode inverter o sinal, a médica deve tocar em `Sincronizar durante inspiração` enquanto observa uma expansão torácica real. Só então aparecem os rótulos `inspiração provável` e `expiração provável`. A animação não mede fluxo de ar, volume corrente ou ventilação.
 
 Os botões de eventos registram observações da médica. Separadamente, ao final da coleta, o app informa candidatos abruptos quando encontra picos próximos no som e no movimento e pausas técnicas quando o sinal respiratório fica muito reduzido por pelo menos 10 segundos. Tosse, espirro, choro, fala, manipulação, deslocamento do aparelho e ruído podem produzir sinais semelhantes. Uma pausa técnica pode ser falha de contato e **não confirma apneia**.
 
 O telefone deve permanecer sob supervisão, nunca sobre face ou pescoço, e o resultado não substitui a contagem clínica nem equipamento médico validado.
 
-Os sinais vitais digitados e as duas medições respiratórias permanecem somente na memória da página atual. `Novo paciente` limpa todos esses valores.
+Os sinais vitais digitados e as duas medições respiratórias permanecem somente na memória da página atual, exceto quando a médica escolhe explicitamente `Salvar medição atual` no histórico. `Novo paciente` limpa os campos ativos, mas não apaga o histórico já autorizado.
+
+## Histórico local e evolução
+
+O botão `Histórico / evolução` cria registros somente após a médica informar um código local, confirmar autorização e tocar em `Salvar medição atual`. São salvos resultados estruturados — idade, peso, frequências, eventos, achados, sinais vitais e observação — sem áudio ou amostras brutas dos sensores. Não use nome, CPF, registro hospitalar ou data de nascimento. Os dados ficam no armazenamento do navegador daquele aparelho, podem ser exportados como JSON e apagados integralmente.
+
+## Instalação
+
+O botão `Instalar aplicativo` abre a confirmação nativa quando disponível no Chrome/Android e mostra as instruções para `Adicionar à Tela de Início` no Safari/iPhone. O manifesto inclui ícones de 192 e 512 px, execução independente, atalho respiratório e cache offline. A instalação não altera o caráter experimental dos sensores.
 
 ## Diluições
 

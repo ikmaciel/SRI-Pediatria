@@ -211,6 +211,88 @@
     .respiration-launch-copy small { display: block; margin-top: 2px; font-size: .78rem; font-weight: 650; opacity: .9; }
     .respiration-launch-arrow { font-size: 1.45rem; font-weight: 500; line-height: 1; }
 
+    .top-utilities {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin: -4px 0 12px;
+    }
+
+    .utility-button {
+      display: flex;
+      min-height: 52px;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: var(--card-shadow);
+      font-size: .84rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .utility-button:hover { background: var(--surface-soft); }
+    .utility-button svg { width: 21px; height: 21px; flex: 0 0 21px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+    .utility-button[hidden] { display: none; }
+
+    .history-consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin: 12px 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-soft);
+      font-size: .8rem;
+      cursor: pointer;
+    }
+
+    .history-consent input { width: 22px; height: 22px; margin: 0; flex: 0 0 22px; accent-color: var(--brand); }
+    .history-form { display: grid; gap: 10px; margin-top: 14px; }
+    .history-form label { margin: 0; font-size: .82rem; }
+    .history-form input,
+    .history-form textarea {
+      width: 100%;
+      min-height: 48px;
+      margin-top: 5px;
+      padding: 10px;
+      border: 1px solid var(--input-line);
+      border-radius: 10px;
+      background: var(--input-bg);
+      color: var(--ink);
+    }
+    .history-form textarea { min-height: 78px; resize: vertical; }
+    .history-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+    .history-toolbar .button:first-child { grid-column: 1 / -1; }
+    .history-list { display: grid; gap: 12px; margin-top: 16px; }
+    .history-empty { padding: 14px; border: 1px dashed var(--dashed-line); border-radius: 12px; color: var(--muted); font-size: .84rem; text-align: center; }
+    .history-patient { padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); }
+    .history-patient h4 { margin: 0; font-size: .98rem; }
+    .history-trend { margin: 4px 0 10px; color: var(--muted); font-size: .76rem; }
+    .history-record { padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: .8rem; }
+    .history-record + .history-record { margin-top: 8px; }
+    .history-record header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .history-record time { color: var(--muted); font-size: .74rem; font-weight: 750; }
+    .history-record p { margin: 5px 0 0; }
+    .history-delete { min-height: 38px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); color: var(--danger); font-size: .74rem; font-weight: 800; cursor: pointer; }
+
+    .snore-observation {
+      margin: 8px 0 0;
+      padding: 9px 10px;
+      border-left: 3px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: .76rem;
+    }
+
+    .snore-observation[data-state="possible"] { border-left-color: var(--warning-line); background: var(--warning-bg); color: var(--warning-ink); font-weight: 700; }
+
     .patient-panel { padding: 16px; }
 
     .weight-row {
@@ -1149,6 +1231,17 @@
       <span class="respiration-launch-arrow" aria-hidden="true">›</span>
     </button>
 
+    <div class="top-utilities" aria-label="Ações do aplicativo">
+      <button id="openHistory" class="utility-button" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10M8 7V5h8v2M8 12h8M8 16h5"/></svg>
+        <span>Histórico / evolução</span>
+      </button>
+      <button id="installApp" class="utility-button" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+        <span>Instalar aplicativo</span>
+      </button>
+    </div>
+
     <section class="panel patient-panel" aria-labelledby="dados-paciente">
       <h2 id="dados-paciente">Peso do paciente</h2>
       <div class="weight-row">
@@ -1172,7 +1265,7 @@
         </div>
         <button id="novoPaciente" class="button secondary" type="button">Novo paciente</button>
       </div>
-      <p id="peso-ajuda" class="field-help">Não armazena dados. Peso aceita vírgula.</p>
+      <p id="peso-ajuda" class="field-help">Não armazena automaticamente. Peso aceita vírgula.</p>
       <p id="peso-status" class="status-line" role="status" aria-live="polite" hidden></p>
       <p id="idade-status" class="status-line warning" role="status" aria-live="polite">Informe a idade para alertas neonatal e de succinilcolina.</p>
       <div class="safety-note">
@@ -1181,7 +1274,7 @@
       </div>
     </section>
 
-    <section class="panel vitals-panel" aria-label="Respiração e sinais vitais">
+    <section id="respiracao" class="panel vitals-panel" aria-label="Respiração e sinais vitais">
       <details id="vitals-check">
         <summary>
           <span>Respiração e sinais vitais</span>
@@ -1242,9 +1335,11 @@
                 <div class="event-buttons">
                   <button id="markObservedCough" class="button secondary" type="button" disabled>Tosse observada</button>
                   <button id="markObservedSneeze" class="button secondary" type="button" disabled>Espirro observado</button>
+                  <button id="markObservedSnore" class="button secondary" type="button" disabled>Ronco observado</button>
                   <button id="markObservedPause" class="button secondary pause-button" type="button" disabled>Iniciar pausa observada</button>
                 </div>
                 <p id="respiratoryEventSummary" class="event-summary" role="status" aria-live="polite">Nenhum evento marcado. O celular ainda não analisou candidatos técnicos.</p>
+                <p id="snoreObservation" class="snore-observation" data-state="idle" role="status" aria-live="polite">Ronco: não avaliado. O áudio bruto nunca é armazenado.</p>
               </div>
               <div class="measurement-actions">
                 <button id="sensorBreathStart" class="button primary-action" type="button">Iniciar sensor</button>
@@ -1275,6 +1370,7 @@
               <label class="check-option"><input type="checkbox" data-respiratory-sign="grunting"><span>Gemência</span></label>
               <label class="check-option"><input type="checkbox" data-respiratory-sign="stridor"><span>Estridor</span></label>
               <label class="check-option"><input type="checkbox" data-respiratory-sign="wheeze"><span>Sibilância</span></label>
+              <label class="check-option"><input type="checkbox" data-respiratory-sign="snoring"><span>Ronco/ruído de via aérea superior</span></label>
               <label class="check-option"><input type="checkbox" data-respiratory-sign="cyanosis"><span>Cianose/palidez</span></label>
               <label class="check-option"><input type="checkbox" data-respiratory-sign="gasping"><span>Gasping/respiração agônica</span></label>
               <label class="check-option"><input type="checkbox" data-respiratory-sign="reduced-effort"><span>Esforço reduzido/fadiga</span></label>
@@ -1284,7 +1380,7 @@
 
           <section class="vitals-entry" aria-labelledby="manual-vitals-title">
             <h3 id="manual-vitals-title">Sinais vitais informados pela médica</h3>
-            <p class="measurement-help">Digite somente valores obtidos por avaliação clínica ou equipamento apropriado. Nada é armazenado.</p>
+            <p class="measurement-help">Digite somente valores obtidos por avaliação clínica ou equipamento apropriado. Só serão armazenados se você salvar no Histórico.</p>
             <div class="vitals-grid">
               <div class="vital-field"><label for="vitalHeartRate">FC (bpm)</label><input id="vitalHeartRate" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 120"></div>
               <div class="vital-field"><label for="vitalSpo2">SpO₂ (%)</label><input id="vitalSpo2" type="text" inputmode="numeric" autocomplete="off" placeholder="Ex.: 97"></div>
@@ -1424,6 +1520,62 @@
           </div>
           <p id="configStatus" class="config-status" role="status" aria-live="polite"></p>
         </section>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="historyDialog" class="config-dialog" aria-labelledby="history-title">
+    <div class="config-shell">
+      <header class="config-header">
+        <div>
+          <h2 id="history-title">Histórico de evolução</h2>
+          <span class="count">Somente neste aparelho</span>
+        </div>
+        <button id="historyClose" class="icon-button" type="button" aria-label="Fechar histórico">×</button>
+      </header>
+      <div class="config-scroll">
+        <div class="config-banner"><strong>Dados sensíveis:</strong> não use nome, CPF, registro hospitalar ou data de nascimento. Quem acessar este aparelho poderá ler os registros. Nenhum dado é enviado pelo aplicativo.</div>
+        <div class="history-form">
+          <label for="historyPatientCode">Código local não identificável
+            <input id="historyPatientCode" type="text" maxlength="30" autocomplete="off" placeholder="Ex.: caso-A17">
+          </label>
+          <label for="historyNote">Observação clínica opcional
+            <textarea id="historyNote" maxlength="500" placeholder="Ex.: após broncodilatador; em ar ambiente"></textarea>
+          </label>
+        </div>
+        <label class="history-consent"><input id="historyConsent" type="checkbox"><span>Confirmo que estou autorizada a registrar estes dados de saúde neste aparelho e que usei um código não identificável.</span></label>
+        <div class="history-toolbar">
+          <button id="saveHistorySnapshot" class="button" type="button">Salvar medição atual</button>
+          <button id="exportHistory" class="button secondary" type="button">Exportar JSON</button>
+          <button id="clearHistory" class="button secondary" type="button">Apagar tudo</button>
+        </div>
+        <p id="historyStatus" class="config-status" role="status" aria-live="polite"></p>
+        <div id="historyList" class="history-list"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="installDialog" class="config-dialog" aria-labelledby="install-title">
+    <div class="config-shell">
+      <header class="config-header">
+        <div>
+          <h2 id="install-title">Instalar aplicativo</h2>
+          <span class="count">Acesso rápido e uso offline</span>
+        </div>
+        <button id="installClose" class="icon-button" type="button" aria-label="Fechar instruções de instalação">×</button>
+      </header>
+      <div class="config-scroll">
+        <div class="sensor-warning"><strong>O app instalado continua sendo experimental.</strong> A instalação não transforma o celular em equipamento médico validado.</div>
+        <section class="config-section">
+          <h3>Android — Chrome</h3>
+          <p>Toque em <strong>Instalar</strong> quando o navegador oferecer a opção. Se ela não aparecer, abra o menu ⋮ e escolha <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong>.</p>
+        </section>
+        <section class="config-section">
+          <h3>iPhone/iPad — Safari</h3>
+          <p>Toque em <strong>Compartilhar</strong> e depois em <strong>Adicionar à Tela de Início</strong>. O iOS não permite abrir essa confirmação automaticamente.</p>
+        </section>
+        <button id="triggerInstall" class="button" type="button" hidden>Instalar agora</button>
+        <p id="installStatus" class="config-status" role="status" aria-live="polite"></p>
       </div>
     </div>
   </dialog>
@@ -1695,18 +1847,38 @@
     const syncBreathingPhaseButton = document.getElementById("syncBreathingPhase");
     const markObservedCoughButton = document.getElementById("markObservedCough");
     const markObservedSneezeButton = document.getElementById("markObservedSneeze");
+    const markObservedSnoreButton = document.getElementById("markObservedSnore");
     const markObservedPauseButton = document.getElementById("markObservedPause");
     const respiratoryEventSummary = document.getElementById("respiratoryEventSummary");
+    const snoreObservation = document.getElementById("snoreObservation");
     const respiratorySignsStatus = document.getElementById("respiratorySignsStatus");
     const respiratorySignInputs = [...document.querySelectorAll("[data-respiratory-sign]")];
     const vitalsSummary = document.getElementById("vitals-summary");
     const vitalsStatus = document.getElementById("vitalsStatus");
     const clearVitalsButton = document.getElementById("clearVitals");
     const manualVitalInputs = [...document.querySelectorAll("#vitalHeartRate, #vitalSpo2, #vitalTemperature, #vitalCapillary, #vitalSystolic, #vitalDiastolic, #vitalConsciousness, #vitalSupport")];
+    const openHistoryButton = document.getElementById("openHistory");
+    const historyDialog = document.getElementById("historyDialog");
+    const historyCloseButton = document.getElementById("historyClose");
+    const historyPatientCode = document.getElementById("historyPatientCode");
+    const historyNote = document.getElementById("historyNote");
+    const historyConsent = document.getElementById("historyConsent");
+    const saveHistorySnapshotButton = document.getElementById("saveHistorySnapshot");
+    const exportHistoryButton = document.getElementById("exportHistory");
+    const clearHistoryButton = document.getElementById("clearHistory");
+    const historyStatus = document.getElementById("historyStatus");
+    const historyList = document.getElementById("historyList");
+    const installAppButton = document.getElementById("installApp");
+    const installDialog = document.getElementById("installDialog");
+    const installCloseButton = document.getElementById("installClose");
+    const triggerInstallButton = document.getElementById("triggerInstall");
+    const installStatus = document.getElementById("installStatus");
 
     const RESPIRATION_DURATION_MS = 60000;
     const SENSOR_POSITIONING_MS = 5000;
     const TECHNICAL_PAUSE_NOTICE_MS = 10000;
+    const HISTORY_STORAGE_KEY = "sri-pediatric-history-v1";
+    let deferredInstallPrompt = null;
     const respirationState = {
       manual: { running: false, startedAt: null, count: 0, taps: [], timer: null, result: null },
       sensor: {
@@ -2328,6 +2500,50 @@
       return { audio: audioTimes, motion: motionTimes, combined };
     }
 
+    function analyzeSnorePattern(audioSamples, motionResult) {
+      const usable = (audioSamples || []).filter(sample =>
+        Number.isFinite(sample.t) && Number.isFinite(sample.rms) &&
+        Number.isFinite(sample.lowBand) && Number.isFinite(sample.midBand) && Number.isFinite(sample.highBand)
+      );
+      if (usable.length < 200) return { possible: false, state: "insufficient", reason: "Áudio insuficiente para observar padrão compatível com ronco." };
+      const levels = usable.map(sample => sample.rms);
+      const center = median(levels);
+      const mad = median(levels.map(value => Math.abs(value - center)));
+      const levelThreshold = center + Math.max(mad * 3.5, center * 0.45, 0.0005);
+      const candidateTimes = usable.filter(sample => {
+        const total = sample.lowBand + sample.midBand + sample.highBand;
+        const lowRatio = total > 0 ? sample.lowBand / total : 0;
+        return sample.rms > levelThreshold && lowRatio >= 0.48 && sample.peak < 0.98;
+      }).map(sample => sample.t);
+      const bursts = groupEventTimes(candidateTimes, 700);
+      if (bursts.length < 3) return { possible: false, state: "not-found", bursts: bursts.length, reason: "Não foi encontrado padrão acústico repetitivo suficiente para sugerir ronco." };
+      const intervals = bursts.slice(1).map((time, index) => time - bursts[index]).filter(value => value >= 500 && value <= 10000);
+      if (intervals.length < 2) return { possible: false, state: "not-found", bursts: bursts.length, reason: "Os sons de baixa frequência não formaram um ritmo respiratório consistente." };
+      const averageInterval = intervals.reduce((sum, value) => sum + value, 0) / intervals.length;
+      const intervalVariance = intervals.reduce((sum, value) => sum + (value - averageInterval) ** 2, 0) / intervals.length;
+      const intervalCv = Math.sqrt(intervalVariance) / averageInterval;
+      const acousticRate = 60000 / averageInterval;
+      const candidateRates = [acousticRate, acousticRate / 2, acousticRate * 2].filter(rate => rate >= 6 && rate <= 100);
+      const closestRate = motionResult && Number.isFinite(motionResult.bpm)
+        ? candidateRates.sort((a, b) => Math.abs(a - motionResult.bpm) - Math.abs(b - motionResult.bpm))[0]
+        : acousticRate;
+      const concordance = motionResult && Number.isFinite(motionResult.bpm)
+        ? Math.abs(closestRate - motionResult.bpm) / motionResult.bpm
+        : null;
+      const possible = intervalCv <= 0.65 && (concordance === null || concordance <= 0.35);
+      return {
+        possible,
+        state: possible ? "possible" : "not-found",
+        bursts: bursts.length,
+        acousticRate: closestRate,
+        intervalCv,
+        concordance,
+        reason: possible
+          ? "Padrão acústico repetitivo de baixa frequência compatível com ronco. Requer confirmação pela médica."
+          : "O padrão acústico não concordou suficientemente com o ritmo respiratório."
+      };
+    }
+
     function detectMotionSignalPauses(samples, field) {
       const series = resampleMotion(samples, field);
       if (!series || series.values.length < series.frequency * 15) return { count: 0, longestSec: 0, pauses: [] };
@@ -2459,10 +2675,12 @@
       const sensor = respirationState.sensor;
       const coughs = sensor.observedEvents.filter(event => event.type === "cough").length;
       const sneezes = sensor.observedEvents.filter(event => event.type === "sneeze").length;
+      const snores = sensor.observedEvents.filter(event => event.type === "snore").length;
       const pauses = sensor.observedEvents.filter(event => event.type === "pause");
       const observedParts = [];
       if (coughs) observedParts.push(`${coughs} tosse${coughs === 1 ? "" : "s"}`);
       if (sneezes) observedParts.push(`${sneezes} espirro${sneezes === 1 ? "" : "s"}`);
+      if (snores) observedParts.push(`${snores} ronco${snores === 1 ? "" : "s"}`);
       if (pauses.length) {
         const longestObserved = Math.max(...pauses.map(event => event.durationMs || 0)) / 1000;
         observedParts.push(`${pauses.length} pausa${pauses.length === 1 ? "" : "s"} observada${pauses.length === 1 ? "" : "s"} (maior ${formatNumber(longestObserved)} s)`);
@@ -2479,12 +2697,33 @@
       respiratoryEventSummary.textContent = observedText + technicalText;
     }
 
+    function updateSnoreObservation() {
+      const sensor = respirationState.sensor;
+      const observed = sensor.observedEvents.some(event => event.type === "snore") || respiratorySignInputs.some(input => input.dataset.respiratorySign === "snoring" && input.checked);
+      const technical = sensor.technicalEvents?.snore;
+      snoreObservation.dataset.state = observed || technical?.possible ? "possible" : "idle";
+      if (observed && technical?.possible) {
+        snoreObservation.textContent = `Ronco observado pela médica e padrão acústico compatível encontrado (${technical.bursts} episódios candidatos). Não diagnostica apneia obstrutiva.`;
+      } else if (observed) {
+        snoreObservation.textContent = "Ronco observado pela médica. O algoritmo não substitui ausculta nem avaliação de obstrução de via aérea.";
+      } else if (technical?.possible) {
+        snoreObservation.textContent = `Possível ronco: padrão repetitivo de baixa frequência em ${technical.bursts} episódios candidatos. Confirme pela observação clínica.`;
+      } else if (technical) {
+        snoreObservation.textContent = `Ronco: ${technical.reason}`;
+      } else if (sensor.phase === "measuring" && sensor.audioAvailable) {
+        snoreObservation.textContent = "Ronco: analisando somente características acústicas locais; nenhum áudio será salvo.";
+      } else {
+        snoreObservation.textContent = "Ronco: não avaliado. O áudio bruto nunca é armazenado.";
+      }
+    }
+
     function markObservedRespiratoryEvent(type) {
       const sensor = respirationState.sensor;
       if (sensor.phase !== "measuring") return;
       sensor.observedEvents.push({ type, t: performance.now() - sensor.measurementStartedAt });
       if (navigator.vibrate) navigator.vibrate(20);
       updateRespiratoryEventSummary();
+      updateSnoreObservation();
     }
 
     function finishObservedPause() {
@@ -2512,12 +2751,14 @@
       const selected = respiratorySignInputs.filter(input => input.checked);
       if (!selected.length) {
         setMeasurementStatus(respiratorySignsStatus, "Nenhum achado respiratório marcado.");
+        updateSnoreObservation();
         return;
       }
       const labels = selected.map(input => input.nextElementSibling.textContent);
       const critical = selected.some(input => ["cyanosis", "gasping", "reduced-effort"].includes(input.dataset.respiratorySign));
       const message = `Achados marcados: ${labels.join(", ")}. ${critical ? "Sinais potencialmente graves: priorize avaliação e suporte imediatos." : "Integre à frequência, oxigenação e estado geral."}`;
       setMeasurementStatus(respiratorySignsStatus, message, critical ? "error" : "warning");
+      updateSnoreObservation();
     }
 
     async function startRespiratoryAudio() {
@@ -2555,6 +2796,21 @@
         source.connect(highPass).connect(lowPass).connect(sensor.audioAnalyser);
         await sensor.audioContext.resume();
         const buffer = new Float32Array(sensor.audioAnalyser.fftSize);
+        const frequencyBuffer = new Float32Array(sensor.audioAnalyser.frequencyBinCount);
+        const binWidth = sensor.audioContext.sampleRate / sensor.audioAnalyser.fftSize;
+        const bandPower = (minimum, maximum) => {
+          const start = Math.max(0, Math.floor(minimum / binWidth));
+          const end = Math.min(frequencyBuffer.length - 1, Math.ceil(maximum / binWidth));
+          let power = 0;
+          let count = 0;
+          for (let index = start; index <= end; index += 1) {
+            const decibels = frequencyBuffer[index];
+            if (!Number.isFinite(decibels)) continue;
+            power += 10 ** (decibels / 10);
+            count += 1;
+          }
+          return count ? power / count : 0;
+        };
         sensor.audioTimer = window.setInterval(() => {
           if (sensor.phase !== "measuring" || !sensor.audioAnalyser) return;
           sensor.audioAnalyser.getFloatTimeDomainData(buffer);
@@ -2564,7 +2820,15 @@
             energy += value * value;
             peak = Math.max(peak, Math.abs(value));
           }
-          sensor.audioSamples.push({ t: performance.now(), rms: Math.sqrt(energy / buffer.length), peak });
+          sensor.audioAnalyser.getFloatFrequencyData(frequencyBuffer);
+          sensor.audioSamples.push({
+            t: performance.now(),
+            rms: Math.sqrt(energy / buffer.length),
+            peak,
+            lowBand: bandPower(80, 300),
+            midBand: bandPower(300, 800),
+            highBand: bandPower(800, 2000)
+          });
           if (sensor.audioSamples.length > 2000) sensor.audioSamples.shift();
         }, 50);
         sensor.audioAvailable = true;
@@ -2624,8 +2888,10 @@
           syncBreathingPhaseButton.disabled = false;
           markObservedCoughButton.disabled = false;
           markObservedSneezeButton.disabled = false;
+          markObservedSnoreButton.disabled = false;
           markObservedPauseButton.disabled = false;
           resetBreathingVisualization("Estabilizando o sinal");
+          updateSnoreObservation();
           setMeasurementStatus(sensorBreathStatus, `Coletando movimento${sensor.audioAvailable ? " e som" : ""}. Mantenha o aparelho imóvel e observe a criança.`, "success");
         }
         return;
@@ -2676,6 +2942,7 @@
       syncBreathingPhaseButton.disabled = true;
       markObservedCoughButton.disabled = true;
       markObservedSneezeButton.disabled = true;
+      markObservedSnoreButton.disabled = true;
       markObservedPauseButton.disabled = true;
       resetBreathingVisualization("Posicione o aparelho");
       window.addEventListener("devicemotion", handleDeviceMotion);
@@ -2697,6 +2964,7 @@
       syncBreathingPhaseButton.disabled = true;
       markObservedCoughButton.disabled = true;
       markObservedSneezeButton.disabled = true;
+      markObservedSnoreButton.disabled = true;
       markObservedPauseButton.disabled = true;
       await stopRespiratoryAudio();
       await releaseWakeLock();
@@ -2745,7 +3013,10 @@
           };
       const abruptEvents = analyzeAbruptRespiratoryEvents(audioWasAvailable ? audioSamples : [], samples);
       const motionPauses = detectMotionSignalPauses(samples, result.field);
-      sensor.technicalEvents = { abrupt: abruptEvents, pauses: motionPauses };
+      const snoreResult = audioWasAvailable
+        ? analyzeSnorePattern(audioSamples, result)
+        : { possible: false, state: "insufficient", reason: "Microfone indisponível ou desativado; ronco não avaliado." };
+      sensor.technicalEvents = { abrupt: abruptEvents, pauses: motionPauses, snore: snoreResult };
       const finalBpm = audioResult.confirmed ? audioResult.fusedBpm : result.bpm;
       sensor.result = {
         ...result,
@@ -2762,6 +3033,7 @@
       setAudioBreathStatus(audioResult.reason, audioResult.state);
       setMeasurementStatus(sensorBreathStatus, `${prefix}: ${Math.round(finalBpm)} irpm por ${source}; qualidade do movimento ${result.qualityLabel}. Resultado experimental.`, tone);
       updateRespiratoryEventSummary();
+      updateSnoreObservation();
       breathingVisual.dataset.phase = "idle";
       breathingPhase.textContent = "Coleta encerrada";
       breathingPhaseHelp.textContent = "Revise a frequência, os eventos marcados e os candidatos técnicos abaixo.";
@@ -2817,10 +3089,12 @@
       syncBreathingPhaseButton.textContent = "Sincronizar durante inspiração";
       markObservedCoughButton.disabled = true;
       markObservedSneezeButton.disabled = true;
+      markObservedSnoreButton.disabled = true;
       markObservedPauseButton.disabled = true;
       markObservedPauseButton.textContent = "Iniciar pausa observada";
       resetBreathingVisualization();
       updateRespiratoryEventSummary();
+      updateSnoreObservation();
       setAudioBreathStatus(
         useRespiratoryAudio.checked
           ? "Áudio não iniciado. Nenhum som é gravado ou armazenado."
@@ -2929,7 +3203,7 @@
         setMeasurementStatus(vitalsStatus, `Revise: ${errors.join(", ")}.`, "error");
       } else if (filled) {
         const time = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-        setMeasurementStatus(vitalsStatus, `${filled} campo${filled === 1 ? "" : "s"} informado${filled === 1 ? "" : "s"} às ${time}. Dados não armazenados.`, "success");
+        setMeasurementStatus(vitalsStatus, `${filled} campo${filled === 1 ? "" : "s"} informado${filled === 1 ? "" : "s"} às ${time}. Dados não armazenados automaticamente.`, "success");
       } else {
         setMeasurementStatus(vitalsStatus, "Nenhum sinal vital informado.");
       }
@@ -2941,6 +3215,227 @@
         input.removeAttribute("aria-invalid");
       });
       validateManualVitals();
+    }
+
+    function emptyHistoryStore() {
+      return { schemaVersion: 1, patients: [] };
+    }
+
+    function readHistoryStore() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY));
+        if (!parsed || parsed.schemaVersion !== 1 || !Array.isArray(parsed.patients)) return emptyHistoryStore();
+        return {
+          schemaVersion: 1,
+          patients: parsed.patients.filter(patient => patient && typeof patient.code === "string" && Array.isArray(patient.records)).slice(0, 25).map(patient => ({
+            code: patient.code.slice(0, 30),
+            key: String(patient.key || patient.code).toLocaleLowerCase("pt-BR").slice(0, 30),
+            records: patient.records.filter(record => record && typeof record.id === "string").slice(-50)
+          }))
+        };
+      } catch {
+        return emptyHistoryStore();
+      }
+    }
+
+    function writeHistoryStore(store) {
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(store));
+    }
+
+    function currentVitalsSnapshot() {
+      return Object.fromEntries(manualVitalInputs.map(input => [input.id, String(input.value || "").trim().slice(0, 80)]).filter(([, value]) => value));
+    }
+
+    function currentRespiratorySnapshot(note) {
+      const sensor = respirationState.sensor;
+      const manual = respirationState.manual.result;
+      const observedCounts = { cough: 0, sneeze: 0, snore: 0, pause: 0 };
+      const observedPauseDurations = [];
+      sensor.observedEvents.forEach(event => {
+        if (event.type in observedCounts) observedCounts[event.type] += 1;
+        if (event.type === "pause" && Number.isFinite(event.durationMs)) observedPauseDurations.push(Math.round(event.durationMs / 100) / 10);
+      });
+      const technical = sensor.technicalEvents;
+      return {
+        id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+        recordedAt: new Date().toISOString(),
+        weightKg: Number.isFinite(state.weight) ? state.weight : null,
+        age: state.ageMonths === null ? null : {
+          input: String(idadeInput.value || "").slice(0, 12),
+          unit: idadeUnidade.value,
+          months: Math.round(state.ageMonths * 100) / 100
+        },
+        manualRespiration: manual ? {
+          bpm: Math.round(manual.bpm * 10) / 10,
+          complete: Boolean(manual.complete),
+          elapsedSec: Math.round(manual.elapsedSec * 10) / 10,
+          regularity: Number.isFinite(manual.regularity) ? Math.round(manual.regularity * 1000) / 1000 : null
+        } : null,
+        sensorRespiration: sensor.result ? {
+          bpm: Math.round(sensor.result.bpm * 10) / 10,
+          complete: Boolean(sensor.result.complete),
+          quality: sensor.result.qualityLabel,
+          audioConfirmed: Boolean(sensor.result.audio?.confirmed)
+        } : null,
+        observedEvents: observedCounts,
+        observedPauseDurationsSec: observedPauseDurations,
+        technicalEvents: technical ? {
+          abruptCombined: technical.abrupt?.combined?.length || 0,
+          pauses: technical.pauses?.count || 0,
+          longestPauseSec: Math.round((technical.pauses?.longestSec || 0) * 10) / 10,
+          possibleSnore: Boolean(technical.snore?.possible),
+          snoreCandidates: technical.snore?.bursts || 0
+        } : null,
+        respiratorySigns: respiratorySignInputs.filter(input => input.checked).map(input => input.dataset.respiratorySign),
+        vitals: currentVitalsSnapshot(),
+        note: String(note || "").trim().slice(0, 500)
+      };
+    }
+
+    function historyRecordHasContent(record) {
+      return Boolean(
+        record.manualRespiration || record.sensorRespiration || record.note || record.respiratorySigns.length ||
+        Object.keys(record.vitals).length || Object.values(record.observedEvents).some(Boolean)
+      );
+    }
+
+    function saveHistorySnapshot() {
+      const code = historyPatientCode.value.trim().replace(/\s+/g, " ").slice(0, 30);
+      historyStatus.className = "config-status";
+      if (code.length < 2) {
+        historyStatus.textContent = "Informe um código local com pelo menos 2 caracteres.";
+        return;
+      }
+      if (!historyConsent.checked) {
+        historyStatus.textContent = "Confirme a autorização e o uso de código não identificável antes de salvar.";
+        return;
+      }
+      const record = currentRespiratorySnapshot(historyNote.value);
+      if (!historyRecordHasContent(record)) {
+        historyStatus.textContent = "Não há medição, sinal vital, achado ou observação para salvar.";
+        return;
+      }
+      const store = readHistoryStore();
+      const key = code.toLocaleLowerCase("pt-BR");
+      let patient = store.patients.find(item => item.key === key);
+      if (!patient) {
+        if (store.patients.length >= 25) {
+          historyStatus.textContent = "Limite local de 25 códigos atingido. Exporte e apague registros antigos.";
+          return;
+        }
+        patient = { code, key, records: [] };
+        store.patients.push(patient);
+      }
+      patient.records.push(record);
+      if (patient.records.length > 50) patient.records = patient.records.slice(-50);
+      try {
+        writeHistoryStore(store);
+        historyNote.value = "";
+        historyConsent.checked = false;
+        historyStatus.textContent = `Medição salva localmente para ${code}. Nenhum áudio foi armazenado.`;
+        renderHistory();
+      } catch {
+        historyStatus.textContent = "Não foi possível salvar neste navegador. Verifique armazenamento privado ou espaço disponível.";
+      }
+    }
+
+    function respiratorySignLabel(id) {
+      return ({
+        "retractions": "tiragens", "nasal-flaring": "batimento de asa nasal", grunting: "gemência",
+        stridor: "estridor", wheeze: "sibilância", snoring: "ronco", cyanosis: "cianose/palidez",
+        gasping: "gasping", "reduced-effort": "fadiga/esforço reduzido"
+      })[id] || id;
+    }
+
+    function renderHistory() {
+      const store = readHistoryStore();
+      exportHistoryButton.disabled = !store.patients.length;
+      clearHistoryButton.disabled = !store.patients.length;
+      if (!store.patients.length) {
+        historyList.innerHTML = '<div class="history-empty">Nenhuma evolução salva neste aparelho.</div>';
+        return;
+      }
+      const sortedPatients = [...store.patients].sort((a, b) => String(b.records.at(-1)?.recordedAt || "").localeCompare(String(a.records.at(-1)?.recordedAt || "")));
+      historyList.innerHTML = sortedPatients.map(patient => {
+        const manualRates = patient.records.map(record => record.manualRespiration?.bpm).filter(Number.isFinite);
+        const trend = manualRates.length >= 2
+          ? `FR manual: ${formatNumber(manualRates[0])} → ${formatNumber(manualRates[manualRates.length - 1])} irpm`
+          : manualRates.length ? `FR manual registrada: ${formatNumber(manualRates[0])} irpm` : "Sem duas contagens manuais para comparar";
+        const records = [...patient.records].reverse().map(record => {
+          const metrics = [];
+          if (record.manualRespiration) metrics.push(`FR manual ${formatNumber(record.manualRespiration.bpm)} irpm${record.manualRespiration.complete ? "" : " (incompleta)"}`);
+          if (record.sensorRespiration) metrics.push(`sensor ${formatNumber(record.sensorRespiration.bpm)} irpm`);
+          if (record.vitals?.vitalSpo2) metrics.push(`SpO₂ ${escapeHtml(record.vitals.vitalSpo2)}%`);
+          if (record.vitals?.vitalTemperature) metrics.push(`${escapeHtml(record.vitals.vitalTemperature)} °C`);
+          const snoreText = record.observedEvents?.snore
+            ? `ronco observado (${record.observedEvents.snore})`
+            : record.technicalEvents?.possibleSnore ? `possível ronco técnico (${record.technicalEvents.snoreCandidates})` : "";
+          if (snoreText) metrics.push(snoreText);
+          const signs = (record.respiratorySigns || []).map(respiratorySignLabel);
+          return `<article class="history-record">
+            <header><time datetime="${escapeHtml(record.recordedAt)}">${new Date(record.recordedAt).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}</time><button class="history-delete" type="button" data-history-patient="${escapeHtml(patient.key)}" data-history-record="${escapeHtml(record.id)}">Excluir</button></header>
+            <p>${metrics.length ? metrics.join(" · ") : "Registro clínico sem frequência informada"}</p>
+            ${signs.length ? `<p><strong>Achados:</strong> ${escapeHtml(signs.join(", "))}</p>` : ""}
+            ${record.note ? `<p><strong>Observação:</strong> ${escapeHtml(record.note)}</p>` : ""}
+          </article>`;
+        }).join("");
+        return `<section class="history-patient"><h4>${escapeHtml(patient.code)} · ${patient.records.length} registro${patient.records.length === 1 ? "" : "s"}</h4><p class="history-trend">${trend}</p>${records}</section>`;
+      }).join("");
+    }
+
+    function deleteHistoryRecord(patientKey, recordId) {
+      const store = readHistoryStore();
+      const patient = store.patients.find(item => item.key === patientKey);
+      if (!patient) return;
+      patient.records = patient.records.filter(record => record.id !== recordId);
+      store.patients = store.patients.filter(item => item.records.length);
+      writeHistoryStore(store);
+      historyStatus.textContent = "Registro excluído deste aparelho.";
+      renderHistory();
+    }
+
+    function exportHistory() {
+      const store = readHistoryStore();
+      if (!store.patients.length || !window.confirm("O arquivo exportado contém dados de saúde sensíveis. Deseja baixá-lo neste aparelho?")) return;
+      const payload = JSON.stringify({ exportedAt: new Date().toISOString(), app: "SRI Pediátrica — FRO", ...store }, null, 2);
+      const url = URL.createObjectURL(new Blob([payload], { type: "application/json" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `sri-evolucao-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      historyStatus.textContent = "Histórico exportado. Proteja o arquivo gerado.";
+    }
+
+    function clearHistory() {
+      if (!window.confirm("Apagar definitivamente todo o histórico salvo neste aparelho?")) return;
+      localStorage.removeItem(HISTORY_STORAGE_KEY);
+      historyStatus.textContent = "Todo o histórico local foi apagado.";
+      renderHistory();
+    }
+
+    function appIsInstalled() {
+      return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    }
+
+    function openInstallInstructions() {
+      installStatus.textContent = appIsInstalled() ? "O aplicativo já está aberto no modo instalado." : "Escolha o procedimento do seu aparelho.";
+      triggerInstallButton.hidden = !deferredInstallPrompt;
+      installDialog.showModal();
+    }
+
+    async function triggerAppInstall() {
+      if (!deferredInstallPrompt) {
+        installStatus.textContent = "Use as instruções acima ou o menu do navegador.";
+        return;
+      }
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      installStatus.textContent = choice.outcome === "accepted" ? "Instalação aceita pelo navegador." : "Instalação cancelada.";
+      deferredInstallPrompt = null;
+      triggerInstallButton.hidden = true;
     }
 
     function resetRespirationMeasurements() {
@@ -3470,6 +3965,7 @@
     syncBreathingPhaseButton.addEventListener("click", synchronizeBreathingPhase);
     markObservedCoughButton.addEventListener("click", () => markObservedRespiratoryEvent("cough"));
     markObservedSneezeButton.addEventListener("click", () => markObservedRespiratoryEvent("sneeze"));
+    markObservedSnoreButton.addEventListener("click", () => markObservedRespiratoryEvent("snore"));
     markObservedPauseButton.addEventListener("click", toggleObservedPause);
     useRespiratoryAudio.addEventListener("change", () => {
       setAudioBreathStatus(
@@ -3484,6 +3980,25 @@
     });
     respiratorySignInputs.forEach(input => input.addEventListener("change", updateRespiratorySignsStatus));
     clearVitalsButton.addEventListener("click", clearManualVitals);
+    openHistoryButton.addEventListener("click", () => {
+      historyStatus.textContent = "";
+      renderHistory();
+      historyDialog.showModal();
+    });
+    historyCloseButton.addEventListener("click", () => historyDialog.close());
+    historyDialog.addEventListener("click", event => { if (event.target === historyDialog) historyDialog.close(); });
+    saveHistorySnapshotButton.addEventListener("click", saveHistorySnapshot);
+    exportHistoryButton.addEventListener("click", exportHistory);
+    clearHistoryButton.addEventListener("click", clearHistory);
+    historyList.addEventListener("click", event => {
+      const button = event.target.closest("[data-history-record]");
+      if (!button || !window.confirm("Excluir este registro de evolução?")) return;
+      deleteHistoryRecord(button.dataset.historyPatient, button.dataset.historyRecord);
+    });
+    installAppButton.addEventListener("click", openInstallInstructions);
+    installCloseButton.addEventListener("click", () => installDialog.close());
+    installDialog.addEventListener("click", event => { if (event.target === installDialog) installDialog.close(); });
+    triggerInstallButton.addEventListener("click", triggerAppInstall);
     openRespirationAnalysisButton.addEventListener("click", () => {
       vitalsDetails.open = true;
       openRespirationAnalysisButton.setAttribute("aria-expanded", "true");
@@ -3530,6 +4045,16 @@
 
     window.addEventListener("online", updateConnectionStatus);
     window.addEventListener("offline", updateConnectionStatus);
+    window.addEventListener("beforeinstallprompt", event => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      triggerInstallButton.hidden = false;
+    });
+    window.addEventListener("appinstalled", () => {
+      deferredInstallPrompt = null;
+      installAppButton.hidden = true;
+      if (installDialog.open) installDialog.close();
+    });
     themeToggle.addEventListener("click", () => {
       applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark");
     });
@@ -3549,10 +4074,16 @@
       navigator.serviceWorker.register("./sw.js").catch(() => {});
     }
 
-    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber, respiratoryRate, analyzeRespirationSignal, respiratoryReferenceForAge, assessRespiratoryRate, analyzeRealtimeMotion, analyzeAbruptRespiratoryEvents, detectMotionSignalPauses });
+    window.PediatricDoseApp = Object.freeze({ MEDICATIONS, calculateMedication, parseNumber, respiratoryRate, analyzeRespirationSignal, respiratoryReferenceForAge, assessRespiratoryRate, analyzeRealtimeMotion, analyzeAbruptRespiratoryEvents, analyzeSnorePattern, detectMotionSignalPauses });
     applyTheme(document.documentElement.dataset.theme, false);
     updateConnectionStatus();
+    if (appIsInstalled()) installAppButton.hidden = true;
     render();
+    if (location.hash === "#respiracao") {
+      vitalsDetails.open = true;
+      openRespirationAnalysisButton.setAttribute("aria-expanded", "true");
+      window.requestAnimationFrame(() => document.getElementById("respiracao").scrollIntoView({ block: "start" }));
+    }
   </script>
 </body>
 </html>

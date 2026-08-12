@@ -45,6 +45,24 @@ function syntheticAudio(bpm, amplitude = 0.012, noise = 0.0008, durationMs = 600
   return samples;
 }
 
+function syntheticSnoreAudio(bpm, durationMs = 60000) {
+  const samples = [];
+  const cycleMs = 60000 / bpm;
+  for (let time = 0; time <= durationMs; time += 50) {
+    const withinCycle = time % cycleMs;
+    const active = withinCycle >= 250 && withinCycle <= 700;
+    samples.push({
+      t: time,
+      rms: active ? 0.035 : 0.003,
+      peak: active ? 0.2 : 0.012,
+      lowBand: active ? 0.82 : 0.08,
+      midBand: active ? 0.13 : 0.27,
+      highBand: active ? 0.05 : 0.65
+    });
+  }
+  return samples;
+}
+
 for (const expected of [18, 24, 36, 48, 72]) {
   const result = context.analyzeRespirationSignal(syntheticBreathing(expected));
   assert.ok(result, `Sem resultado para ${expected} irpm`);
@@ -142,4 +160,15 @@ const technicalPauses = context.detectMotionSignalPauses(pausedMotion, "z");
 assert.ok(technicalPauses.count >= 1, "Pausa sintética prolongada deveria ser marcada como pausa técnica");
 assert.ok(technicalPauses.longestSec >= 10);
 
-console.log("Análise respiratória: frequência, áudio, faixa etária, animação, evento abrupto e pausa técnica verificados.");
+const possibleSnore = context.analyzeSnorePattern(syntheticSnoreAudio(24), { bpm: 24 });
+assert.equal(possibleSnore.possible, true, "Padrão acústico repetitivo de baixa frequência deveria gerar observação de possível ronco");
+const nonSnoreAudio = syntheticSnoreAudio(24).map(sample => ({ ...sample, lowBand: 0.08, midBand: 0.27, highBand: 0.65 }));
+assert.equal(context.analyzeSnorePattern(nonSnoreAudio, { bpm: 24 }).possible, false, "Som sem predominância de baixa frequência não deveria sugerir ronco");
+
+const manifest = JSON.parse(fs.readFileSync("manifest.webmanifest", "utf8"));
+assert.equal(manifest.display, "standalone");
+assert.equal(manifest.start_url, "./");
+assert.ok(manifest.icons.some(icon => icon.sizes.includes("192x192")));
+assert.ok(manifest.icons.some(icon => icon.sizes.includes("512x512")));
+
+console.log("Análise respiratória: frequência, áudio, ronco, faixa etária, animação, eventos, pausas e manifesto PWA verificados.");

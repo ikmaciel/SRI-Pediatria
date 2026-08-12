@@ -55,7 +55,7 @@ Acesso a acelerômetro/giroscópio depende de HTTPS, permissão e implementaçã
 
 ### Fase respiratória e eventos
 
-A animação ao vivo representa deslocamento do aparelho, não fluxo de ar. O algoritmo escolhe o eixo com maior oscilação recente, remove a linha de base e mostra a tendência do sinal. Como posição e orientação do telefone alteram a polaridade, inspiração e expiração só são nomeadas depois que a médica toca em `Sincronizar` durante uma inspiração visualmente confirmada. Mesmo sincronizada, a fase é descrita como provável e deve ser comparada ao tórax/abdome.
+A animação ao vivo representa somente a amplitude relativa do deslocamento do aparelho, não fluxo de ar. O algoritmo escolhe o eixo com maior oscilação recente e remove a linha de base. Como posição e orientação do telefone alteram a polaridade, a interface não nomeia inspiração ou expiração e não exige sincronização manual. O movimento exibido deve ser comparado ao tórax/abdome.
 
 Tosse e espirro não são classificados automaticamente. Estudos que obtiveram classificação de tosse em smartphone usaram modelos treinados e bases rotuladas; um algoritmo especificamente pediátrico teve sensibilidade de 47,6% apesar da alta especificidade. O protótipo atual não contém modelo clínico treinado. Ele apenas agrupa picos acústicos e de movimento próximos como **evento abrupto candidato**, que também pode representar choro, fala, toque, deslocamento ou ruído. A médica pode registrar separadamente tosse e espirro que observou.
 

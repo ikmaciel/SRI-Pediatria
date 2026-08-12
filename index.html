@@ -667,14 +667,12 @@
       transition: transform .16s ease-out, fill .16s ease-out;
     }
 
-    .breathing-visual[data-phase="inspiration"] .lung { fill: var(--brand-soft); }
-    .breathing-visual[data-phase="expiration"] .lung { fill: var(--notice-bg); }
+    .breathing-visual[data-phase="movement"] .lung { fill: var(--brand-soft); }
     .breathing-visual[data-phase="pause"] { border-color: var(--warning-line); background: var(--warning-bg); }
     .breathing-copy span { display: block; color: var(--muted); font-size: .69rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; }
     .breathing-copy strong { display: block; margin-top: 2px; font-size: .96rem; }
     .breathing-copy small { display: block; margin-top: 4px; color: var(--muted); font-size: .73rem; line-height: 1.3; }
 
-    .sync-phase { width: 100%; margin-top: 8px; }
 
     .observed-events {
       margin-top: 10px;
@@ -1326,10 +1324,9 @@
                 <div class="breathing-copy">
                   <span>Movimento ao vivo</span>
                   <strong id="breathingPhase">Aguardando sensor</strong>
-                  <small id="breathingPhaseHelp">A fase só será nomeada depois de sincronizar com uma inspiração observada.</small>
+                  <small id="breathingPhaseHelp">A animação acompanha apenas a amplitude relativa do movimento captado.</small>
                 </div>
               </div>
-              <button id="syncBreathingPhase" class="button secondary sync-phase" type="button" disabled>Sincronizar durante inspiração</button>
               <div class="observed-events">
                 <strong>Marcar o que a médica observou</strong>
                 <div class="event-buttons">
@@ -1844,7 +1841,6 @@
     const breathingPhaseHelp = document.getElementById("breathingPhaseHelp");
     const leftLung = document.getElementById("leftLung");
     const rightLung = document.getElementById("rightLung");
-    const syncBreathingPhaseButton = document.getElementById("syncBreathingPhase");
     const markObservedCoughButton = document.getElementById("markObservedCough");
     const markObservedSneezeButton = document.getElementById("markObservedSneeze");
     const markObservedSnoreButton = document.getElementById("markObservedSnore");
@@ -1886,7 +1882,7 @@
         samples: [], timer: null, result: null, wakeLock: null,
         audioStream: null, audioContext: null, audioAnalyser: null, audioTimer: null,
         audioSamples: [], audioAvailable: false,
-        phasePolarity: null, lastRealtimePhase: null, lastBreathAt: null,
+        lastMovementAt: null,
         observedEvents: [], observedPauseStartedAt: null, technicalEvents: null
       }
     };
@@ -2595,7 +2591,7 @@
     function resetBreathingVisualization(message = "Aguardando sensor") {
       breathingVisual.dataset.phase = "idle";
       breathingPhase.textContent = message;
-      breathingPhaseHelp.textContent = "A fase só será nomeada depois de sincronizar com uma inspiração observada.";
+      breathingPhaseHelp.textContent = "A animação acompanha apenas a amplitude relativa do movimento captado.";
       setLungAnimationScale(1);
     }
 
@@ -2606,7 +2602,7 @@
       const now = performance.now();
       if (!live) {
         setLungAnimationScale(1);
-        const pauseSec = sensor.lastBreathAt ? (now - sensor.lastBreathAt) / 1000 : 0;
+        const pauseSec = sensor.lastMovementAt ? (now - sensor.lastMovementAt) / 1000 : 0;
         if (pauseSec >= TECHNICAL_PAUSE_NOTICE_MS / 1000) {
           breathingVisual.dataset.phase = "pause";
           breathingPhase.textContent = `Sem movimento detectável há ${Math.floor(pauseSec)} s`;
@@ -2618,57 +2614,21 @@
         return;
       }
 
-      if (!sensor.phasePolarity) {
-        breathingVisual.dataset.phase = "unsynced";
-        breathingPhase.textContent = "Movimento torácico detectado";
-        breathingPhaseHelp.textContent = "Durante uma inspiração visível, toque em “Sincronizar” para orientar a animação.";
-        setLungAnimationScale(1 + live.normalized * 0.08);
-        return;
-      }
-
-      const orientedTrend = live.trend * sensor.phasePolarity;
-      const orientedPosition = live.normalized * sensor.phasePolarity;
-      let phase = "transition";
-      if (orientedTrend > 0.07) phase = "inspiration";
-      else if (orientedTrend < -0.07) phase = "expiration";
-
-      if (phase === "inspiration" && sensor.lastRealtimePhase !== "inspiration") sensor.lastBreathAt = now;
-      sensor.lastRealtimePhase = phase;
-      const pauseSec = sensor.lastBreathAt ? (now - sensor.lastBreathAt) / 1000 : 0;
+      const movement = Math.min(1, Math.max(Math.abs(live.normalized), Math.abs(live.trend) * 2));
+      if (movement >= 0.12) sensor.lastMovementAt = now;
+      const pauseSec = sensor.lastMovementAt ? (now - sensor.lastMovementAt) / 1000 : 0;
       if (pauseSec >= TECHNICAL_PAUSE_NOTICE_MS / 1000) {
         breathingVisual.dataset.phase = "pause";
-        breathingPhase.textContent = `Pausa do sinal estimada: ${Math.floor(pauseSec)} s`;
+        breathingPhase.textContent = `Sem movimento detectável há ${Math.floor(pauseSec)} s`;
         breathingPhaseHelp.textContent = "Confira criança e sensor. Ausência de movimento no celular não diagnostica apneia.";
         setLungAnimationScale(1);
         return;
       }
 
-      breathingVisual.dataset.phase = phase;
-      breathingPhase.textContent = phase === "inspiration"
-        ? "Inspiração provável"
-        : phase === "expiration"
-          ? "Expiração provável"
-          : "Transição do movimento";
-      breathingPhaseHelp.textContent = "Estimativa sincronizada pela médica; confirme visualmente no tórax/abdome.";
-      setLungAnimationScale(1 + Math.max(-1, Math.min(1, orientedPosition)) * 0.14);
-    }
-
-    function synchronizeBreathingPhase() {
-      const sensor = respirationState.sensor;
-      if (sensor.phase !== "measuring") return;
-      const live = analyzeRealtimeMotion(sensor.samples);
-      if (!live || Math.abs(live.trend) < 0.07) {
-        breathingPhase.textContent = "Movimento pouco definido para sincronizar";
-        breathingPhaseHelp.textContent = "Tente novamente durante uma expansão torácica claramente visível.";
-        return;
-      }
-      sensor.phasePolarity = Math.sign(live.trend);
-      sensor.lastRealtimePhase = "inspiration";
-      sensor.lastBreathAt = performance.now();
-      syncBreathingPhaseButton.textContent = "Ressincronizar durante inspiração";
-      breathingPhase.textContent = "Inspiração sincronizada";
-      breathingPhaseHelp.textContent = "A animação agora estima inspiração e expiração conforme esta orientação.";
-      if (navigator.vibrate) navigator.vibrate(25);
+      breathingVisual.dataset.phase = "movement";
+      breathingPhase.textContent = movement >= 0.12 ? "Movimento detectado" : "Movimento discreto";
+      breathingPhaseHelp.textContent = "Amplitude relativa do sensor; não identifica inspiração, expiração ou ventilação.";
+      setLungAnimationScale(1 + movement * 0.14);
     }
 
     function updateRespiratoryEventSummary() {
@@ -2878,14 +2838,11 @@
           sensor.phase = "measuring";
           sensor.samples = [];
           sensor.audioSamples = [];
-          sensor.phasePolarity = null;
-          sensor.lastRealtimePhase = null;
-          sensor.lastBreathAt = null;
+          sensor.lastMovementAt = performance.now();
           sensor.technicalEvents = null;
           sensor.measurementStartedAt = performance.now();
           sensorBreathTimeLabel.textContent = "Tempo restante";
           sensorBreathTime.textContent = "60 s";
-          syncBreathingPhaseButton.disabled = false;
           markObservedCoughButton.disabled = false;
           markObservedSneezeButton.disabled = false;
           markObservedSnoreButton.disabled = false;
@@ -2939,7 +2896,6 @@
       sensorBreathTimeLabel.textContent = "Posicionar";
       sensorQualityBar.style.width = "0";
       useRespiratoryAudio.disabled = true;
-      syncBreathingPhaseButton.disabled = true;
       markObservedCoughButton.disabled = true;
       markObservedSneezeButton.disabled = true;
       markObservedSnoreButton.disabled = true;
@@ -2961,7 +2917,6 @@
       sensorBreathStart.disabled = false;
       sensorBreathStop.disabled = true;
       useRespiratoryAudio.disabled = false;
-      syncBreathingPhaseButton.disabled = true;
       markObservedCoughButton.disabled = true;
       markObservedSneezeButton.disabled = true;
       markObservedSnoreButton.disabled = true;
@@ -3071,9 +3026,7 @@
       sensor.samples = [];
       sensor.audioSamples = [];
       sensor.result = null;
-      sensor.phasePolarity = null;
-      sensor.lastRealtimePhase = null;
-      sensor.lastBreathAt = null;
+      sensor.lastMovementAt = null;
       sensor.observedEvents = [];
       sensor.observedPauseStartedAt = null;
       sensor.technicalEvents = null;
@@ -3085,8 +3038,6 @@
       sensorBreathTimeLabel.textContent = "Tempo restante";
       sensorBreathTime.textContent = "60 s";
       sensorQualityBar.style.width = "0";
-      syncBreathingPhaseButton.disabled = true;
-      syncBreathingPhaseButton.textContent = "Sincronizar durante inspiração";
       markObservedCoughButton.disabled = true;
       markObservedSneezeButton.disabled = true;
       markObservedSnoreButton.disabled = true;
@@ -3962,7 +3913,6 @@
     sensorBreathStart.addEventListener("click", startSensorRespiration);
     sensorBreathStop.addEventListener("click", () => finishSensorRespiration(false));
     sensorBreathReset.addEventListener("click", resetSensorRespiration);
-    syncBreathingPhaseButton.addEventListener("click", synchronizeBreathingPhase);
     markObservedCoughButton.addEventListener("click", () => markObservedRespiratoryEvent("cough"));
     markObservedSneezeButton.addEventListener("click", () => markObservedRespiratoryEvent("sneeze"));
     markObservedSnoreButton.addEventListener("click", () => markObservedRespiratoryEvent("snore"));

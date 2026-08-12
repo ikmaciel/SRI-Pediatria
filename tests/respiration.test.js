@@ -3,6 +3,8 @@ const fs = require("node:fs");
 const vm = require("node:vm");
 
 const html = fs.readFileSync("index.html", "utf8");
+assert.doesNotMatch(html, /syncBreathingPhase|Sincronizar durante inspiração|Inspiração provável|Expiração provável/);
+assert.match(html, /Amplitude relativa do sensor; não identifica inspiração, expiração ou ventilação\./);
 const start = html.indexOf("function median(");
 const end = html.indexOf("async function acquireWakeLock", start);
 assert.ok(start >= 0 && end > start, "Funções de análise respiratória não encontradas");

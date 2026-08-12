@@ -22,7 +22,7 @@ Calculadora móvel de dose e volume baseada na apresentação disponível no ser
 - Mantém um botão grande `Analisar respiração` no topo, independente da navegação de medicamentos.
 - Classifica somente a contagem manual completa como abaixo, dentro ou acima da faixa respiratória aceitável por idade; peso não altera essa faixa.
 - Pode usar o microfone como confirmação secundária: áudio baixo, saturado, ruidoso ou discordante é descartado e nunca gera resultado sozinho.
-- Mostra animação ao vivo do movimento; a médica sincroniza o sentido durante uma inspiração visível antes de o app nomear inspiração/expiração provável.
+- Mostra uma animação ao vivo da amplitude relativa do movimento, sem classificar inspiração ou expiração.
 - Permite marcar tosse, espirro e duração de pausa observados pela médica e mantém esses registros separados de candidatos técnicos do celular.
 - Procura um padrão acústico repetitivo de baixa frequência compatível com ronco e exige confirmação clínica; não diagnostica obstrução ou apneia.
 - Procura apenas picos abruptos simultâneos de som/movimento e pausas técnicas de sinal; não diagnostica tosse, espirro ou apneia.
@@ -60,7 +60,7 @@ O modo `Movimento + som — experimental` solicita acesso ao acelerômetro/giros
 
 Para ronco, o app procura episódios acústicos repetitivos com predominância de baixa frequência e concordância aproximada com o movimento respiratório. O resultado aparece como `possível ronco` e nunca como diagnóstico. A médica também pode marcar `Ronco observado` ou `Ronco/ruído de via aérea superior` manualmente.
 
-Durante a coleta, a animação responde ao movimento captado. Como a orientação do telefone pode inverter o sinal, a médica deve tocar em `Sincronizar durante inspiração` enquanto observa uma expansão torácica real. Só então aparecem os rótulos `inspiração provável` e `expiração provável`. A animação não mede fluxo de ar, volume corrente ou ventilação.
+Durante a coleta, a animação responde à amplitude relativa do movimento captado, sem exigir sincronização manual. Ela não nomeia inspiração ou expiração porque a posição e a orientação do telefone podem inverter o sinal. A animação não mede fluxo de ar, volume corrente ou ventilação.
 
 Os botões de eventos registram observações da médica. Separadamente, ao final da coleta, o app informa candidatos abruptos quando encontra picos próximos no som e no movimento e pausas técnicas quando o sinal respiratório fica muito reduzido por pelo menos 10 segundos. Tosse, espirro, choro, fala, manipulação, deslocamento do aparelho e ruído podem produzir sinais semelhantes. Uma pausa técnica pode ser falha de contato e **não confirma apneia**.
 

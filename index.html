@@ -297,6 +297,18 @@
     .respiration-session-dialog[data-mode="automatic"] .comparison-box,
     .respiration-session-dialog[data-mode="automatic"] .respiratory-assessment,
     .respiration-session-dialog[data-mode="automatic"] .vitals-entry { display: none; }
+    .respiration-session-dialog[data-mode="automatic"] .breathing-visual {
+      grid-template-columns: 1fr;
+      min-height: min(52dvh, 480px);
+      justify-items: center;
+      align-content: center;
+      padding: 18px;
+      text-align: center;
+    }
+    .respiration-session-dialog[data-mode="automatic"] .lung-animation { width: min(58vw, 260px); height: min(58vw, 260px); }
+    .respiration-session-dialog[data-mode="automatic"] .breathing-copy { width: 100%; }
+    .respiration-session-dialog[data-mode="automatic"] .breathing-copy strong { font-size: 1.25rem; }
+    .respiration-session-dialog[data-mode="automatic"] .movement-meter { height: 18px; }
 
     .respiration-mode-choice { display: grid; gap: 12px; }
     .respiration-mode-choice h3, .respiration-result h3, .respiration-save-prompt h3 { margin: 0; font-size: 1.18rem; }
@@ -580,6 +592,21 @@
       font-size: 1.35rem;
       line-height: 1.15;
     }
+
+    .automatic-live-readout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .respiration-session-dialog[data-mode="automatic"] .automatic-live-readout {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: 0 8px 20px color-mix(in srgb, var(--ink) 10%, transparent);
+    }
+    .automatic-live-readout .measurement-value strong { font-size: clamp(1.8rem, 8vw, 2.7rem); }
+    .automatic-live-readout .measurement-time { grid-column: 1 / -1; padding-block: 7px; }
+    .automatic-live-readout .measurement-time strong { font-size: 1.35rem; }
 
     .breath-button {
       display: grid;
@@ -1355,12 +1382,13 @@
             </section>
 
             <section id="sensorMeasurementCard" class="measurement-card" aria-labelledby="sensor-resp-title">
-              <h3 id="sensor-resp-title">Movimento + som — experimental</h3>
+              <h3 id="sensor-resp-title" tabindex="-1">Movimento + som — experimental</h3>
               <p class="measurement-help">Com supervisão contínua, coloque o celular estável sobre a região toracoabdominal. Nunca cubra face ou pescoço.</p>
               <label class="audio-option"><input id="useRespiratoryAudio" type="checkbox" checked><span>Usar o microfone somente para confirmar o ritmo do movimento</span></label>
-              <div class="measurement-readout">
-                <div class="measurement-value"><span>Resultado</span><strong id="sensorBreathRate">—</strong></div>
-                <div class="measurement-value"><span id="sensorBreathTimeLabel">Tempo restante</span><strong id="sensorBreathTime">60 s</strong></div>
+              <div class="measurement-readout automatic-live-readout" aria-live="polite">
+                <div class="measurement-value"><span>Ciclos estimados</span><strong id="sensorCycleCount">0</strong></div>
+                <div class="measurement-value"><span id="sensorBreathRateLabel">FR provisória</span><strong id="sensorBreathRate">—</strong></div>
+                <div class="measurement-value measurement-time"><span id="sensorBreathTimeLabel">Tempo restante</span><strong id="sensorBreathTime">60 s</strong></div>
               </div>
               <div class="quality-meter" aria-hidden="true"><span id="sensorQualityBar"></span></div>
               <p id="audioBreathStatus" class="audio-signal" data-state="idle"><span class="audio-dot" aria-hidden="true"></span><span id="audioBreathStatusText">Áudio não iniciado. Nenhum som é gravado ou armazenado.</span></p>
@@ -1923,6 +1951,8 @@
     const manualBreathFinish = document.getElementById("manualBreathFinish");
     const manualBreathStatus = document.getElementById("manualBreathStatus");
     const sensorBreathRate = document.getElementById("sensorBreathRate");
+    const sensorCycleCount = document.getElementById("sensorCycleCount");
+    const sensorBreathRateLabel = document.getElementById("sensorBreathRateLabel");
     const sensorBreathTimeLabel = document.getElementById("sensorBreathTimeLabel");
     const sensorBreathTime = document.getElementById("sensorBreathTime");
     const sensorBreathStart = document.getElementById("sensorBreathStart");
@@ -2009,7 +2039,7 @@
         samples: [], timer: null, result: null, wakeLock: null,
         audioStream: null, audioContext: null, audioAnalyser: null, audioTimer: null,
         audioSamples: [], audioAvailable: false,
-        lastMovementAt: null,
+        lastMovementAt: null, provisionalBpm: null, provisionalCycles: 0, lastProvisionalAnalysisAt: 0,
         observedEvents: [], observedPauseStartedAt: null, technicalEvents: null
       }
     };
@@ -2292,7 +2322,7 @@
       vitalsDetails.open = true;
       respirationFlowSubtitle.textContent = mode === "manual" ? "Contagem manual — referência" : "Contagem automática — experimental";
       window.requestAnimationFrame(() => {
-        (mode === "manual" ? manualBreathStart : sensorBreathStart).focus();
+        (mode === "manual" ? manualBreathStart : document.getElementById("sensor-resp-title")).focus();
       });
     }
 
@@ -2325,7 +2355,7 @@
           respirationResultAssessment.textContent = `${result.count} ciclos em ${Math.round(result.elapsedSec)} s.${result.complete ? " Informe a idade para comparar com a faixa etária." : " Estimativa incompleta; repita por 60 segundos."}`;
         } else {
           const source = result.audio?.confirmed ? "movimento confirmado pelo áudio" : "somente movimento";
-          respirationResultAssessment.textContent = `Estimativa experimental por ${source}; qualidade do movimento ${result.qualityLabel}.`;
+          respirationResultAssessment.textContent = `${result.estimatedCycles} ciclos estimados durante a coleta. Frequência experimental por ${source}; qualidade do movimento ${result.qualityLabel}.`;
         }
       }
 
@@ -3091,6 +3121,19 @@
       if (sensor.samples.length > 10000) sensor.samples.shift();
     }
 
+    function updateProvisionalSensorCount(elapsedMs) {
+      const sensor = respirationState.sensor;
+      if (elapsedMs < 15000 || elapsedMs - sensor.lastProvisionalAnalysisAt < 1000) return;
+      sensor.lastProvisionalAnalysisAt = elapsedMs;
+      const provisional = analyzeRespirationSignal(sensor.samples);
+      if (!provisional || provisional.correlation < 0.3) return;
+      sensor.provisionalBpm = provisional.bpm;
+      sensor.provisionalCycles = Math.max(1, Math.round(provisional.bpm * elapsedMs / 60000));
+      sensorCycleCount.textContent = String(sensor.provisionalCycles);
+      sensorBreathRate.textContent = `≈${Math.round(provisional.bpm)}`;
+      sensorBreathRateLabel.textContent = "FR provisória (irpm)";
+    }
+
     function updateSensorProgress() {
       const sensor = respirationState.sensor;
       if (sensor.phase === "positioning") {
@@ -3103,10 +3146,16 @@
           sensor.samples = [];
           sensor.audioSamples = [];
           sensor.lastMovementAt = performance.now();
+          sensor.provisionalBpm = null;
+          sensor.provisionalCycles = 0;
+          sensor.lastProvisionalAnalysisAt = 0;
           sensor.technicalEvents = null;
           sensor.measurementStartedAt = performance.now();
           sensorBreathTimeLabel.textContent = "Tempo restante";
           sensorBreathTime.textContent = "60 s";
+          sensorCycleCount.textContent = "0";
+          sensorBreathRate.textContent = "—";
+          sensorBreathRateLabel.textContent = "FR: calculando";
           setObservedEventButtonsEnabled(false);
           resetBreathingVisualization("Estabilizando o sinal");
           updateSnoreObservation();
@@ -3122,6 +3171,7 @@
       const collection = Math.min(1, sensor.samples.length / expectedSamples);
       sensorQualityBar.style.width = `${Math.round(collection * 45)}%`;
       updateBreathingVisualization();
+      updateProvisionalSensorCount(elapsed);
       if (elapsed > 3000 && sensor.samples.length < 10) {
         cancelSensorRespiration("O navegador não forneceu dados do sensor. Tente no Safari/Chrome do próprio celular.", "error");
         return;
@@ -3154,6 +3204,8 @@
       sensorBreathStart.disabled = true;
       sensorBreathStop.disabled = false;
       sensorBreathRate.textContent = "—";
+      sensorCycleCount.textContent = "0";
+      sensorBreathRateLabel.textContent = "FR provisória (irpm)";
       sensorBreathTimeLabel.textContent = "Posicionar";
       sensorQualityBar.style.width = "0";
       useRespiratoryAudio.disabled = true;
@@ -3202,6 +3254,8 @@
       sensorBreathTime.textContent = `${Math.round(elapsedMs / 1000)} s`;
       if (elapsedMs < 20000) {
         sensor.result = null;
+        sensorCycleCount.textContent = "—";
+        sensorBreathRate.textContent = "—";
         resetBreathingVisualization("Coleta curta demais");
         setMeasurementStatus(sensorBreathStatus, "Coleta curta demais. Repita e mantenha o celular estável por 60 segundos.", "error");
         updateRespirationComparison();
@@ -3210,6 +3264,7 @@
       const result = analyzeRespirationSignal(samples);
       if (!result || result.quality < 0.2) {
         sensor.result = null;
+        sensorCycleCount.textContent = "—";
         resetBreathingVisualization("Sinal de movimento insuficiente");
         sensorBreathRate.textContent = "—";
         sensorQualityBar.style.width = "12%";
@@ -3240,9 +3295,12 @@
         bpm: finalBpm,
         motionBpm: result.bpm,
         audio: audioResult,
-        complete: completed && result.complete
+        complete: completed && result.complete,
+        estimatedCycles: Math.max(1, Math.round(finalBpm * elapsedMs / 60000))
       };
-      sensorBreathRate.textContent = `${Math.round(finalBpm)} irpm`;
+      sensorCycleCount.textContent = String(sensor.result.estimatedCycles);
+      sensorBreathRateLabel.textContent = "Resultado final (irpm)";
+      sensorBreathRate.textContent = String(Math.round(finalBpm));
       sensorQualityBar.style.width = `${Math.round(result.quality * 100)}%`;
       const prefix = sensor.result.complete ? "Coleta completa" : "Estimativa incompleta";
       const tone = result.qualityLabel === "baixa" ? "warning" : "success";
@@ -3267,6 +3325,7 @@
         : 0;
       await stopSensorCollection();
       sensor.result = null;
+      sensorCycleCount.textContent = "—";
       sensorBreathRate.textContent = "—";
       sensorBreathTimeLabel.textContent = "Tempo coletado";
       sensorBreathTime.textContent = collectedMs ? `${Math.round(collectedMs / 1000)} s` : "—";
@@ -3291,6 +3350,9 @@
       sensor.audioSamples = [];
       sensor.result = null;
       sensor.lastMovementAt = null;
+      sensor.provisionalBpm = null;
+      sensor.provisionalCycles = 0;
+      sensor.lastProvisionalAnalysisAt = 0;
       sensor.observedEvents = [];
       sensor.observedPauseStartedAt = null;
       sensor.technicalEvents = null;
@@ -3298,6 +3360,8 @@
       sensorBreathStart.disabled = false;
       sensorBreathStop.disabled = true;
       useRespiratoryAudio.disabled = false;
+      sensorCycleCount.textContent = "0";
+      sensorBreathRateLabel.textContent = "FR provisória (irpm)";
       sensorBreathRate.textContent = "—";
       sensorBreathTimeLabel.textContent = "Tempo restante";
       sensorBreathTime.textContent = "60 s";
@@ -3488,6 +3552,7 @@
         } : null,
         sensorRespiration: sensor.result ? {
           bpm: Math.round(sensor.result.bpm * 10) / 10,
+          estimatedCycles: sensor.result.estimatedCycles,
           complete: Boolean(sensor.result.complete),
           quality: sensor.result.qualityLabel,
           audioConfirmed: Boolean(sensor.result.audio?.confirmed)

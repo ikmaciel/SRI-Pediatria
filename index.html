@@ -281,6 +281,41 @@
     .history-record p { margin: 5px 0 0; }
     .history-delete { min-height: 38px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); color: var(--danger); font-size: .74rem; font-weight: 800; cursor: pointer; }
 
+    .respiration-session-dialog { width: min(760px, calc(100% - 12px)); max-height: calc(100dvh - 12px); }
+    .respiration-session-dialog .config-shell { max-height: calc(100dvh - 12px); }
+    .respiration-session-dialog .config-scroll { padding: 12px; }
+    .respiration-session-dialog .vitals-panel { margin: 0; box-shadow: none; }
+    .respiration-session-dialog .vitals-panel > details > summary { display: none; }
+    .respiration-session-dialog .vitals-body { padding: 0; }
+    .respiration-session-dialog[data-mode="manual"] .sensor-warning { display: none; }
+    .respiration-session-dialog[data-mode="manual"] #sensorMeasurementCard > :not(.observed-events) { display: none; }
+    .respiration-session-dialog[data-mode="automatic"] #manualMeasurementCard { display: none; }
+
+    .respiration-mode-choice { display: grid; gap: 12px; }
+    .respiration-mode-choice h3, .respiration-result h3, .respiration-save-prompt h3 { margin: 0; font-size: 1.18rem; }
+    .respiration-mode-choice > p, .respiration-save-prompt > p { margin: 0; color: var(--muted); line-height: 1.45; }
+    .respiration-mode-buttons { display: grid; gap: 10px; }
+    .respiration-mode-button {
+      min-height: 86px;
+      padding: 14px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface-soft);
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+    }
+    .respiration-mode-button:hover { border-color: var(--brand); }
+    .respiration-mode-button strong { display: block; font-size: 1rem; }
+    .respiration-mode-button small { display: block; margin-top: 5px; color: var(--muted); font-size: .78rem; line-height: 1.35; }
+    .respiration-result, .respiration-save-prompt { display: grid; gap: 12px; }
+    .respiration-result-card { padding: 16px; border: 2px solid var(--brand); border-radius: 14px; background: var(--brand-soft); }
+    .respiration-result-card strong { display: block; font-size: 1.45rem; }
+    .respiration-result-card span { display: block; margin-top: 5px; font-size: .84rem; line-height: 1.4; }
+    .respiration-result-detail { margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); font-size: .84rem; line-height: 1.45; }
+    .respiration-flow-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    [hidden] { display: none !important; }
+
     .snore-observation {
       margin: 8px 0 0;
       padding: 9px 10px;
@@ -1218,7 +1253,7 @@
       </div>
     </header>
 
-    <button id="openRespirationAnalysis" class="respiration-launch" type="button" aria-controls="vitals-check" aria-expanded="false">
+    <button id="openRespirationAnalysis" class="respiration-launch" type="button" aria-controls="respirationSessionDialog" aria-expanded="false">
       <span class="respiration-launch-icon" aria-hidden="true">
         <svg viewBox="0 0 48 48"><path d="M23 13v22M21 19c-3-6-7-8-10-5-4 4-6 12-6 20 0 4 3 6 7 5 6-1 9-6 9-12M27 19c3-6 7-8 10-5 4 4 6 12 6 20 0 4-3 6-7 5-6-1-9-6-9-12"/></svg>
       </span>
@@ -1285,7 +1320,7 @@
           </div>
 
           <div class="respiration-grid">
-            <section class="measurement-card" aria-labelledby="manual-resp-title">
+            <section id="manualMeasurementCard" class="measurement-card" aria-labelledby="manual-resp-title">
               <h3 id="manual-resp-title">Contagem manual — referência</h3>
               <p class="measurement-help">Com a criança em repouso e sem choro, toque uma vez a cada ciclo respiratório completo durante 60 segundos.</p>
               <div class="measurement-readout">
@@ -1305,7 +1340,7 @@
               <p id="manualBreathStatus" class="measurement-status" role="status" aria-live="polite">Pronta para iniciar.</p>
             </section>
 
-            <section class="measurement-card" aria-labelledby="sensor-resp-title">
+            <section id="sensorMeasurementCard" class="measurement-card" aria-labelledby="sensor-resp-title">
               <h3 id="sensor-resp-title">Movimento + som — experimental</h3>
               <p class="measurement-help">Com supervisão contínua, coloque o celular estável sobre a região toracoabdominal. Nunca cubra face ou pescoço.</p>
               <label class="audio-option"><input id="useRespiratoryAudio" type="checkbox" checked><span>Usar o microfone somente para confirmar o ritmo do movimento</span></label>
@@ -1494,6 +1529,56 @@
       </div>
     </footer>
   </main>
+
+  <dialog id="respirationSessionDialog" class="config-dialog respiration-session-dialog" aria-labelledby="respiration-flow-title">
+    <div class="config-shell">
+      <header class="config-header">
+        <div>
+          <h2 id="respiration-flow-title">Análise respiratória</h2>
+          <span id="respirationFlowSubtitle" class="count">Escolha como deseja contar</span>
+        </div>
+        <button id="respirationFlowClose" class="icon-button" type="button" aria-label="Fechar análise respiratória">×</button>
+      </header>
+      <div class="config-scroll">
+        <section id="respirationModeChoice" class="respiration-mode-choice" aria-labelledby="respiration-mode-title">
+          <h3 id="respiration-mode-title">Como deseja fazer a contagem?</h3>
+          <p>A contagem manual é a referência. O modo automático por movimento e som é experimental e deve ser comparado com a avaliação clínica.</p>
+          <div class="respiration-mode-buttons">
+            <button id="chooseManualRespiration" class="respiration-mode-button" type="button">
+              <strong>Contagem manual</strong>
+              <small>Toque uma vez por ciclo respiratório durante 60 segundos.</small>
+            </button>
+            <button id="chooseAutomaticRespiration" class="respiration-mode-button" type="button">
+              <strong>Contagem automática — experimental</strong>
+              <small>Usa o movimento do celular e, se permitido, o microfone como confirmação secundária.</small>
+            </button>
+          </div>
+        </section>
+        <div id="respirationSessionHost" hidden></div>
+        <section id="respirationFlowResult" class="respiration-result" aria-labelledby="respiration-result-title" hidden>
+          <h3 id="respiration-result-title">Resultado da análise</h3>
+          <div class="respiration-result-card">
+            <strong id="respirationResultValue">—</strong>
+            <span id="respirationResultAssessment">Resultado indisponível.</span>
+          </div>
+          <p id="respirationResultEvents" class="respiration-result-detail">Nenhum evento registrado.</p>
+          <p id="respirationResultSafety" class="respiration-result-detail">Interprete junto com esforço respiratório, cor, consciência e oxigenação.</p>
+          <div class="respiration-flow-actions">
+            <button id="repeatRespirationFlow" class="button secondary" type="button">Fazer nova medição</button>
+            <button id="finishRespirationFlow" class="button" type="button">Fechar e voltar à calculadora</button>
+          </div>
+        </section>
+        <section id="respirationSavePrompt" class="respiration-save-prompt" aria-labelledby="respiration-save-title" hidden>
+          <h3 id="respiration-save-title">Salvar para acompanhamento?</h3>
+          <p>A medição pode ser guardada somente neste aparelho usando um código local não identificável.</p>
+          <div class="respiration-flow-actions">
+            <button id="saveRespirationFollowup" class="button" type="button">Salvar paciente para acompanhamento</button>
+            <button id="discardRespirationFollowup" class="button secondary" type="button">Não salvar e voltar à calculadora</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </dialog>
 
   <dialog id="configDialog" class="config-dialog" aria-labelledby="config-title">
     <div class="config-shell">
@@ -1836,6 +1921,24 @@
     const respiratoryAgeAssessment = document.getElementById("respiratoryAgeAssessment");
     const openRespirationAnalysisButton = document.getElementById("openRespirationAnalysis");
     const vitalsDetails = document.getElementById("vitals-check");
+    const respirationPanel = document.getElementById("respiracao");
+    const respirationSessionDialog = document.getElementById("respirationSessionDialog");
+    const respirationFlowCloseButton = document.getElementById("respirationFlowClose");
+    const respirationFlowSubtitle = document.getElementById("respirationFlowSubtitle");
+    const respirationModeChoice = document.getElementById("respirationModeChoice");
+    const respirationSessionHost = document.getElementById("respirationSessionHost");
+    const respirationFlowResult = document.getElementById("respirationFlowResult");
+    const respirationSavePrompt = document.getElementById("respirationSavePrompt");
+    const chooseManualRespirationButton = document.getElementById("chooseManualRespiration");
+    const chooseAutomaticRespirationButton = document.getElementById("chooseAutomaticRespiration");
+    const repeatRespirationFlowButton = document.getElementById("repeatRespirationFlow");
+    const finishRespirationFlowButton = document.getElementById("finishRespirationFlow");
+    const saveRespirationFollowupButton = document.getElementById("saveRespirationFollowup");
+    const discardRespirationFollowupButton = document.getElementById("discardRespirationFollowup");
+    const respirationResultValue = document.getElementById("respirationResultValue");
+    const respirationResultAssessment = document.getElementById("respirationResultAssessment");
+    const respirationResultEvents = document.getElementById("respirationResultEvents");
+    const respirationResultSafety = document.getElementById("respirationResultSafety");
     const breathingVisual = document.getElementById("breathingVisual");
     const breathingPhase = document.getElementById("breathingPhase");
     const breathingPhaseHelp = document.getElementById("breathingPhaseHelp");
@@ -1875,6 +1978,9 @@
     const TECHNICAL_PAUSE_NOTICE_MS = 10000;
     const HISTORY_STORAGE_KEY = "sri-pediatric-history-v1";
     let deferredInstallPrompt = null;
+    let respirationFlowMode = null;
+    let respirationFlowHasMeasurement = false;
+    let historyOpenedFromRespiration = false;
     const respirationState = {
       manual: { running: false, startedAt: null, count: 0, taps: [], timer: null, result: null },
       sensor: {
@@ -2129,6 +2235,113 @@
       return Math.sqrt(variance) / average;
     }
 
+    function setObservedEventButtonsEnabled(enabled) {
+      markObservedCoughButton.disabled = !enabled;
+      markObservedSneezeButton.disabled = !enabled;
+      markObservedSnoreButton.disabled = !enabled;
+      markObservedPauseButton.disabled = !enabled;
+    }
+
+    function activeRespirationStartTime() {
+      if (respirationState.manual.running) return respirationState.manual.startedAt;
+      if (respirationState.sensor.phase === "measuring") return respirationState.sensor.measurementStartedAt;
+      return respirationState.sensor.measurementStartedAt;
+    }
+
+    function showRespirationModeChoice() {
+      respirationFlowMode = null;
+      respirationFlowHasMeasurement = false;
+      respirationSessionDialog.dataset.mode = "";
+      respirationFlowSubtitle.textContent = "Escolha como deseja contar";
+      respirationModeChoice.hidden = false;
+      respirationSessionHost.hidden = true;
+      respirationFlowResult.hidden = true;
+      respirationSavePrompt.hidden = true;
+    }
+
+    function selectRespirationMode(mode) {
+      resetRespirationMeasurements();
+      respirationFlowMode = mode;
+      respirationSessionDialog.dataset.mode = mode;
+      updateRespiratoryEventSummary();
+      respirationModeChoice.hidden = true;
+      respirationFlowResult.hidden = true;
+      respirationSavePrompt.hidden = true;
+      respirationSessionHost.hidden = false;
+      vitalsDetails.open = true;
+      respirationFlowSubtitle.textContent = mode === "manual" ? "Contagem manual — referência" : "Contagem automática — experimental";
+      window.requestAnimationFrame(() => {
+        (mode === "manual" ? manualBreathStart : sensorBreathStart).focus();
+      });
+    }
+
+    function showRespirationFlowResult(mode = respirationFlowMode) {
+      const manual = respirationState.manual.result;
+      const sensor = respirationState.sensor.result;
+      const result = mode === "manual" ? manual : sensor;
+      respirationFlowMode = mode;
+      respirationFlowHasMeasurement = true;
+      respirationFlowSubtitle.textContent = "Resultado e ocorrências";
+      respirationModeChoice.hidden = true;
+      respirationSessionHost.hidden = true;
+      respirationSavePrompt.hidden = true;
+      respirationFlowResult.hidden = false;
+
+      if (!result) {
+        respirationResultValue.textContent = "Sem resultado confiável";
+        respirationResultAssessment.textContent = mode === "manual"
+          ? "A contagem foi curta ou insuficiente. Repita durante 60 segundos."
+          : "O sinal de movimento foi insuficiente ou excessivamente ruidoso; nenhuma frequência foi gerada.";
+      } else {
+        respirationResultValue.textContent = `${Math.round(result.bpm)} irpm`;
+        if (mode === "manual" && result.complete && Number.isFinite(state.ageMonths)) {
+          const assessment = assessRespiratoryRate(result.bpm, state.ageMonths);
+          const wording = assessment.classification === "below"
+            ? "abaixo"
+            : assessment.classification === "above" ? "acima" : "dentro";
+          respirationResultAssessment.textContent = `${result.count} ciclos em 60 s; frequência ${wording} da faixa aproximada para a idade (${assessment.min}–${assessment.max} irpm).`;
+        } else if (mode === "manual") {
+          respirationResultAssessment.textContent = `${result.count} ciclos em ${Math.round(result.elapsedSec)} s.${result.complete ? " Informe a idade para comparar com a faixa etária." : " Estimativa incompleta; repita por 60 segundos."}`;
+        } else {
+          const source = result.audio?.confirmed ? "movimento confirmado pelo áudio" : "somente movimento";
+          respirationResultAssessment.textContent = `Estimativa experimental por ${source}; qualidade do movimento ${result.qualityLabel}.`;
+        }
+      }
+
+      respirationResultEvents.textContent = respiratoryEventSummary.textContent;
+      if (mode === "automatic" && snoreObservation.textContent) {
+        respirationResultEvents.textContent += ` ${snoreObservation.textContent}`;
+      }
+      respirationResultSafety.textContent = mode === "manual"
+        ? "A frequência isolada não exclui gravidade. Considere esforço respiratório, cor, consciência, oxigenação e evolução clínica."
+        : "Resultado experimental: não classifica normalidade pela idade e não deve orientar conduta sem contagem manual e avaliação clínica.";
+      respirationFlowResult.scrollIntoView({ block: "start" });
+    }
+
+    function requestCloseRespirationFlow() {
+      if (respirationState.manual.running || respirationState.sensor.phase !== "idle") {
+        const shouldStop = window.confirm("Interromper a medição respiratória em andamento?");
+        if (!shouldStop) return;
+        if (respirationState.manual.running) finishManualRespiration(false);
+        if (respirationState.sensor.phase !== "idle") cancelSensorRespiration("Leitura interrompida pela médica.", "warning");
+      }
+      if (respirationFlowHasMeasurement) {
+        respirationModeChoice.hidden = true;
+        respirationSessionHost.hidden = true;
+        respirationFlowResult.hidden = true;
+        respirationSavePrompt.hidden = false;
+        respirationFlowSubtitle.textContent = "Acompanhamento do paciente";
+        return;
+      }
+      respirationSessionDialog.close();
+    }
+
+    function returnToSriCalculator() {
+      respirationSessionDialog.close();
+      openRespirationAnalysisButton.setAttribute("aria-expanded", "false");
+      window.requestAnimationFrame(() => document.querySelector(".patient-panel").scrollIntoView({ block: "start" }));
+    }
+
     function updateManualRespirationDisplay(remainingMs = RESPIRATION_DURATION_MS) {
       manualBreathCount.textContent = String(respirationState.manual.count);
       manualBreathTime.textContent = `${Math.max(0, Math.ceil(remainingMs / 1000))} s`;
@@ -2140,6 +2353,7 @@
       if (manual.timer) window.clearInterval(manual.timer);
       manual.running = true;
       manual.startedAt = performance.now();
+      respirationState.sensor.measurementStartedAt = manual.startedAt;
       manual.count = 0;
       manual.taps = [];
       manual.result = null;
@@ -2148,6 +2362,7 @@
       manualBreathFinish.disabled = false;
       manualBreathStart.textContent = "Contagem em andamento";
       manualBreathTimeLabel.textContent = "Tempo restante";
+      setObservedEventButtonsEnabled(true);
       setMeasurementStatus(manualBreathStatus, "Observe tórax ou abdome e toque uma vez por ciclo.", "success");
       updateManualRespirationDisplay();
       updateRespirationComparison();
@@ -2191,6 +2406,8 @@
       manualBreathUndo.disabled = true;
       manualBreathFinish.disabled = true;
       manualBreathStart.textContent = "Repetir 60 segundos";
+      if (respirationState.sensor.observedPauseStartedAt) finishObservedPause();
+      setObservedEventButtonsEnabled(false);
       manualBreathCount.textContent = String(manual.count);
       manualBreathTimeLabel.textContent = "Tempo contado";
       manualBreathTime.textContent = `${Math.round(elapsedMs / 1000)} s`;
@@ -2199,6 +2416,7 @@
         manual.result = null;
         setMeasurementStatus(manualBreathStatus, "Contagem curta demais. Repita e complete 60 segundos.", "error");
         updateRespirationComparison();
+        if (completed && respirationSessionDialog.open && respirationFlowMode === "manual") showRespirationFlowResult("manual");
         return;
       }
 
@@ -2215,6 +2433,7 @@
       const prefix = completed ? "Contagem completa" : "Estimativa incompleta";
       setMeasurementStatus(manualBreathStatus, `${prefix}: ${Math.round(bpm)} irpm em ${Math.round(elapsedMs / 1000)} s.${rhythm}`, completed ? "success" : "warning");
       updateRespirationComparison();
+      if (respirationSessionDialog.open && respirationFlowMode === "manual") showRespirationFlowResult("manual");
     }
 
     function median(values) {
@@ -2653,7 +2872,11 @@
       const observedText = observedParts.length ? `Observado pela médica: ${observedParts.join(", ")}.` : "Nenhum evento marcado pela médica.";
       const technicalText = technicalParts.length
         ? ` Candidatos do celular: ${technicalParts.join("; ")}. Não identificam a causa.`
-        : technical ? " Nenhum candidato técnico robusto encontrado." : " O celular ainda não analisou candidatos técnicos.";
+        : technical
+          ? " Nenhum candidato técnico robusto encontrado."
+          : respirationFlowMode === "manual"
+            ? " Na contagem manual, eventos dependem da marcação da médica."
+            : " O celular ainda não analisou candidatos técnicos.";
       respiratoryEventSummary.textContent = observedText + technicalText;
     }
 
@@ -2679,8 +2902,9 @@
 
     function markObservedRespiratoryEvent(type) {
       const sensor = respirationState.sensor;
-      if (sensor.phase !== "measuring") return;
-      sensor.observedEvents.push({ type, t: performance.now() - sensor.measurementStartedAt });
+      const startedAt = activeRespirationStartTime();
+      if (!startedAt || (!respirationState.manual.running && sensor.phase !== "measuring")) return;
+      sensor.observedEvents.push({ type, t: performance.now() - startedAt });
       if (navigator.vibrate) navigator.vibrate(20);
       updateRespiratoryEventSummary();
       updateSnoreObservation();
@@ -2689,7 +2913,8 @@
     function finishObservedPause() {
       const sensor = respirationState.sensor;
       if (!sensor.observedPauseStartedAt) return;
-      sensor.observedEvents.push({ type: "pause", t: sensor.observedPauseStartedAt - sensor.measurementStartedAt, durationMs: performance.now() - sensor.observedPauseStartedAt });
+      const startedAt = activeRespirationStartTime() || sensor.observedPauseStartedAt;
+      sensor.observedEvents.push({ type: "pause", t: sensor.observedPauseStartedAt - startedAt, durationMs: performance.now() - sensor.observedPauseStartedAt });
       sensor.observedPauseStartedAt = null;
       markObservedPauseButton.textContent = "Iniciar pausa observada";
       updateRespiratoryEventSummary();
@@ -2697,7 +2922,7 @@
 
     function toggleObservedPause() {
       const sensor = respirationState.sensor;
-      if (sensor.phase !== "measuring") return;
+      if (!respirationState.manual.running && sensor.phase !== "measuring") return;
       if (sensor.observedPauseStartedAt) finishObservedPause();
       else {
         sensor.observedPauseStartedAt = performance.now();
@@ -2955,6 +3180,7 @@
         if (audioWasAvailable) setAudioBreathStatus("O áudio não é usado sozinho quando o movimento é insuficiente.", "rejected");
         setMeasurementStatus(sensorBreathStatus, "Sinal insuficiente ou com movimento excessivo. Não foi gerada uma frequência.", "error");
         updateRespirationComparison();
+        if (respirationSessionDialog.open && respirationFlowMode === "automatic") showRespirationFlowResult("automatic");
         return;
       }
       const audioResult = audioWasAvailable
@@ -2994,6 +3220,7 @@
       breathingPhaseHelp.textContent = "Revise a frequência, os eventos marcados e os candidatos técnicos abaixo.";
       setLungAnimationScale(1);
       updateRespirationComparison();
+      if (respirationSessionDialog.open && respirationFlowMode === "automatic") showRespirationFlowResult("automatic");
     }
 
     async function cancelSensorRespiration(message = "Leitura interrompida.", tone = "warning") {
@@ -3931,12 +4158,22 @@
     respiratorySignInputs.forEach(input => input.addEventListener("change", updateRespiratorySignsStatus));
     clearVitalsButton.addEventListener("click", clearManualVitals);
     openHistoryButton.addEventListener("click", () => {
+      historyOpenedFromRespiration = false;
       historyStatus.textContent = "";
       renderHistory();
       historyDialog.showModal();
     });
     historyCloseButton.addEventListener("click", () => historyDialog.close());
-    historyDialog.addEventListener("click", event => { if (event.target === historyDialog) historyDialog.close(); });
+    historyDialog.addEventListener("click", event => {
+      if (event.target === historyDialog) historyDialog.close();
+    });
+    historyDialog.addEventListener("close", () => {
+      if (historyOpenedFromRespiration) {
+        historyOpenedFromRespiration = false;
+        resetRespirationMeasurements();
+        window.requestAnimationFrame(() => document.querySelector(".patient-panel").scrollIntoView({ block: "start" }));
+      }
+    });
     saveHistorySnapshotButton.addEventListener("click", saveHistorySnapshot);
     exportHistoryButton.addEventListener("click", exportHistory);
     clearHistoryButton.addEventListener("click", clearHistory);
@@ -3949,18 +4186,44 @@
     installCloseButton.addEventListener("click", () => installDialog.close());
     installDialog.addEventListener("click", event => { if (event.target === installDialog) installDialog.close(); });
     triggerInstallButton.addEventListener("click", triggerAppInstall);
+    respirationSessionHost.appendChild(respirationPanel);
+    vitalsDetails.open = true;
     openRespirationAnalysisButton.addEventListener("click", () => {
-      vitalsDetails.open = true;
+      resetRespirationMeasurements();
+      showRespirationModeChoice();
       openRespirationAnalysisButton.setAttribute("aria-expanded", "true");
-      window.requestAnimationFrame(() => {
-        document.querySelector(".vitals-panel").scrollIntoView({ block: "start" });
-      });
+      respirationSessionDialog.showModal();
     });
-    vitalsDetails.addEventListener("toggle", event => {
-      openRespirationAnalysisButton.setAttribute("aria-expanded", String(event.target.open));
-      if (event.target.open) return;
-      if (respirationState.manual.running) finishManualRespiration(false);
-      if (respirationState.sensor.phase !== "idle") cancelSensorRespiration("Leitura interrompida porque o painel foi fechado.", "warning");
+    chooseManualRespirationButton.addEventListener("click", () => selectRespirationMode("manual"));
+    chooseAutomaticRespirationButton.addEventListener("click", () => selectRespirationMode("automatic"));
+    repeatRespirationFlowButton.addEventListener("click", () => {
+      resetRespirationMeasurements();
+      showRespirationModeChoice();
+    });
+    finishRespirationFlowButton.addEventListener("click", requestCloseRespirationFlow);
+    respirationFlowCloseButton.addEventListener("click", requestCloseRespirationFlow);
+    discardRespirationFollowupButton.addEventListener("click", () => {
+      returnToSriCalculator();
+      resetRespirationMeasurements();
+    });
+    saveRespirationFollowupButton.addEventListener("click", () => {
+      respirationSessionDialog.close();
+      openRespirationAnalysisButton.setAttribute("aria-expanded", "false");
+      historyOpenedFromRespiration = true;
+      historyStatus.textContent = "Informe um código local e confirme a autorização para salvar esta medição.";
+      renderHistory();
+      historyDialog.showModal();
+      window.requestAnimationFrame(() => historyPatientCode.focus());
+    });
+    respirationSessionDialog.addEventListener("cancel", event => {
+      event.preventDefault();
+      requestCloseRespirationFlow();
+    });
+    respirationSessionDialog.addEventListener("click", event => {
+      if (event.target === respirationSessionDialog) requestCloseRespirationFlow();
+    });
+    respirationSessionDialog.addEventListener("close", () => {
+      openRespirationAnalysisButton.setAttribute("aria-expanded", "false");
     });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden && respirationState.sensor.phase !== "idle") {
@@ -4030,9 +4293,10 @@
     if (appIsInstalled()) installAppButton.hidden = true;
     render();
     if (location.hash === "#respiracao") {
-      vitalsDetails.open = true;
+      resetRespirationMeasurements();
+      showRespirationModeChoice();
       openRespirationAnalysisButton.setAttribute("aria-expanded", "true");
-      window.requestAnimationFrame(() => document.getElementById("respiracao").scrollIntoView({ block: "start" }));
+      respirationSessionDialog.showModal();
     }
   </script>
 </body>
